@@ -36,12 +36,20 @@ export CMAKEFLAGS="-DCMAKE_USE_CCACHE=ON"
 
 #useful dirs
 export RICH_BASE_SOFTWARE=$User_release_area
+export RICH_BASE_OPTIONS=$RICH_BASE/options
 
 #useful aliases
 alias rich_go_base="cd $RICH_BASE"
 alias rich_go_data="cd $RICH_DATA"
 alias rich_go_software="cd $RICH_BASE_SOFTWARE"
+alias rich_go_options="cd $RICH_BASE_OPTIONS"
 
+function rich_run_panoramix {
+  lb-run -c x86_64-slc6-gcc62-opt Panoramix/v24r1 python '$myPanoramix' --BareConfig 1 -f none -v $1
+}
+function rich_run_panoramix_localDB {
+  lb-run -c x86_64-slc6-gcc62-opt -s GITCONDDBPATH=$RICH_BASE_SOFTWARE Panoramix/v24r1 python '$myPanoramix' --BareConfig 1 -f none -v $1
+}
 
 
 
