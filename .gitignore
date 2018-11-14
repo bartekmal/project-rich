@@ -1,5 +1,10 @@
+#tmp
+*~
+*#
+
 #ccache
 .ccache
 
 #paths
 tmpPanoramix/
+tmpGauss/

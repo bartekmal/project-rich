@@ -51,5 +51,10 @@ function rich_run_panoramix_localDB {
   lb-run -c x86_64-slc6-gcc62-opt -s GITCONDDBPATH=$RICH_BASE_SOFTWARE Panoramix/v24r1 python '$myPanoramix' --BareConfig 1 -f none -v $1
 }
 
+function rich_run_gauss_localDB {
+  $RICH_BASE_SOFTWARE/Gauss/build.x86_64-slc6-gcc7-opt/run -s GITCONDDBPATH=$RICH_BASE_SOFTWARE gaudirun.py $RICH_BASE/options/Gauss/Gauss-Job.py
+}
+
+
 
 
