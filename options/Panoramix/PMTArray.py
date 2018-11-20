@@ -8,7 +8,7 @@ conddb.LoadCALIBDB="HLT1"
 
 lhcbApp.Simulation = True
 lhcbApp.DDDBtag = "upgrade/RichUpgrade-MaPMTArrayUpdates"
-lhcbApp.CondDBtag = "sim-20170301-vc-md100"
+lhcbApp.CondDBtag = "upgrade/RichUpgrade-MaPMTArrayUpdates"
 
 PanoramixSys().Upgrade=True
 

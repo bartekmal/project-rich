@@ -4,7 +4,7 @@ from Gauss.Configuration import *
 from  Configurables import LHCbApp, DDDBConf
 
 LHCbApp().DDDBtag   = "upgrade/RichUpgrade-MaPMTArrayUpdates"
-LHCbApp().CondDBtag = "sim-20170301-vc-md100"
+LHCbApp().CondDBtag = "upgrade/RichUpgrade-MaPMTArrayUpdates"
 
 importOptions("$APPCONFIGOPTS/Gauss/Beam7000GeV-md100-nu7.6.py")
 
