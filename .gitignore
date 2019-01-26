@@ -6,5 +6,4 @@
 .ccache
 
 #paths
-tmpPanoramix/
-tmpGauss/
+tests/
