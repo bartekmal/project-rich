@@ -1,0 +1,10 @@
+@(#)CERN job starter $Date: 2010/06/23 14:22:16 $
+Working directory is </pool/lsf/bmalecki/214111909> on <b6473f6198.cern.ch>
+
+rm: No match.
+
+Job finished at Sun Jan 27 06:39:53 CET 2019 on node 
+ under linux version Scientific Linux CERN SLC release 6.10 (Carbon)
+
+CERN statistics: This process used approximately : 14:05:34 KSI2K hours (50734 KSI2K seconds)
+                 This process corresponds to     : 54:57:45 HS06  hours (197865 HS06  seconds)

@@ -1,0 +1,89 @@
+@(#)CERN job starter $Date: 2010/06/23 14:22:16 $
+Working directory is </pool/lsf/bmalecki/214112751> on <b62bc5750c.cern.ch>
+
+SysError in <TFile::WriteBuffer>: error writing to file Gauss-13104011-50ev-20190127.sim (-1) (Input/output error)
+Error in <TBranchElement::TBranch::WriteBasketImpl>: basket's WriteBuffer failed.
+
+Error in <TBranchElement::TBranch::Fill>: Failed to write out basket.
+
+Error in <TBranchElement::Fill>: Failed filling branch:_Event_pSim_Rich_Tracks., nbytes=-1
+Error in <TBranchElement::TBranch::WriteBasketImpl>: basket's WriteBuffer failed.
+
+Error in <TBranchElement::TBranch::Fill>: Failed to write out basket.
+
+Error in <TBranchElement::Fill>: Failed filling branch:_Event_pSim_Rich_Segments., nbytes=-1
+Error in <TBranchElement::TBranch::WriteBasketImpl>: basket's WriteBuffer failed.
+
+Error in <TBranchElement::TBranch::Fill>: Failed to write out basket.
+
+Error in <TBranchElement::Fill>: Failed filling branch:_Event_Link_MC_Particles2MCRichTracks., nbytes=-1
+Error in <TBranchElement::TBranch::WriteBasketImpl>: basket's WriteBuffer failed.
+
+Error in <TBranchElement::TBranch::Fill>: Failed to write out basket.
+
+Error in <TBranchElement::Fill>: Failed filling branch:_Event_Link_MC_Rich_Hits2MCRichOpticalPhotons., nbytes=-1
+Error in <TBranchElement::TBranch::WriteBasketImpl>: basket's WriteBuffer failed.
+
+Error in <TBranchElement::TBranch::Fill>: Failed to write out basket.
+
+Error in <TBranchElement::Fill>: Failed filling branch:_Event_Gen_Collisions_R., nbytes=-1
+Error in <TBranchElement::TBranch::WriteBasketImpl>: basket's WriteBuffer failed.
+
+Error in <TBranchElement::TBranch::Fill>: Failed to write out basket.
+
+Error in <TBranchElement::Fill>: Failed filling branch:_Event_pSim_MCVertices_R., nbytes=-1
+Error in <TBranchElement::TBranch::WriteBasketImpl>: basket's WriteBuffer failed.
+
+Error in <TBranchElement::TBranch::Fill>: Failed to write out basket.
+
+Error in <TBranchElement::Fill>: Failed filling branch:_Event_pSim_MCParticles_R., nbytes=-1
+Error in <TBranchElement::TBranch::WriteBasketImpl>: basket's WriteBuffer failed.
+
+Error in <TBranchElement::TBranch::Fill>: Failed to write out basket.
+
+Error in <TBranchElement::Fill>: Failed filling branch:_Event_pSim_VP_Hits_R., nbytes=-1
+Error in <TBranchElement::TBranch::WriteBasketImpl>: basket's WriteBuffer failed.
+
+Error in <TBranchElement::TBranch::Fill>: Failed to write out basket.
+
+Error in <TBranchElement::Fill>: Failed filling branch:_Event_pSim_FT_Hits_R., nbytes=-1
+Error in <TBranchElement::TBranch::WriteBasketImpl>: basket's WriteBuffer failed.
+
+Error in <TBranchElement::TBranch::Fill>: Failed to write out basket.
+
+Error in <TBranchElement::Fill>: Failed filling branch:_Event_pSim_UT_Hits_R., nbytes=-1
+Error in <TBranchElement::TBranch::WriteBasketImpl>: basket's WriteBuffer failed.
+
+Error in <TBranchElement::TBranch::Fill>: Failed to write out basket.
+
+Error in <TBranchElement::Fill>: Failed filling branch:_Event_pSim_Muon_Hits_R., nbytes=-1
+Error in <TBranchElement::TBranch::WriteBasketImpl>: basket's WriteBuffer failed.
+
+Error in <TBranchElement::TBranch::Fill>: Failed to write out basket.
+
+Error in <TBranchElement::Fill>: Failed filling branch:_Event_pSim_Ecal_Hits_R., nbytes=-1
+Error in <TBranchElement::TBranch::WriteBasketImpl>: basket's WriteBuffer failed.
+
+Error in <TBranchElement::TBranch::Fill>: Failed to write out basket.
+
+Error in <TBranchElement::Fill>: Failed filling branch:_Event_pSim_Hcal_Hits_R., nbytes=-1
+Error in <TBranchElement::TBranch::WriteBasketImpl>: basket's WriteBuffer failed.
+
+Error in <TBranchElement::TBranch::Fill>: Failed to write out basket.
+
+Error in <TBranchElement::Fill>: Failed filling branch:_Event_pSim_Rich_Hits_R., nbytes=-1
+Error in <TBranchElement::TBranch::WriteBasketImpl>: basket's WriteBuffer failed.
+
+Error in <TBranchElement::TBranch::Fill>: Failed to write out basket.
+
+Error in <TBranchElement::Fill>: Failed filling branch:_Event_pSim_Rich_OpticalPhotons_R., nbytes=-1
+ls: No match.
+mv: missing destination file operand after `/eos/lhcb/user/b/bmalecki/RICH_Upgrade/gauss/mapmt_v1/1/data/Gauss_168.sim'
+Try `mv --help' for more information.
+rm: No match.
+
+Job finished at Sun Jan 27 08:18:22 CET 2019 on node 
+ under linux version Scientific Linux CERN SLC release 6.10 (Carbon)
+
+CERN statistics: This process used approximately : 10:34:33 KSI2K hours (38073 KSI2K seconds)
+                 This process corresponds to     : 41:14:45 HS06  hours (148485 HS06  seconds)
