@@ -1,0 +1,2 @@
+RichSmartIDs obtained from Gauss:
+PhotDetIDList (branch RichSmartIDs)
