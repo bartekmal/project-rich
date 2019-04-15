@@ -169,24 +169,25 @@ surfaceListFile = surfaceListFileOpen(outputPath+'/RichPMTSurfaces.xml')
 
 #RICH1
 numberOfModulesRich1 = 132
-cSideEdgeModules = range(0,60,6)+range(71,131,6)
-print cSideEdgeModules
-aSideEdgeModules = range(5,65,6)+range(66,126,6)
-print aSideEdgeModules
+noEC0modules = range(0,126,6)
+noEC3modules = range(5,131,6)
+
+print noEC0modules
+print noEC3modules
 
 for moduleGlobal in range(0,numberOfModulesRich1):
 
-    #CSideOuterModules
-    if moduleGlobal == 60 or moduleGlobal == 131:
+    #no EC01 modules
+    if moduleGlobal == 60 or moduleGlobal == 126:
         createSurfacesForModule(moduleGlobal, 2, 4, 0, 4)
-    #ASideOuterModules
-    elif moduleGlobal == 65 or moduleGlobal == 126:
+    #no EC23 modules
+    elif moduleGlobal == 65 or moduleGlobal == 131:
         createSurfacesForModule(moduleGlobal, 0, 2, 0, 4)
-    #CSideEdgeModules    
-    elif moduleGlobal in cSideEdgeModules:
+    #no EC0 modules    
+    elif moduleGlobal in noEC0modules:
         createSurfacesForModule(moduleGlobal, 1, 4, 0, 4)
-    #ASideEdgeModules    
-    elif moduleGlobal in aSideEdgeModules:
+    #no EC3 modules    
+    elif moduleGlobal in noEC3modules:
         createSurfacesForModule(moduleGlobal, 0, 3, 0, 4)    
     #StdModules
     else:    

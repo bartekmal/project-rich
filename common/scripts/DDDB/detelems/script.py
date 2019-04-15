@@ -106,13 +106,13 @@ def createForPmt(f, config, moduleGlobal, ecInModule, pmtInEc):
 
 def createModuleRich1(f, moduleGlobal):
     
-    if moduleGlobal in cOuterSideEdgeModules:
+    if moduleGlobal in noEC01modules:
         createForModule(f, 3, moduleGlobal, 2, 4, 0, 4)
-    elif moduleGlobal in aOuterSideEdgeModules:
+    elif moduleGlobal in noEC23modules:
         createForModule(f, 4, moduleGlobal, 0, 2, 0, 4)
-    elif moduleGlobal in cSideEdgeModules:
+    elif moduleGlobal in noEC0modules:
         createForModule(f, 1, moduleGlobal, 1, 4, 0, 4)
-    elif moduleGlobal in aSideEdgeModules:
+    elif moduleGlobal in noEC3modules:
         createForModule(f, 2, moduleGlobal, 0, 3, 0, 4)  
     else:
         createForModule(f, 0, moduleGlobal, 0, 4, 0, 4)  
@@ -128,10 +128,10 @@ def createModuleRich2(f, moduleGlobal):
 
 moduleGeometryInfo = [
     '  <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/Rich1PmtModuleLogList/lvRich1PmtStdModule{0}"\n',
-    '  <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/Rich1PmtModuleLogList/lvRich1PmtCSideEdgeModule{0}"\n',
-    '  <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/Rich1PmtModuleLogList/lvRich1PmtASideEdgeModule{0}"\n',
-    '  <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/Rich1PmtModuleLogList/lvRich1PmtOuterEdgeRowAtCSideEdgeModule{0}"\n',
-    '  <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/Rich1PmtModuleLogList/lvRich1PmtOuterEdgeRowAtASideEdgeModule{0}"\n',
+    '  <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/Rich1PmtModuleLogList/lvRich1PmtNoEC0TypeModule{0}"\n',
+    '  <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/Rich1PmtModuleLogList/lvRich1PmtNoEC3TypeModule{0}"\n',
+    '  <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/Rich1PmtModuleLogList/lvRich1PmtNoEC01TypeModule{0}"\n',
+    '  <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/Rich1PmtModuleLogList/lvRich1PmtNoEC23TypeModule{0}"\n',
     '  <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/Rich2StdPmtModuleLogList/lvRich2PmtStdModule{0}"\n',
     '  <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/Rich2GrandPmtModuleLogList/lvRich2PmtGrandModule{0}"\n'
 ]
@@ -148,10 +148,10 @@ moduleSupport = [
 
 moduleNPath = [
     '  npath="pvRich1PmtStdModule{0}:{1}" />\n\n',
-    '  npath="pvRich1PmtCSideEdgeModule{0}:{1}" />\n\n',
-    '  npath="pvRich1PmtASideEdgeModule{0}:{1}" />\n\n',
-    '  npath="pvRich1PmtOuterEdgeRowAtCSideEdgeModule{0}:{1}" />\n\n',
-    '  npath="pvRich1PmtOuterEdgeRowAtASideEdgeModule{0}:{1}" />\n\n',
+    '  npath="pvRich1PmtNoEC0TypeModule{0}:{1}" />\n\n',
+    '  npath="pvRich1PmtNoEC3TypeModule{0}:{1}" />\n\n',
+    '  npath="pvRich1PmtNoEC01TypeModule{0}:{1}" />\n\n',
+    '  npath="pvRich1PmtNoEC23TypeModule{0}:{1}" />\n\n',
     '  npath="pvRich2PmtStdModule{0}:{1}" />\n\n',
     '  npath="pvRich2PmtGrandModule{0}:{1}" />\n\n'
 ]
@@ -178,10 +178,10 @@ pmtSupport = [
 
 pmtNPath = [
     '    npath="pvRichPmtStdECR{0}InModule{1}:{2}/pvRichPMTMasterP{3}InEC{0}InModule{1}:{4}" />\n',
-    '    npath="pvRichPmtCSideEdgeECR{0}InModule{1}:{2}/pvRichPMTMasterP{3}InEC{0}InModule{1}:{4}" />\n',
-    '    npath="pvRichPmtASideEdgeECR{0}InModule{1}:{2}/pvRichPMTMasterP{3}InEC{0}InModule{1}:{4}" />\n',
-    '    npath="pvRichPmtOuterEdgeRowAtCSideEdgeECR{0}InModule{1}:{2}/pvRichPMTMasterP{3}InEC{0}InModule{1}:{4}" />\n',
-    '    npath="pvRichPmtOuterEdgeRowAtASideEdgeECR{0}InModule{1}:{2}/pvRichPMTMasterP{3}InEC{0}InModule{1}:{4}" />\n',
+    '    npath="pvRichPmtStdECR{0}InNoEC0TypeModule{1}:{2}/pvRichPMTMasterP{3}InEC{0}InModule{1}:{4}" />\n',
+    '    npath="pvRichPmtStdECR{0}InNoEC3TypeModule{1}:{2}/pvRichPMTMasterP{3}InEC{0}InModule{1}:{4}" />\n',
+    '    npath="pvRichPmtStdECR{0}InNoEC01TypeModule{1}:{2}/pvRichPMTMasterP{3}InEC{0}InModule{1}:{4}" />\n',
+    '    npath="pvRichPmtStdECR{0}InNoEC23TypeModule{1}:{2}/pvRichPMTMasterP{3}InEC{0}InModule{1}:{4}" />\n',
     '    npath="pvRichPmtStdEC{0}InModule{1}:{2}/pvRichPMTMasterP{3}InEC{0}InModule{1}:{4}" />\n',
     '    npath="pvRichPmtGrandECH{0}InModule{1}:{2}/pvRichGrandPMTMasterP{3}InECH{0}InGrandModule{1}:{4}" />\n'
 ]
@@ -243,10 +243,10 @@ myFile = [
 
 #RICH1
 numberOfModulesRich1 = 132
-cSideEdgeModules = range(0,60,6)+range(71,131,6)
-aSideEdgeModules = range(5,65,6)+range(66,126,6)
-cOuterSideEdgeModules = [60, 131]
-aOuterSideEdgeModules = [65, 126]
+noEC0modules = range(0,60,6)+range(66,126,6)
+noEC3modules = range(5,65,6)+range(71,131,6)
+noEC01modules = [60, 126]
+noEC23modules = [65, 131]
 
 for moduleGlobal in range(0,numberOfModulesRich1/2):
     createModuleRich1(myFile[0], moduleGlobal)

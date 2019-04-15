@@ -39,8 +39,8 @@ def createValidCopyNumberList(copyNumberBegin, copyNumberEnd):
     
     copyNumberList = []
 
-    cSideEdgeModules = range(0,60,6)+range(71,131,6)
-    aSideEdgeModules = range(5,65,6)+range(66,126,6)
+    noEC0TypeModules = range(0,60,6)+range(66,126,6)
+    noEC3TypeModules = range(5,65,6)+range(71,131,6)
 
     for pmtCopyNumber in range(copyNumberBegin,copyNumberEnd):
         moduleGlobal = pmtCopyNumber/16
@@ -49,17 +49,17 @@ def createValidCopyNumberList(copyNumberBegin, copyNumberEnd):
         #RICH1
         if pmtCopyNumber < nMaxPmtCopyNumberRich1:
 
-            #CSideOuterModules
-            if (moduleGlobal == 60 or moduleGlobal == 131) and pmtInModule < 8:
+            #noEC01TypeModules
+            if (moduleGlobal == 60 or moduleGlobal == 126) and pmtInModule < 8:
                 continue
-                #ASideOuterModules
-            elif (moduleGlobal == 65 or moduleGlobal == 126) and pmtInModule >= 8:
+                #noEC23TypeModules
+            elif (moduleGlobal == 65 or moduleGlobal == 131) and pmtInModule >= 8:
                 continue
-                #CSideEdgeModules
-            elif moduleGlobal in cSideEdgeModules and pmtInModule < 4:
+                #noEC0TypeModules
+            elif moduleGlobal in noEC0TypeModules and pmtInModule < 4:
                 continue
-                #ASideEdgeModules
-            elif moduleGlobal in aSideEdgeModules and pmtInModule >= 12:
+                #noEC3TypeModules
+            elif moduleGlobal in noEC3TypeModules and pmtInModule >= 12:
                 continue
             else:
                 copyNumberList.append(pmtCopyNumber)
