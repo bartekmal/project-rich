@@ -243,10 +243,10 @@ myFile = [
 
 #RICH1
 numberOfModulesRich1 = 132
-noEC0modules = range(0,60,6)+range(66,126,6)
-noEC3modules = range(5,65,6)+range(71,131,6)
-noEC01modules = [60, 126]
-noEC23modules = [65, 131]
+noEC0modules = range(6,66,6)+range(72,132,6)
+noEC3modules = range(11,71,6)+range(77,137,6)
+noEC01modules = [0, 66]
+noEC23modules = [5, 71]
 
 for moduleGlobal in range(0,numberOfModulesRich1/2):
     createModuleRich1(myFile[0], moduleGlobal)
