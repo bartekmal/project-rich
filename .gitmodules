@@ -4,9 +4,6 @@
 [submodule "LHCb"]
 	path = software/LHCb
 	url = ssh://git@gitlab.cern.ch:7999/RICH_Upgrade/LHCb.git
-[submodule "Gauss"]
-	path = software/Gauss
-	url = ssh://git@gitlab.cern.ch:7999/RICH_Upgrade/Gauss.git
 [submodule "Lbcom"]
 	path = software/Lbcom
 	url = ssh://git@gitlab.cern.ch:7999/lhcb/Lbcom.git
@@ -25,3 +22,6 @@
 [submodule "SIMCOND"]
 	path = software/SIMCOND
 	url = ssh://git@gitlab.cern.ch:7999/lhcb-conddb/SIMCOND.git
+[submodule "Gauss"]
+	path = software/stack_Gauss/Gauss
+	url = ssh://git@gitlab.cern.ch:7999/RICH_Upgrade/Gauss.git
