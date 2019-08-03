@@ -56,7 +56,8 @@ rm -rf ${OUTPUT_DIR}; mkdir ${OUTPUT_DIR}; cd ${OUTPUT_DIR}
 ${RICH_BASE_SOFTWARE}/Brunel/build.${CMTCONFIG}/run -s GITCONDDBPATH=$RICH_BASE_SOFTWARE root -l -q -b "${RICH_BASE_SCRIPTS}/output/Gauss/DrawOccupancy.C(\"${INPUT_DIR}/Gauss\")" >> ${SUBMIT_DIR}/plots.log
 
 CURRENT_DIR=${INPUT_DIR}/Brunel
-REFERENCE_DIR=${RICH_DATA}/dddb-20190223/ref/bEvent/Brunel
+REFERENCE_DIR=${RICH_DATA}/dddb-20190726/ref/bEvent/Brunel
+#REFERENCE_DIR=${RICH_DATA}/dddb-20190223/ref/bEvent/Brunel
 
 echo ""
 echo "Creating plots for : ${CURRENT_DIR}"

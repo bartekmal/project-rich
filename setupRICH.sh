@@ -14,7 +14,7 @@ function rich_run_gauss_localDB {
 }
 
 function rich_run_compile_stack {
-    for STR in LHCb Lbcom Rec Boole Brunel; do
+    for STR in Gaudi LHCb Lbcom Rec Boole Brunel; do
       cd $RICH_BASE_SOFTWARE/$STR
       make -j 8 install
     done
@@ -25,7 +25,7 @@ function rich_setup_env {
     export EOS_PREFIX="root://eoslhcb.cern.ch/"
     export SLEEP_TIME=10 #after finishing one application, before using output
     export CMTCONFIG_GAUSS=x86_64-slc6-gcc7-opt
-    export CMTCONFIG=x86_64-slc6-gcc8-opt
+    export CMTCONFIG=x86_64-centos7-gcc8-dbg
     
     #useful dirs
     export RICH_BASE_SOFTWARE=$RICH_BASE/software
