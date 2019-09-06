@@ -20,12 +20,21 @@ function rich_run_compile_stack {
     done
 }
 
+function rich_run_compile_stack_withConfigure {
+    for STR in Gaudi LHCb Lbcom Rec Boole Brunel; do
+      cd $RICH_BASE_SOFTWARE/$STR
+      make -j 8 configure
+      make -j 8 install
+    done
+}
+
+
 function rich_setup_env {
     #common variables (for running jobs etc)
     export EOS_PREFIX="root://eoslhcb.cern.ch/"
     export SLEEP_TIME=10 #after finishing one application, before using output
     export CMTCONFIG_GAUSS=x86_64-slc6-gcc7-opt
-    export CMTCONFIG=x86_64-centos7-gcc8-dbg
+    export CMTCONFIG=x86_64-centos7-gcc8-opt
     
     #useful dirs
     export RICH_BASE_SOFTWARE=$RICH_BASE/software
@@ -91,20 +100,6 @@ function rich_setup_gauss_stack {
   rich_setup_loginInfo
 }
 
-function rich_setup_digi_sin {
-  echo ""
-  echo "--> Setting up SIN sub-environment."
-  echo ""
-  export RICH_BASE=/afs/cern.ch/work/b/bmalecki/RICH_Upgrade_Digi/sin
-  export RICH_DATA=/eos/lhcb/user/b/bmalecki/RICH_Upgrade_Digi/sin
-  rich_setup_env
-  export PS1="[\u@\h \W] (SIN) \$ "
-  LbLogin
-  rich_setup_loginInfo
-}
-
-
-
 ######## setupRICH - default ##############
 
 source /cvmfs/lhcb.cern.ch/group_login.sh
@@ -113,8 +108,10 @@ source /cvmfs/lhcb.cern.ch/group_login.sh
 export RICH_HOST=0
 if [[ $USER = "bmalecki" ]] ; then
   export RICH_HOST=lxplus
-  export RICH_BASE=/afs/cern.ch/work/b/bmalecki/RICH_Upgrade
-  export RICH_DATA=/eos/lhcb/user/b/bmalecki/RICH_Upgrade
+  RICH_SETUP_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+  RICH_BASE_FOLDER=`echo $RICH_SETUP_DIR | sed -n -e 's/^.*bmalecki\///p' `
+  export RICH_BASE=/afs/cern.ch/work/b/bmalecki/${RICH_BASE_FOLDER}
+  export RICH_DATA=/eos/lhcb/user/b/bmalecki/${RICH_BASE_FOLDER}
 fi
 
 if [[ $USER = "plgbmalecki" ]] ; then
@@ -131,6 +128,4 @@ fi
 rich_setup_env
 LbLogin
 rich_setup_loginInfo
-
-
 
