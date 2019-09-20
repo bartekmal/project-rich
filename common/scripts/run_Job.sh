@@ -35,19 +35,24 @@ echo ""
 
 # number of events / jobs + batch settings
 
-EVT_PER_JOB=10
+EVT_PER_JOB=40
 NUM_JOBS=500
 RUN_NUMBER=15375
 
-JOB_FLAVOUR="workday" #queue type in condor
-MAX_RUNTIME=22000 #in secs
+JOB_FLAVOUR="tomorrow" #queue type in condor
+MAX_RUNTIME=86000 #in secs
 
-#JOB_FLAVOUR="microcentury" #queue type in condor
-#MAX_RUNTIME=3600 #in secs
+#JOB_FLAVOUR="workday" #queue type in condor
+#MAX_RUNTIME=15000 #in secs
+
+#JOB_FLAVOUR="longlunch" #queue type in condor
+#MAX_RUNTIME=7150 #in secs
 
 # Gauss / DDDB / options to run
-DDDB=upgrade/dddb-20190726
-CONDDB=upgrade/sim-20190726-vc-md100
+DDDB=upgrade/dddb-20190912
+CONDDB=upgrade/sim-20190912-vc-md100
+#DDDB=upgrade/dddb-20190726
+#CONDDB=upgrade/sim-20190911-vc-md100
 #DDDB=upgrade/dddb-20190223
 #CONDDB=upgrade/sim-20180530-vc-md100
 
@@ -59,7 +64,8 @@ GENERIC_OPTIONS_GAUSS=${RICH_BASE_OPTIONS}/Gauss/Gauss-Job-Generic.py
 GENERIC_OPTIONS_BOOLE=${RICH_BASE_OPTIONS}/Boole/Boole-Job-Generic.py
 GENERIC_OPTIONS_BRUNEL=${RICH_BASE_OPTIONS}/Brunel/Brunel-Job-Generic.py
 
-RUN_COMMAND_GAUSS="$RICH_BASE_SOFTWARE/stack_Gauss/Gauss/build.${CMTCONFIG_GAUSS}/run -s GITCONDDBPATH=$RICH_BASE_SOFTWARE"
+#RUN_COMMAND_GAUSS="$RICH_BASE_SOFTWARE/stack_Gauss/Gauss/build.${CMTCONFIG_GAUSS}/run -s GITCONDDBPATH=$RICH_BASE_SOFTWARE"
+RUN_COMMAND_GAUSS="$RICH_BASE_SOFTWARE/GaussDev_v53r2/build.${CMTCONFIG_GAUSS}/run -s GITCONDDBPATH=$RICH_BASE_SOFTWARE"
 RUN_COMMAND_BOOLE="$RICH_BASE_SOFTWARE/Boole/build.${CMTCONFIG}/run -s GITCONDDBPATH=$RICH_BASE_SOFTWARE"
 RUN_COMMAND_BRUNEL="$RICH_BASE_SOFTWARE/Brunel/build.${CMTCONFIG}/run -s GITCONDDBPATH=$RICH_BASE_SOFTWARE"
 

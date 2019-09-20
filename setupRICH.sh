@@ -33,7 +33,7 @@ function rich_setup_env {
     #common variables (for running jobs etc)
     export EOS_PREFIX="root://eoslhcb.cern.ch/"
     export SLEEP_TIME=10 #after finishing one application, before using output
-    export CMTCONFIG_GAUSS=x86_64-slc6-gcc7-opt
+    export CMTCONFIG_GAUSS=x86_64-centos7-gcc8-opt
     export CMTCONFIG=x86_64-centos7-gcc8-opt
     
     #useful dirs
