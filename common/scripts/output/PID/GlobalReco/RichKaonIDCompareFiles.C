@@ -15,7 +15,7 @@
 
 #include "GlobalPID.C"
 
-void RichKaonIDCompareFiles(const std::string dir1, const std::string dir2, const std::string title1 = "PMTArray geometry", const std::string title2 = "reference")
+void RichKaonIDCompareFiles(const std::string dir1, const std::string dir2, const int richNr = 0, const std::string title1 = "PMTArray geometry", const std::string title2 = "reference")
 {
 
   // make a pid object
@@ -43,8 +43,22 @@ void RichKaonIDCompareFiles(const std::string dir1, const std::string dir2, cons
   defaultConfig.nSteps      = 100;
   defaultConfig.minMisIDeff = 1.0;
   // Momentum range
-  defaultConfig.minP      = 3   * GeV;
-  defaultConfig.maxP      = 100 * GeV;
+  if ( richNr == 0 ){
+    defaultConfig.minP      = 3   * GeV;
+    defaultConfig.maxP      = 100 * GeV;
+  } else if ( richNr == 1 ){
+    defaultConfig.minP      = 3   * GeV;
+    defaultConfig.maxP      = 20 * GeV;
+  } else if ( richNr == 2 ){
+    defaultConfig.minP      = 35  * GeV;
+    defaultConfig.maxP      = 100 * GeV;
+  } else if ( richNr == 3 ){
+    defaultConfig.minP      = 20  * GeV;
+    defaultConfig.maxP      = 35 * GeV;
+  } else {
+    std::cout << "Unknown nrRich configuration (choose 0,1,2)" << std::endl;
+    return;
+  }
   defaultConfig.minPt     = 0.5 * GeV;
   defaultConfig.maxPt     = 100 * GeV;
   // track selection
