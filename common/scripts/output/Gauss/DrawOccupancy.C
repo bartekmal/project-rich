@@ -44,8 +44,8 @@ void DrawOccupancy(const std::string dir1)
   R2PmtOccupPercent ->Scale(1.0/(numEvR2*1.0) * 100.0/64.0);
 
   //set axis ranges
-  R1PmtOccupPercent->SetAxisRange(0, 27, "Y");
-  R1XY->SetAxisRange(0., 0.27, "Z");
+  R1PmtOccupPercent->SetAxisRange(0, 30, "Y");
+  R1XY->SetAxisRange(0., 0.30, "Z");
   R2PmtOccupPercent->SetAxisRange(0, 12, "Y");
   R2XY->SetAxisRange(0., 0.12, "Z");
   
