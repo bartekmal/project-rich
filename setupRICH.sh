@@ -30,19 +30,18 @@ function rich_run_compile_stack_withConfigure {
 
 
 function rich_setup_env {
+
     #common variables (for running jobs etc)
     export EOS_PREFIX="root://eoslhcb.cern.ch/"
     export SLEEP_TIME=10 #after finishing one application, before using output
     export CMTCONFIG_GAUSS=x86_64-centos7-gcc8-opt
-    export CMTCONFIG=x86_64-centos7-gcc8-opt
+    export CMTCONFIG_STACK=x86_64-centos7-gcc8-opt
     
     #useful dirs
     export RICH_BASE_SOFTWARE=$RICH_BASE/software
     export RICH_BASE_OPTIONS=$RICH_BASE/common/options
     export RICH_BASE_SCRIPTS=$RICH_BASE/common/scripts
     export RICH_BASE_SCRIPTS_GLOBAL_RECO=$RICH_BASE_SCRIPTS/output/PID/GlobalReco
-
-    export User_release_area="$RICH_BASE_SOFTWARE"
 
     #set ccache
     export CCACHE_DIR=$User_release_area/.ccache
@@ -54,14 +53,17 @@ function rich_setup_env {
     alias rich_go_software="cd $RICH_BASE_SOFTWARE"
     alias rich_go_options="cd $RICH_BASE_OPTIONS"
     alias rich_go_scripts="cd $RICH_BASE_SCRIPTS"
+
+    #login
+    lb-set-platform ${CMTCONFIG_STACK}
+    lb-set-workspace ${RICH_BASE_SOFTWARE}
 }
 
 function rich_setup_loginInfo {
     echo -e "\nRICH_Upgrade environment for $RICH_HOST ready!"
     echo "--> project path: $RICH_BASE"
     echo "--> data path: $RICH_DATA"
-    echo "--> User_release_area: $User_release_area"
-    echo -e "--> CMTCONFIG: $CMTCONFIG \n"
+    echo -e "--> platform: $CMTCONFIG \n"
     echo -e "--> Flavour: $PS1 \n"
 }
 
@@ -70,10 +72,9 @@ function rich_setup_noUserArea_gauss {
   echo ""
   echo "--> Setting up RICH with no UserArea for Gauss"
   echo ""
-  rich_setup_env
-  export CMTCONFIG=${CMTCONFIG_GAUSS}
   export PS1="[\u@\h \W] (no UserArea - Gauss) \$ "
-  LbLogin --no-userarea
+  lb-set-platform ${CMTCONFIG_GAUSS}
+  lb-set-workspace
   rich_setup_loginInfo
 }
 
@@ -81,9 +82,8 @@ function rich_setup_noUserArea {
   echo ""
   echo "--> Setting up RICH with no UserArea"
   echo ""
-  rich_setup_env
   export PS1="[\u@\h \W] (no UserArea) \$ "
-  LbLogin --no-userarea
+  lb-set-workspace
   rich_setup_loginInfo
 }
 
@@ -91,18 +91,17 @@ function rich_setup_gauss_stack {
   echo ""
   echo "--> Setting up Gauss stack sub-environment."
   echo ""
-  rich_setup_env
-  export CMTCONFIG=${CMTCONFIG_GAUSS}
-  export User_release_area="$RICH_BASE_SOFTWARE/stack_Gauss"
   export CCACHE_DIR=$User_release_area/.ccache
   export PS1="[\u@\h \W] (Gauss - stack) \$ "
-  LbLogin 
+  lb-set-platform ${CMTCONFIG_GAUSS}
+  lb-set-workspace $RICH_BASE_SOFTWARE/stack_Gauss
   rich_setup_loginInfo
 }
 
 ######## setupRICH - default ##############
 
-source /cvmfs/lhcb.cern.ch/group_login.sh
+#setup LbEnv
+source /cvmfs/lhcb.cern.ch/lib/LbEnv.sh
 
 #check host
 export RICH_HOST=0
@@ -124,8 +123,7 @@ if [ "$RICH_HOST" = "0" ]; then
   exit 1
 fi
 
-#set LbLogin variables (default setup)
+#set RICH environment variables (default setup)
 rich_setup_env
-LbLogin
 rich_setup_loginInfo
 
