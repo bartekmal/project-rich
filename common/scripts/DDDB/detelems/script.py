@@ -90,7 +90,7 @@ def createForPmt(f, config, moduleGlobal, ecInModule, pmtInEc):
         pmtGlobal = moduleGlobal*16 + ecInModule*4 + pmtInEc
     
     #pmt
-    f.write('  <detelem classID="12025" name="MAPMT:{0}">\n'.format(str(pmtGlobal)) )
+    f.write('  <detelem classID="12026" name="MAPMT:{0}">\n'.format(str(pmtGlobal)) )
     f.write( pmtGeometryInfo[config].format( str(pmtInEc), str(ecInModule), strExtend_3(moduleGlobal) ))
     f.write( pmtSupport[config].format(str(getPanelIndex(moduleGlobal)), str(moduleGlobal)) )
     f.write( pmtNPath[config].format(str(ecInModule), strExtend_3(moduleGlobal), str(ecGlobal), str(pmtInEc), str(pmtGlobal)) )
