@@ -145,7 +145,7 @@ def writeRichSmartIdList(outputFile, numberBegin, numberEnd, aName, aType, aComm
     
     validCopyNumbersList = createValidCopyNumberList(numberBegin, numberEnd)
 
-    richSmartIDList = readRichSmartIds("RichSmartIDs.txt")
+    richSmartIDList = readRichSmartIds("input/RichSmartIDs.txt")
 
     for el in validCopyNumbersList:
         outputFile.write(str(richSmartIDList[el])+'\t')
