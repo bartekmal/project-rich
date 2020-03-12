@@ -18,8 +18,9 @@ function rich_setup_env {
     #common variables (for running jobs etc)
     export EOS_PREFIX="root://eoslhcb.cern.ch/"
     export SLEEP_TIME=10 #after finishing one application, before using output
-    export CMTCONFIG_GAUSS=x86_64-centos7-gcc8-opt
-    export CMTCONFIG_STACK=x86_64-centos7-gcc8-opt
+    export CMTCONFIG_GAUSS=x86_64-centos7-gcc9-opt
+    export CMTCONFIG_STACK=x86_64-centos7-gcc9-opt
+    export CMTCONFIG_ROOT=x86_64-centos7-gcc8-opt
     
     #useful dirs
     export RICH_BASE_SOFTWARE=$RICH_BASE/software
@@ -28,7 +29,7 @@ function rich_setup_env {
     export RICH_BASE_SCRIPTS_GLOBAL_RECO=$RICH_BASE_SCRIPTS/output/PID/GlobalReco
 
     #set ccache
-    export CCACHE_DIR=$User_release_area/.ccache
+    export CCACHE_DIR=$RICH_BASE_SOFTWARE/.ccache
     export CMAKEFLAGS="-DCMAKE_USE_CCACHE=ON"
 
     #useful aliases
@@ -75,10 +76,13 @@ function rich_setup_gauss_stack {
   echo ""
   echo "--> Setting up Gauss stack sub-environment."
   echo ""
-  export CCACHE_DIR=$User_release_area/.ccache
+
+  NEW_SOFTWARE_DIR=$RICH_BASE_SOFTWARE/stack_Gauss
+
+  export CCACHE_DIR=$NEW_SOFTWARE_DIR/.ccache
   export PS1="[\u@\h \W] (Gauss - stack) \$ "
   lb-set-platform ${CMTCONFIG_GAUSS}
-  lb-set-workspace $RICH_BASE_SOFTWARE/stack_Gauss
+  lb-set-workspace $NEW_SOFTWARE_DIR
   rich_setup_loginInfo
 }
 
