@@ -13,22 +13,6 @@ function rich_run_gauss_localDB {
   $RICH_BASE_SOFTWARE/stack_Gauss/Gauss/$CMTCONFIG_GAUSS/run -s GITCONDDBPATH=$RICH_BASE_SOFTWARE gaudirun.py $RICH_BASE_OPTIONS/Gauss/Gauss-Job.py
 }
 
-function rich_run_compile_stack {
-    for STR in Gaudi LHCb Lbcom Rec Boole Brunel; do
-      cd $RICH_BASE_SOFTWARE/$STR
-      make -j 8 install
-    done
-}
-
-function rich_run_compile_stack_withConfigure {
-    for STR in Gaudi LHCb Lbcom Rec Boole Brunel; do
-      cd $RICH_BASE_SOFTWARE/$STR
-      make -j 8 configure
-      make -j 8 install
-    done
-}
-
-
 function rich_setup_env {
 
     #common variables (for running jobs etc)
