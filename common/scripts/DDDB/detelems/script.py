@@ -1,5 +1,22 @@
 #! /usr/bin/env python
 
+#consts
+numberOfModulesRich1 = 132
+numberOfModulesRich2 = 144
+
+noEC0modules = range(6,66,6)+range(72,132,6)
+noEC3modules = range(11,71,6)+range(77,137,6)
+noEC01modules = [0, 66]
+noEC23modules = [5, 71]
+
+#functions
+
+def richNumberFromModuleGlobal( moduleGlobal ):
+    if moduleGlobal < numberOfModulesRich1:
+        return "Rich1"
+    else:
+        return "Rich2"
+
 def strExtend_3(nr):
     nrAsString=str(nr)
     if nr < 10:
@@ -69,7 +86,7 @@ def createForModule(f, config, moduleGlobal, ecInModuleBegin = 0, ecInModuleEnd 
 
     #module
     f.write('<detelem classID="2" name="MAPMT_MODULE:' + str(moduleGlobal) + '">\n')
-    f.write('  <version>0.2</version>\n')
+    f.write('  <version>0.2</version>\n\n')
     f.write( moduleGeometryInfo[config].format(strExtend_3(moduleGlobal)) )
     f.write( moduleSupport[config].format(str(getPanelIndex(moduleGlobal))) )
     f.write( moduleNPath[config].format(strExtend_3(moduleGlobal), str(moduleGlobal)) )
@@ -90,16 +107,19 @@ def createForPmt(f, config, moduleGlobal, ecInModule, pmtInEc):
         pmtGlobal = moduleGlobal*16 + ecInModule*4 + pmtInEc
     
     #pmt
-    f.write('  <detelem classID="12025" name="MAPMT:{0}">\n'.format(str(pmtGlobal)) )
+    f.write('  <detelem classID="12026" name="MAPMT:{0}">\n'.format(str(pmtGlobal)) )
     f.write( pmtGeometryInfo[config].format( str(pmtInEc), str(ecInModule), strExtend_3(moduleGlobal) ))
     f.write( pmtSupport[config].format(str(getPanelIndex(moduleGlobal)), str(moduleGlobal)) )
     f.write( pmtNPath[config].format(str(ecInModule), strExtend_3(moduleGlobal), str(ecGlobal), str(pmtInEc), str(pmtGlobal)) )
+    f.write('\n')
+    f.write('    <conditioninfo name="PMTProperties" condition = "/dd/Conditions/ChannelInfo/{0}/PMT{1}_Properties"/>\n'.format( richNumberFromModuleGlobal(moduleGlobal), str( pmtGlobal )) )
+    f.write('\n')
     #anode
     f.write('    <detelem classID="2"  name="MAPMTAnode:{0}">\n'.format(str(pmtGlobal)))
     f.write( anodeGeometryInfo[config] )
     f.write( anodeSupport[config].format(str(getPanelIndex(moduleGlobal)),str(moduleGlobal), str(pmtGlobal)) )
     f.write( anodeNPath[config].format(str(pmtInEc), str(ecInModule), strExtend_3(moduleGlobal)) )
-    f.write('    </detelem>\n')
+    f.write('    </detelem>\n\n')
     f.write('  </detelem>\n\n')
 
 ###############################################################################3
@@ -242,20 +262,12 @@ myFile = [
 ]
 
 #RICH1
-numberOfModulesRich1 = 132
-noEC0modules = range(6,66,6)+range(72,132,6)
-noEC3modules = range(11,71,6)+range(77,137,6)
-noEC01modules = [0, 66]
-noEC23modules = [5, 71]
-
 for moduleGlobal in range(0,numberOfModulesRich1/2):
     createModuleRich1(myFile[0], moduleGlobal)
 for moduleGlobal in range(numberOfModulesRich1/2,numberOfModulesRich1):
     createModuleRich1(myFile[1], moduleGlobal)
 
 #RICH2 
-numberOfModulesRich2 = 144
-
 for moduleGlobal in range(numberOfModulesRich1,numberOfModulesRich1+numberOfModulesRich2/2):
     createModuleRich2(myFile[2], moduleGlobal)
 for moduleGlobal in range(numberOfModulesRich1+numberOfModulesRich2/2,numberOfModulesRich1+numberOfModulesRich2):
