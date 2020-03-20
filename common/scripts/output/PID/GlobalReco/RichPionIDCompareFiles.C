@@ -15,7 +15,7 @@
 
 #include "GlobalPID.C"
 
-void RichKaonIDCompareFiles(const std::string dir1, const std::string dir2, const int richNr = 0, const std::string title1 = "PMTArray geometry", const std::string title2 = "reference")
+void RichPionIDCompareFiles(const std::string dir1, const std::string dir2, const std::string title1 = "with SIN", const std::string title2 = "no SIN")
 {
 
   // Default Config Object
@@ -36,22 +36,8 @@ void RichKaonIDCompareFiles(const std::string dir1, const std::string dir2, cons
   defaultConfig.nSteps      = 100;
   defaultConfig.minMisIDeff = 1.0;
   // Momentum range
-  if ( richNr == 0 ){
-    defaultConfig.minP      = 3   * GeV;
-    defaultConfig.maxP      = 100 * GeV;
-  } else if ( richNr == 1 ){
-    defaultConfig.minP      = 3   * GeV;
-    defaultConfig.maxP      = 20 * GeV;
-  } else if ( richNr == 2 ){
-    defaultConfig.minP      = 35  * GeV;
-    defaultConfig.maxP      = 100 * GeV;
-  } else if ( richNr == 3 ){
-    defaultConfig.minP      = 20  * GeV;
-    defaultConfig.maxP      = 35 * GeV;
-  } else {
-    std::cout << "Unknown nrRich configuration (choose 0,1,2)" << std::endl;
-    return;
-  }
+  defaultConfig.minP      = 3   * GeV;
+  defaultConfig.maxP      = 100 * GeV;
   defaultConfig.minPt     = 0.5 * GeV;
   defaultConfig.maxPt     = 100 * GeV;
   // track selection
@@ -72,17 +58,17 @@ void RichKaonIDCompareFiles(const std::string dir1, const std::string dir2, cons
     std::make_tuple ( dir2+"/Brunel-Ntuple.root", title2, kBlue+1 ),
   };
 
-  //kaonID VS pionMisID
+  //pionID VS kaonMisID
   {
     // make a pid object
     auto pid = std::make_unique<GlobalPID>();
     pid->config             = defaultConfig;
     // Plot Type
-    pid->config.title     = "RICH Kaon ID VS Pion MisID (richDLL)";
-    pid->config.idType    = GlobalPID::Kaon;
-    pid->config.misidType = GlobalPID::Pion;
-    pid->config.var1      = GlobalPID::richDLLk;
-    pid->config.var2      = GlobalPID::richDLLpi;
+    pid->config.title     = "RICH Pion ID VS Kaon MisID (richDLL)";
+    pid->config.idType    = GlobalPID::Pion;
+    pid->config.misidType = GlobalPID::Kaon;
+    pid->config.var1      = GlobalPID::richDLLpi;
+    pid->config.var2      = GlobalPID::richDLLk;
     // Plot ranges
     pid->config.minGraphX = 80;
     pid->config.maxGraphX = 100;
@@ -111,20 +97,20 @@ void RichKaonIDCompareFiles(const std::string dir1, const std::string dir2, cons
     pid->saveFigures();
     //pid->saveFigures("root");
   }
-  /*
-  //kaonID VS protonMisID
+
+  //pionID VS protonMisID
   {
     // make a pid object
     auto pid = std::make_unique<GlobalPID>();
     pid->config             = defaultConfig;
     // Plot Type
-    pid->config.title     = "RICH Kaon ID VS Proton MisID (richDLL)";
-    pid->config.idType    = GlobalPID::Kaon;
+    pid->config.title     = "RICH Pion ID VS Proton MisID (richDLL)";
+    pid->config.idType    = GlobalPID::Pion;
     pid->config.misidType = GlobalPID::Proton;
-    pid->config.var1      = GlobalPID::richDLLk;
+    pid->config.var1      = GlobalPID::richDLLpi;
     pid->config.var2      = GlobalPID::richDLLp;
     // Plot ranges
-    pid->config.minGraphX = 50;
+    pid->config.minGraphX = 80;
     pid->config.maxGraphX = 100;
     pid->config.minGraphY = 1;
     pid->config.maxGraphY = 100;
@@ -151,5 +137,4 @@ void RichKaonIDCompareFiles(const std::string dir1, const std::string dir2, cons
     pid->saveFigures();
     //pid->saveFigures("root");
   }
-  */
 }
