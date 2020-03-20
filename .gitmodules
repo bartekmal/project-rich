@@ -1,15 +1,15 @@
 [submodule "Gaudi"]
 	path = software/Gaudi
-	url = ssh://git@gitlab.cern.ch:7999/gaudi/Gaudi.git
+	url = ssh://git@gitlab.cern.ch:7999/lhcb/Gaudi.git
 [submodule "LHCb"]
 	path = software/LHCb
-	url = ssh://git@gitlab.cern.ch:7999/RICH_Upgrade/LHCb.git
+	url = ssh://git@gitlab.cern.ch:7999/lhcb/LHCb.git
 [submodule "Lbcom"]
 	path = software/Lbcom
 	url = ssh://git@gitlab.cern.ch:7999/lhcb/Lbcom.git
 [submodule "Boole"]
 	path = software/Boole
-	url = ssh://git@gitlab.cern.ch:7999/RICH_Upgrade/Boole.git
+	url = ssh://git@gitlab.cern.ch:7999/lhcb/Boole.git
 [submodule "Rec"]
 	path = software/Rec
 	url = ssh://git@gitlab.cern.ch:7999/lhcb/Rec.git
@@ -24,4 +24,4 @@
 	url = ssh://git@gitlab.cern.ch:7999/lhcb-conddb/SIMCOND.git
 [submodule "Gauss"]
 	path = software/stack_Gauss/Gauss
-	url = ssh://git@gitlab.cern.ch:7999/RICH_Upgrade/Gauss.git
+	url = ssh://git@gitlab.cern.ch:7999/lhcb/Gauss.git
