@@ -28,10 +28,6 @@ function rich_setup_env {
     export RICH_BASE_SCRIPTS=$RICH_BASE/common/scripts
     export RICH_BASE_SCRIPTS_GLOBAL_RECO=$RICH_BASE_SCRIPTS/output/PID/GlobalReco
 
-    #set ccache
-    export CCACHE_DIR=$RICH_BASE_SOFTWARE/.ccache
-    export CMAKEFLAGS="-DCMAKE_USE_CCACHE=ON"
-
     #useful aliases
     alias rich_go_base="cd $RICH_BASE"
     alias rich_go_data="cd $RICH_DATA"
