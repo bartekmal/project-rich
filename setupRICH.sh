@@ -20,8 +20,8 @@ function rich_setup_env {
     export SLEEP_TIME=10 #after finishing one application, before using output
     export CMTCONFIG_GAUSS=x86_64-centos7-gcc9-opt
     export CMTCONFIG_STACK=x86_64-centos7-gcc9-opt
-    export CMTCONFIG_ROOT=x86_64-centos7-gcc8-opt
-    
+    export CMTCONFIG_ROOT="x86_64-centos7-gcc9-opt -p LD_LIBRARY_PATH=/cvmfs/lhcb.cern.ch/lib/lcg/releases/gcc/9.2.0-afc57/x86_64-centos7/lib64/"
+
     #useful dirs
     export RICH_BASE_SOFTWARE=$RICH_BASE/software
     export RICH_BASE_OPTIONS=$RICH_BASE/common/options

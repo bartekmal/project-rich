@@ -56,7 +56,7 @@ rm -rf ${OUTPUT_DIR}; mkdir ${OUTPUT_DIR}; cd ${OUTPUT_DIR}
 lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Gauss/DrawOccupancy.C(\"${INPUT_DIR}/Gauss\")" >> ${SUBMIT_DIR}/plots.log
 
 CURRENT_DIR=${INPUT_DIR}/Brunel
-REFERENCE_DIR=${RICH_DATA}/main/Brunel
+REFERENCE_DIR=${RICH_DATA}/reference/Brunel
 #REFERENCE_DIR=${RICH_DATA}/main/dddb-20190726/bEvent/Brunel
 #REFERENCE_DIR=${RICH_DATA}/main/dddb-20190223/bEvent/Brunel
 

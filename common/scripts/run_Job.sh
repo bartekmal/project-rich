@@ -34,6 +34,7 @@ echo ""
 #nextweek     = 1 week
 
 # number of events / jobs + batch settings
+# for spillover: 10 EV * 1000 jobs ( tomorrow / 70000 secs )
 
 EVT_PER_JOB=40
 NUM_JOBS=500
@@ -49,8 +50,10 @@ MAX_RUNTIME=86000 #in secs
 #MAX_RUNTIME=7150 #in secs
 
 # Gauss / DDDB / options to run
-DDDB=upgrade/dddb-20190912
-CONDDB=upgrade/sim-20190912-vc-md100
+DDDB=upgrade/dddb-20200508
+CONDDB=upgrade/sim-20200508-vc-md100
+#DDDB=upgrade/dddb-20190912
+#CONDDB=upgrade/sim-20190912-vc-md100
 #DDDB=upgrade/dddb-20190726
 #CONDDB=upgrade/sim-20190911-vc-md100
 #DDDB=upgrade/dddb-20190223
