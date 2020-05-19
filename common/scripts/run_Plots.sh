@@ -1,12 +1,15 @@
 #!/bin/sh
 
-#load RICH environment
-source $RICH_BASE/setupRICH.sh
+# check if RICH environment is set (needs a known host)
+if [ -z ${RICH_HOST+x} ]; then
+    echo -e "\nRICH environment not set. Exitting.\n"
+    exit 1
+fi
 
 ######################################################## BEGIN CONFIG ###################
 #Scripts in GlobalReco from Rec/8ae078efadd68927f1a34ccdfafd3340b6fbcd0f
 #-> GlobalPID.C: removed cut on trackLikelihood
-#-> MakeRichPlots and RichKaonID modified to take dir as argument 
+#-> MakeRichPlots and RichKaonID modified to take dir as argument
 
 #replace scripts with local GlobalReco copy if needed
 #default: draw current folder VS reference
@@ -16,16 +19,19 @@ source $RICH_BASE/setupRICH.sh
 if [[ $PWD != *"jobs/"* ]]; then
     echo "You are not in jobs/ subdirectory!"
     while true; do
-    read -p "Do you want to continue? " yn
-    case $yn in
-        [Yy]* ) break;;
-        [Nn]* ) echo "Exiting..."; exit;;
-        * ) echo "Please answer y/n.";;
-    esac
-done
+        read -p "Do you want to continue? " yn
+        case $yn in
+        [Yy]*) break ;;
+        [Nn]*)
+            echo "Exiting..."
+            exit
+            ;;
+        *) echo "Please answer y/n." ;;
+        esac
+    done
 fi
 
-JOB_NAME=`echo $PWD | sed -e 's/^.*jobs//'`
+JOB_NAME=$(echo $PWD | sed -e 's/^.*jobs//')
 
 INPUT_DIR=${RICH_DATA}${JOB_NAME} #no / on purpose, works!
 SUBMIT_DIR=$PWD
@@ -38,22 +44,25 @@ if [ ! -e $INPUT_DIR ]; then
 fi
 
 #create log file
-rm ${SUBMIT_DIR}/plots.log; touch ${SUBMIT_DIR}/plots.log
+rm ${SUBMIT_DIR}/plots.log
+touch ${SUBMIT_DIR}/plots.log
 
 #merge outputs
 eos rm ${INPUT_DIR}/Gauss/Gauss-Histo.root
-lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k ${EOS_PREFIX}${INPUT_DIR}/Gauss/Gauss-Histo.root ${INPUT_DIR}/Gauss/root/Gauss_*.root >> plots.log
+lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k ${EOS_PREFIX}${INPUT_DIR}/Gauss/Gauss-Histo.root ${INPUT_DIR}/Gauss/root/Gauss_*.root >>plots.log
 #eos rm ${INPUT_DIR}/Boole/Boole-Histo.root
 #lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k ${EOS_PREFIX}${INPUT_DIR}/Boole/Boole-Histo.root ${INPUT_DIR}/Boole/root/Boole_*.root >> plots.log
 #eos rm ${INPUT_DIR}/Brunel/Brunel-Histo.root
 #lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k ${EOS_PREFIX}${INPUT_DIR}/Brunel/Brunel-Histo.root ${INPUT_DIR}/Brunel/root/Brunel-Histo_*.root >> plots.log
 eos rm ${INPUT_DIR}/Brunel/Brunel-Ntuple.root
-lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k  ${EOS_PREFIX}${INPUT_DIR}/Brunel/Brunel-Ntuple.root ${INPUT_DIR}/Brunel/root/Brunel-Ntuple_*.root >> plots.log
+lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k ${EOS_PREFIX}${INPUT_DIR}/Brunel/Brunel-Ntuple.root ${INPUT_DIR}/Brunel/root/Brunel-Ntuple_*.root >>plots.log
 
 #create plots
-rm -rf ${OUTPUT_DIR}; mkdir ${OUTPUT_DIR}; cd ${OUTPUT_DIR}
+rm -rf ${OUTPUT_DIR}
+mkdir ${OUTPUT_DIR}
+cd ${OUTPUT_DIR}
 
-lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Gauss/DrawOccupancy.C(\"${EOS_PREFIX}${INPUT_DIR}/Gauss\")" >> ${SUBMIT_DIR}/plots.log
+lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Gauss/DrawOccupancy.C(\"${EOS_PREFIX}${INPUT_DIR}/Gauss\")" >>${SUBMIT_DIR}/plots.log
 
 CURRENT_DIR=${INPUT_DIR}/Brunel
 REFERENCE_DIR=${RICH_DATA}/Gauss_v54r1/dddb-20200508/reference/Brunel
@@ -64,9 +73,9 @@ echo "Creating plots for : ${CURRENT_DIR}"
 echo "Reference          : ${REFERENCE_DIR}"
 echo ""
 
-lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/MakeRichPlots.C(\"${EOS_PREFIX}${CURRENT_DIR}\")" >> ${SUBMIT_DIR}/plots.log
+lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/MakeRichPlots.C(\"${EOS_PREFIX}${CURRENT_DIR}\")" >>${SUBMIT_DIR}/plots.log
 
-lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}\",\"${REFERENCE_DIR}\")" >> ${SUBMIT_DIR}/plots.log
-lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}\",\"${REFERENCE_DIR}\",1)" >> ${SUBMIT_DIR}/plots.log
-lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}\",\"${REFERENCE_DIR}\",2)" >> ${SUBMIT_DIR}/plots.log
+lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}\",\"${REFERENCE_DIR}\")" >>${SUBMIT_DIR}/plots.log
+lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}\",\"${REFERENCE_DIR}\",1)" >>${SUBMIT_DIR}/plots.log
+lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}\",\"${REFERENCE_DIR}\",2)" >>${SUBMIT_DIR}/plots.log
 #lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}\",\"${REFERENCE_DIR}\",3)" >> ${SUBMIT_DIR}/plots.log
