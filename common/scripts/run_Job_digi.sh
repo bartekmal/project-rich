@@ -40,14 +40,14 @@ EVT_PER_JOB=40
 NUM_JOBS=500
 RUN_NUMBER=15375
 
-JOB_FLAVOUR="tomorrow" #queue type in condor
-MAX_RUNTIME=86000 #in secs
+#JOB_FLAVOUR="tomorrow" #queue type in condor
+#MAX_RUNTIME=86000 #in secs
 
 #JOB_FLAVOUR="workday" #queue type in condor
 #MAX_RUNTIME=15000 #in secs
 
-#JOB_FLAVOUR="longlunch" #queue type in condor
-#MAX_RUNTIME=7150 #in secs
+JOB_FLAVOUR="longlunch" #queue type in condor
+MAX_RUNTIME=7150 #in secs
 
 # Gauss / DDDB / options to run
 DDDB=upgrade/dddb-20200508
@@ -73,7 +73,7 @@ RUN_COMMAND_GAUSS="$RICH_BASE_SOFTWARE/stack_Gauss/Gauss/build.${CMTCONFIG_GAUSS
 RUN_COMMAND_BOOLE="$RICH_BASE_SOFTWARE/Boole/build.${CMTCONFIG_STACK}/run -s GITCONDDBPATH=$RICH_BASE_SOFTWARE"
 RUN_COMMAND_BRUNEL="$RICH_BASE_SOFTWARE/Brunel/build.${CMTCONFIG_STACK}/run -s GITCONDDBPATH=$RICH_BASE_SOFTWARE"
 
-LIST_TO_RUN="Gauss Boole Brunel" #Gauss Boole Brunel
+LIST_TO_RUN="Boole Brunel" #Gauss Boole Brunel
 
 ############################################################ END OF CONFIG #######################
 
@@ -197,7 +197,8 @@ if [[ $RUN_BOOLE == "1" ]]; then
 	touch ${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
 
 	echo "#! /usr/bin/env python" >> ${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
-	echo "InputArea = \"${EOS_PREFIX}${OUTPUT_DIR}/Gauss/data\"" >> ${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
+	# echo "InputArea = \"${EOS_PREFIX}${OUTPUT_DIR}/Gauss/data\"" >> ${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
+	echo "InputArea = \"${EOS_PREFIX}/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v54r1/dddb-20200508/reference/Gauss/data\"" >> ${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
 	#echo "OutputArea = \".\"" >> ${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
 	echo "" >> ${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
 	
