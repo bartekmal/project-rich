@@ -52,8 +52,10 @@ JOB_FLAVOUR="longlunch" #queue type in condor
 MAX_RUNTIME=7150        #in secs
 
 # Gauss / DDDB / options to run
-DDDB=upgrade/dddb-20200508
-CONDDB=upgrade/sim-20200508-vc-md100
+DDDB=upgrade/dddb-20200529
+CONDDB=upgrade/sim-20200515-vc-md100
+#DDDB=upgrade/dddb-20200508
+#CONDDB=upgrade/sim-20200508-vc-md100
 #DDDB=upgrade/dddb-20190912
 #CONDDB=upgrade/sim-20190912-vc-md100
 #DDDB=upgrade/dddb-20190726
@@ -207,7 +209,7 @@ if [[ $RUN_BOOLE == "1" ]]; then
 
         echo "#! /usr/bin/env python" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
         # echo "InputArea = \"${EOS_PREFIX}${OUTPUT_DIR}/Gauss/data\"" >> ${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
-        echo "InputArea = \"${EOS_PREFIX}/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v54r1/dddb-20200508/reference/Gauss/data\"" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
+        echo "InputArea = \"${EOS_PREFIX}/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v54r3/dddb-20200529/sim-20200515-vc-md100/reference/bEvent/Gauss/data\"" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
         #echo "OutputArea = \".\"" >> ${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
         echo "" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
 
@@ -332,6 +334,7 @@ if [[ $RUN_BRUNEL == "1" ]]; then
 
     #get output
     echo "sleep $SLEEP_TIME" >>start_job.sh
+    echo "eos cp *.xdst $OUTPUT_DIR/Brunel/data/Brunel_"'${1}'".xdst" >>start_job.sh
     echo "eos cp Brunel-Ntuple.root $OUTPUT_DIR/Brunel/root/Brunel-Ntuple_"'${1}'".root" >>start_job.sh
     echo "eos cp Brunel-Histo.root $OUTPUT_DIR/Brunel/root/Brunel-Histo_"'${1}'".root" >>start_job.sh
     echo "eos cp brunel.log $OUTPUT_DIR/Brunel/log/Brunel_"'${1}'".log" >>start_job.sh

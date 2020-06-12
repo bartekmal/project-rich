@@ -65,8 +65,8 @@ cd ${OUTPUT_DIR}
 lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Gauss/DrawOccupancy.C(\"${EOS_PREFIX}${INPUT_DIR}/Gauss\")" >>${SUBMIT_DIR}/plots.log
 
 CURRENT_DIR=${INPUT_DIR}/Brunel
-REFERENCE_DIR=${RICH_DATA}/Gauss_v54r1/dddb-20200508/reference/Brunel
-#REFERENCE_DIR=/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v54r1/dddb-20200508/reference/Brunel
+REFERENCE_DIR=${RICH_DATA}/Gauss_v54r3/dddb-20200529/sim-20200515-vc-md100/reference/bEvent/Brunel
+#REFERENCE_DIR=/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v54r3/dddb-20200529/sim-20200515-vc-md100/reference/bEvent/Brunel
 
 echo ""
 echo "Creating plots for : ${CURRENT_DIR}"

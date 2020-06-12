@@ -10,7 +10,7 @@ function rich-setup-env() {
 
   #common variables (for running jobs etc)
   export EOS_PREFIX="root://eoslhcb.cern.ch/"
-  export SLEEP_TIME=10 #after finishing one application, before using output
+  export SLEEP_TIME=20 #after finishing one application, before using output
   export CMTCONFIG_GAUSS=x86_64-centos7-gcc9-opt
   export CMTCONFIG_STACK=x86_64-centos7-gcc9-opt
   export CMTCONFIG_ROOT="x86_64-centos7-gcc9-opt -p LD_LIBRARY_PATH=/cvmfs/lhcb.cern.ch/lib/lcg/releases/gcc/9.2.0-afc57/x86_64-centos7/lib64/"
@@ -20,6 +20,8 @@ function rich-setup-env() {
   export RICH_BASE_OPTIONS=$RICH_BASE/common/options
   export RICH_BASE_SCRIPTS=$RICH_BASE/common/scripts
   export RICH_BASE_SCRIPTS_GLOBAL_RECO=$RICH_BASE_SCRIPTS/output/PID/GlobalReco
+  export RICH_BASE_JOBS=$RICH_BASE/jobs
+
 
   #useful aliases
   alias rich-cd-base="cd $RICH_BASE"
@@ -27,6 +29,7 @@ function rich-setup-env() {
   alias rich-cd-software="cd $RICH_BASE_SOFTWARE"
   alias rich-cd-options="cd $RICH_BASE_OPTIONS"
   alias rich-cd-scripts="cd $RICH_BASE_SCRIPTS"
+  alias rich-cd-jobs="cd $RICH_BASE_JOBS"
 
 }
 

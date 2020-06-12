@@ -38,8 +38,8 @@ fi
 # number of events / jobs + batch settings
 # for spillover: 10 EV * 1000 jobs ( tomorrow / 70000 secs )
 
-EVT_PER_JOB=40
-NUM_JOBS=500
+EVT_PER_JOB=1
+NUM_JOBS=1
 RUN_NUMBER=15375
 
 JOB_FLAVOUR="tomorrow" #queue type in condor
@@ -64,10 +64,10 @@ CONDDB=upgrade/sim-20200515-vc-md100
 #CONDDB=upgrade/sim-20180530-vc-md100
 
 #replace with local files if needed
-GENERIC_OPTIONS_GAUSS=${RICH_BASE_OPTIONS}/Gauss/Gauss-Job-Generic.py
+#GENERIC_OPTIONS_GAUSS=${RICH_BASE_OPTIONS}/Gauss/Gauss-Job-Generic.py
 #GENERIC_OPTIONS_GAUSS=${RICH_BASE_OPTIONS}/Gauss/Gauss-Job-Generic-Spillover.py
 #GENERIC_OPTIONS_GAUSS=${RICH_BASE_OPTIONS}/Gauss/Gauss-Job-Generic-OldPMT.py
-#GENERIC_OPTIONS_GAUSS=${RICH_BASE_OPTIONS}/Gauss/Gauss-Job-ParticleGun-Rich1-Generic.py
+GENERIC_OPTIONS_GAUSS=${RICH_BASE_OPTIONS}/Gauss/Gauss-Job-ParticleGun-Rich1-Generic.py
 #GENERIC_OPTIONS_GAUSS=${RICH_BASE_OPTIONS}/Gauss/Gauss-Job-ParticleGun-Rich2-Generic.py
 GENERIC_OPTIONS_BOOLE=${RICH_BASE_OPTIONS}/Boole/Boole-Job-Generic.py
 GENERIC_OPTIONS_BRUNEL=${RICH_BASE_OPTIONS}/Brunel/Brunel-Job-Generic.py
@@ -208,7 +208,7 @@ if [[ $RUN_BOOLE == "1" ]]; then
         touch ${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
 
         echo "#! /usr/bin/env python" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
-        echo "InputArea = \"${EOS_PREFIX}${OUTPUT_DIR}/Gauss/data\"" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
+        echo "InputArea = \"${SUBMIT_DIR}/tmp\"" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
         #echo "OutputArea = \".\"" >> ${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
         echo "" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
 
@@ -240,7 +240,7 @@ if [[ $RUN_BRUNEL == "1" ]]; then
         touch ${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
 
         echo "#! /usr/bin/env python" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
-        echo "InputArea = \"${EOS_PREFIX}${OUTPUT_DIR}/Boole/data\"" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
+        echo "InputArea = \"${SUBMIT_DIR}/tmp\"" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
         #echo "OutputArea = \".\"" >> ${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
         echo "" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
 
@@ -295,15 +295,18 @@ echo "" >>start_job.sh
 
 if [[ $RUN_GAUSS == "1" ]]; then
 
-    echo "cd "'$TMPDIR' >>start_job.sh
-    echo "${RUN_COMMAND_GAUSS} gaudirun.py ${OPTIONS_DIR}/Gauss/Gauss-Job_"'${1}'".py > gauss.log" >>start_job.sh
+    echo "rm *.sim" >>start_job.sh
+    # echo "cd "'$TMPDIR' >>start_job.sh
+    # echo "${RUN_COMMAND_GAUSS} gaudirun.py ${OPTIONS_DIR}/Gauss/Gauss-Job_"'${1}'".py > gauss.log" >>start_job.sh
+    echo "${RUN_COMMAND_GAUSS} gaudirun.py ${OPTIONS_DIR}/Gauss/Gauss-Job_"'0'".py > gauss.log" >>start_job.sh
+    echo "mv *.sim Gauss_0.sim" >>start_job.sh
     echo "" >>start_job.sh
 
     #get output
-    echo "sleep $SLEEP_TIME" >>start_job.sh
-    echo "eos cp *.sim $OUTPUT_DIR/Gauss/data/Gauss_"'${1}'".sim" >>start_job.sh
-    echo "eos cp *.root $OUTPUT_DIR/Gauss/root/Gauss_"'${1}'".root" >>start_job.sh
-    echo "eos cp *.log $OUTPUT_DIR/Gauss/log/Gauss_"'${1}'".log" >>start_job.sh
+    # echo "sleep $SLEEP_TIME" >>start_job.sh
+    # echo "eos cp *.sim $OUTPUT_DIR/Gauss/data/Gauss_"'${1}'".sim" >>start_job.sh
+    # echo "eos cp *.root $OUTPUT_DIR/Gauss/root/Gauss_"'${1}'".root" >>start_job.sh
+    # echo "eos cp *.log $OUTPUT_DIR/Gauss/log/Gauss_"'${1}'".log" >>start_job.sh
 
 fi
 
@@ -311,15 +314,18 @@ fi
 
 if [[ $RUN_BOOLE == "1" ]]; then
 
-    echo "cd "'$TMPDIR' >>start_job.sh
-    echo "${RUN_COMMAND_BOOLE} gaudirun.py ${OPTIONS_DIR}/Boole/Boole-Job_"'${1}'".py > boole.log" >>start_job.sh
+    echo "rm *.digi" >>start_job.sh
+    # echo "cd "'$TMPDIR' >>start_job.sh
+    # echo "${RUN_COMMAND_BOOLE} gaudirun.py ${OPTIONS_DIR}/Boole/Boole-Job_"'${1}'".py > boole.log" >>start_job.sh
+    echo "${RUN_COMMAND_BOOLE} gaudirun.py ${OPTIONS_DIR}/Boole/Boole-Job_"'0'".py > boole.log" >>start_job.sh
+    echo "mv *.digi Boole_0.digi" >>start_job.sh
     echo "" >>start_job.sh
 
     #get output
-    echo "sleep $SLEEP_TIME" >>start_job.sh
-    echo "eos cp *.digi $OUTPUT_DIR/Boole/data/Boole_"'${1}'".digi" >>start_job.sh
-    echo "eos cp *.root $OUTPUT_DIR/Boole/root/Boole_"'${1}'".root" >>start_job.sh
-    echo "eos cp *.log $OUTPUT_DIR/Boole/log/Boole_"'${1}'".log" >>start_job.sh
+    # echo "sleep $SLEEP_TIME" >>start_job.sh
+    # echo "eos cp *.digi $OUTPUT_DIR/Boole/data/Boole_"'${1}'".digi" >>start_job.sh
+    # echo "eos cp *.root $OUTPUT_DIR/Boole/root/Boole_"'${1}'".root" >>start_job.sh
+    # echo "eos cp *.log $OUTPUT_DIR/Boole/log/Boole_"'${1}'".log" >>start_job.sh
 
 fi
 
@@ -327,16 +333,19 @@ fi
 
 if [[ $RUN_BRUNEL == "1" ]]; then
 
-    echo "cd "'$TMPDIR' >>start_job.sh
-    echo "${RUN_COMMAND_BRUNEL} gaudirun.py ${OPTIONS_DIR}/Brunel/Brunel-Job_"'${1}'".py > brunel.log" >>start_job.sh
+    echo "rm *.xdst" >>start_job.sh
+    # echo "cd "'$TMPDIR' >>start_job.sh
+    # echo "${RUN_COMMAND_BRUNEL} gaudirun.py ${OPTIONS_DIR}/Brunel/Brunel-Job_"'${1}'".py > brunel.log" >>start_job.sh
+    echo "${RUN_COMMAND_BRUNEL} gaudirun.py ${OPTIONS_DIR}/Brunel/Brunel-Job_"'0'".py > brunel.log" >>start_job.sh
+    echo "mv *.xdst Brunel_0.xdst" >>start_job.sh
     echo "" >>start_job.sh
 
     #get output
-    echo "sleep $SLEEP_TIME" >>start_job.sh
-    echo "eos cp *.xdst $OUTPUT_DIR/Brunel/data/Brunel_"'${1}'".xdst" >>start_job.sh
-    echo "eos cp Brunel-Ntuple.root $OUTPUT_DIR/Brunel/root/Brunel-Ntuple_"'${1}'".root" >>start_job.sh
-    echo "eos cp Brunel-Histo.root $OUTPUT_DIR/Brunel/root/Brunel-Histo_"'${1}'".root" >>start_job.sh
-    echo "eos cp brunel.log $OUTPUT_DIR/Brunel/log/Brunel_"'${1}'".log" >>start_job.sh
+    # echo "sleep $SLEEP_TIME" >>start_job.sh
+    # echo "eos cp *.xdst $OUTPUT_DIR/Brunel/data/Brunel_"'${1}'".xdst" >>start_job.sh
+    # echo "eos cp Brunel-Ntuple.root $OUTPUT_DIR/Brunel/root/Brunel-Ntuple_"'${1}'".root" >>start_job.sh
+    # echo "eos cp Brunel-Histo.root $OUTPUT_DIR/Brunel/root/Brunel-Histo_"'${1}'".root" >>start_job.sh
+    # echo "eos cp brunel.log $OUTPUT_DIR/Brunel/log/Brunel_"'${1}'".log" >>start_job.sh
 
 fi
 
@@ -368,4 +377,4 @@ echo ""
 echo "Submitting job ${JOB_NAME} to a queue"
 chmod u+x start_job.sh
 
-condor_submit condor.sub
+# condor_submit condor.sub

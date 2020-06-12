@@ -11,9 +11,8 @@
 
 void RichAllIDCompareFiles(const std::string dir1, const std::string dir2)
 {
-
   const std::string dirBaseRichScripts( gSystem->Getenv("RICH_BASE_SCRIPTS_GLOBAL_RECO") );
   gROOT->ProcessLine( std::string( ".x "+dirBaseRichScripts+"/RichKaonIDCompareFiles.C(\""+dir1+"\",\""+dir2+"\")" ).c_str() );
   gROOT->ProcessLine( std::string( ".x "+dirBaseRichScripts+"/RichProtonIDCompareFiles.C(\""+dir1+"\",\""+dir2+"\")" ).c_str() );
- /gROOT->ProcessLine( std::string( ".x "+dirBaseRichScripts+"/RichPionIDCompareFiles.C(\""+dir1+"\",\""+dir2+"\")" ).c_str() );
+  gROOT->ProcessLine( std::string( ".x "+dirBaseRichScripts+"/RichPionIDCompareFiles.C(\""+dir1+"\",\""+dir2+"\")" ).c_str() );
 }
