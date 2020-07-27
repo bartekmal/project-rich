@@ -25,3 +25,6 @@
 [submodule "Gauss"]
 	path = software/stack_Gauss/Gauss
 	url = ssh://git@gitlab.cern.ch:7999/lhcb/Gauss.git
+[submodule "Detector"]
+	path = software/Detector
+	url = ssh://git@gitlab.cern.ch:7999/lhcb/Detector.git
