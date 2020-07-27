@@ -50,8 +50,8 @@ touch ${SUBMIT_DIR}/plots.log
 #merge outputs
 eos rm ${INPUT_DIR}/Gauss/Gauss-Histo.root
 lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k ${EOS_PREFIX}${INPUT_DIR}/Gauss/Gauss-Histo.root ${INPUT_DIR}/Gauss/root/Gauss_*.root >>plots.log
-#eos rm ${INPUT_DIR}/Boole/Boole-Histo.root
-#lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k ${EOS_PREFIX}${INPUT_DIR}/Boole/Boole-Histo.root ${INPUT_DIR}/Boole/root/Boole_*.root >> plots.log
+eos rm ${INPUT_DIR}/Boole/Boole-Histo.root
+lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k ${EOS_PREFIX}${INPUT_DIR}/Boole/Boole-Histo.root ${INPUT_DIR}/Boole/root/Boole_*.root >>plots.log
 #eos rm ${INPUT_DIR}/Brunel/Brunel-Histo.root
 #lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k ${EOS_PREFIX}${INPUT_DIR}/Brunel/Brunel-Histo.root ${INPUT_DIR}/Brunel/root/Brunel-Histo_*.root >> plots.log
 eos rm ${INPUT_DIR}/Brunel/Brunel-Ntuple.root
@@ -62,20 +62,23 @@ rm -rf ${OUTPUT_DIR}
 mkdir ${OUTPUT_DIR}
 cd ${OUTPUT_DIR}
 
-lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Gauss/DrawOccupancy.C(\"${EOS_PREFIX}${INPUT_DIR}/Gauss\")" >>${SUBMIT_DIR}/plots.log
-
-CURRENT_DIR=${INPUT_DIR}/Brunel
-REFERENCE_DIR=${RICH_DATA}/Gauss_v54r3/dddb-20200529/sim-20200515-vc-md100/reference/bEvent/Brunel
-#REFERENCE_DIR=/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v54r3/dddb-20200529/sim-20200515-vc-md100/reference/bEvent/Brunel
+CURRENT_DIR=${INPUT_DIR}
+REFERENCE_DIR=${RICH_DATA}/Gauss_v54r3/dddb-20200529/sim-20200515-vc-md100/reference/bEvent
+#REFERENCE_DIR=/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v54r3/dddb-20200529/sim-20200515-vc-md100/reference/bEvent
 
 echo ""
 echo "Creating plots for : ${CURRENT_DIR}"
 echo "Reference          : ${REFERENCE_DIR}"
 echo ""
 
-lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/MakeRichPlots.C(\"${EOS_PREFIX}${CURRENT_DIR}\")" >>${SUBMIT_DIR}/plots.log
+# occupancy
+lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Gauss/DrawOccupancy.C(\"${CURRENT_DIR}/Gauss\")" >>${SUBMIT_DIR}/plots.log
+lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Boole/DrawOccupancy.C(\"${CURRENT_DIR}/Boole\")" >>${SUBMIT_DIR}/plots.log
+lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Boole/DrawOccupancyRatio.C(\"${CURRENT_DIR}/Boole\",\"${REFERENCE_DIR}/Boole\")" >>${SUBMIT_DIR}/plots.log
+lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Boole/DrawSinOccupancyProfile.C(\"${CURRENT_DIR}/Boole\",\"${REFERENCE_DIR}/Boole\")" >>${SUBMIT_DIR}/plots.log
 
-lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}\",\"${REFERENCE_DIR}\")" >>${SUBMIT_DIR}/plots.log
-lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}\",\"${REFERENCE_DIR}\",1)" >>${SUBMIT_DIR}/plots.log
-lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}\",\"${REFERENCE_DIR}\",2)" >>${SUBMIT_DIR}/plots.log
-#lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}\",\"${REFERENCE_DIR}\",3)" >> ${SUBMIT_DIR}/plots.log
+# PID
+lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}/Brunel\",\"${REFERENCE_DIR}/Brunel\")" >>${SUBMIT_DIR}/plots.log
+lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}/Brunel\",\"${REFERENCE_DIR}/Brunel\",1)" >>${SUBMIT_DIR}/plots.log
+lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}/Brunel\",\"${REFERENCE_DIR}/Brunel\",2)" >>${SUBMIT_DIR}/plots.log
+#lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}/Brunel\",\"${REFERENCE_DIR}/Brunel\",3)" >> ${SUBMIT_DIR}/plots.log
