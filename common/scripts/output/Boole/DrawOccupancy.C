@@ -6,6 +6,10 @@
 void DrawOccupancy(const std::string dir1)
 {
 
+  // config histograms
+  const float occupancyYMaxR1 = 0.50;
+  const float occupancyYMaxR2 = 0.20;
+
   //config style
   Int_t canvasSizeX = 1200;
   Int_t canvasSizeY = 1540;
@@ -50,10 +54,10 @@ void DrawOccupancy(const std::string dir1)
   R2PmtOccupPercent->Scale(1.0 / (numEvR2 * 1.0) * 100.0 / 64.0);
 
   //set axis ranges
-  R1PmtOccupPercent->SetAxisRange(0, 30, "Y");
-  R1XY->SetAxisRange(0., 0.30, "Z");
-  R2PmtOccupPercent->SetAxisRange(0, 12, "Y");
-  R2XY->SetAxisRange(0., 0.12, "Z");
+  R1PmtOccupPercent->SetAxisRange(0, occupancyYMaxR1 * 100, "Y");
+  R1XY->SetAxisRange(0., occupancyYMaxR1, "Z");
+  R2PmtOccupPercent->SetAxisRange(0, occupancyYMaxR2 * 100, "Y");
+  R2XY->SetAxisRange(0., occupancyYMaxR2, "Z");
 
   //save plots
   TCanvas *c1 = new TCanvas("c1", "Rich1 Pmt Occupancy", canvasSizeX, canvasSizeY);

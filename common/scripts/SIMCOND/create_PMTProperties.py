@@ -169,10 +169,12 @@ def createConditionForEachValidCopyNumber( outputFile, numberBegin, numberEnd, c
         for paramVect in paramVectListConstantValue:
             createVectorParam( outputFile, paramVect )
         for param in paramListFromFile:
-            occupancy = param[3][i_el]
+            occupancy = param[4][i_el]
+            # use previous occupancy for the PMT population wrt SIN properties and occupancy
+            occupancyForSin = param[3][i_el]
             outputFile.write( '      <param name="{0}" type="{1}" comment="{2}"> {3} </param>\n'.format( param[0], param[1], param[2], float(occupancy) / 100. ) )
             outputFile.write( '\n')
-            countersNrOfPmts = createSINVectorParam( outputFile, occupancy, moduleNrGlobal, countersNrOfPmts )
+            countersNrOfPmts = createSINVectorParam( outputFile, occupancyForSin, moduleNrGlobal, countersNrOfPmts )
 
         outputFile.write('    </condition>\n')
         outputFile.write('\n')
@@ -220,11 +222,11 @@ paramVectListConstantValue = [
     ]
 
 paramListFromFile_R1 = [
-    [ "AverageOccupancy", "double", "Average PMT occupancy [probability in range 0-1].", readAListFromFile( "input/occupancy/Gauss_v53r2/output/365_percent.txt" , "," ) ]
+    [ "AverageOccupancy", "double", "Average PMT occupancy [probability in range 0-1]. This is the B-event occupancy simulated for nu=7.6 with Gauss/v54r3 after the RICH simulation input updates done in 2020-08.", readAListFromFile( "input/occupancy/Gauss_v53r2/output/365_percent.txt" , "," ), readAListFromFile( "input/occupancy/Gauss_v54r3/simInputUpdates/stdNu_7c6/bEvent/output/365_percent.txt" , "," ) ],
 ]
 
 paramListFromFile_R2 = [
-    [ "AverageOccupancy", "double", "Average PMT occupancy [probability in range 0-1].", readAListFromFile( "input/occupancy/Gauss_v53r2/output/385_percent.txt" , "," ) ]
+    [ "AverageOccupancy", "double", "Average PMT occupancy [probability in range 0-1]. This is the B-event occupancy simulated for nu=7.6 with Gauss/v54r3 after the RICH simulation input updates done in 2020-08.", readAListFromFile( "input/occupancy/Gauss_v53r2/output/385_percent.txt" , "," ), readAListFromFile( "input/occupancy/Gauss_v54r3/simInputUpdates/stdNu_7c6/bEvent/output/385_percent.txt" , "," ) ],
 ]
 
 
