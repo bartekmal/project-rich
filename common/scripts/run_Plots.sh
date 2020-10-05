@@ -52,8 +52,8 @@ eos rm ${INPUT_DIR}/Gauss/Gauss-Histo.root
 lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k ${EOS_PREFIX}${INPUT_DIR}/Gauss/Gauss-Histo.root ${INPUT_DIR}/Gauss/root/Gauss_*.root >>plots.log
 eos rm ${INPUT_DIR}/Boole/Boole-Histo.root
 lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k ${EOS_PREFIX}${INPUT_DIR}/Boole/Boole-Histo.root ${INPUT_DIR}/Boole/root/Boole_*.root >>plots.log
-#eos rm ${INPUT_DIR}/Brunel/Brunel-Histo.root
-#lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k ${EOS_PREFIX}${INPUT_DIR}/Brunel/Brunel-Histo.root ${INPUT_DIR}/Brunel/root/Brunel-Histo_*.root >> plots.log
+eos rm ${INPUT_DIR}/Brunel/Brunel-Histo.root
+lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k ${EOS_PREFIX}${INPUT_DIR}/Brunel/Brunel-Histo.root ${INPUT_DIR}/Brunel/root/Brunel-Histo_*.root >>plots.log
 eos rm ${INPUT_DIR}/Brunel/Brunel-Ntuple.root
 lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k ${EOS_PREFIX}${INPUT_DIR}/Brunel/Brunel-Ntuple.root ${INPUT_DIR}/Brunel/root/Brunel-Ntuple_*.root >>plots.log
 
@@ -76,6 +76,10 @@ lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Gaus
 lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Boole/DrawOccupancy.C(\"${CURRENT_DIR}/Boole\")" >>${SUBMIT_DIR}/plots.log
 lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Boole/DrawOccupancyRatio.C(\"${CURRENT_DIR}/Boole\",\"${REFERENCE_DIR}/Boole\")" >>${SUBMIT_DIR}/plots.log
 lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Boole/DrawSinOccupancyProfile.C(\"${CURRENT_DIR}/Boole\",\"${REFERENCE_DIR}/Boole\")" >>${SUBMIT_DIR}/plots.log
+
+# performance (yield & resolution)
+lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Gauss/DrawPerformance.C(\"${CURRENT_DIR}/Gauss\")" >>${SUBMIT_DIR}/plots.log
+lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/PID/DrawPerformance.C(\"${CURRENT_DIR}/Brunel\")" >>${SUBMIT_DIR}/plots.log
 
 # PID
 lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}/Brunel\",\"${REFERENCE_DIR}/Brunel\")" >>${SUBMIT_DIR}/plots.log
