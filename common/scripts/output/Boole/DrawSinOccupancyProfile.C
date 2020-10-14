@@ -1,9 +1,14 @@
 #include <TFile.h>
 #include <TH1D.h>
 #include <TH2D.h>
+#include <TF1.h>
 #include <TString.h>
 
-void DrawSinOccupancyProfile(const std::string dir1, const std::string dir2, const std::string dir3 = "")
+//-------------- configuration ---------------//
+const float maxOccupancyToDraw = 50.0f;
+//----------- enf of configuration -----------//
+
+void DrawSinOccupancyProfile(const std::string dir1, const std::string dir2, const float assumedSinRatio = 4.692f)
 {
 
     //config style
@@ -13,9 +18,11 @@ void DrawSinOccupancyProfile(const std::string dir1, const std::string dir2, con
     //  gStyle->SetOptStat(0010);
     gStyle->SetOptStat(0);
     gStyle->SetPalette(104);
+    gStyle->SetTextSize(0.07);
     // gStyle->SetPalette(kNeon);
     //   gStyle->SetPalette(kRainBow);
     // gStyle->SetPalette(kVisibleSpectrum);
+    gROOT->ForceStyle();
 
     //load histograms
     TFile *f = TFile::Open(TString(dir1 + "/Boole-Histo.root"));
@@ -88,16 +95,35 @@ void DrawSinOccupancyProfile(const std::string dir1, const std::string dir2, con
             R2PmtOccupProfile->Fill(R2PmtOccupPercent_ref->GetBinContent(i), R2PmtOccupPercent->GetBinContent(i));
     }
 
+    // prepare a reference curve
+    TF1 *fModel = new TF1("fModel", "100 * ( 1 - ( 1 - x/100 ) * ( exp( -[0] * x/100 ) ) )  ", 0, maxOccupancyToDraw);
+    fModel->SetParameter(0, assumedSinRatio);
+
+    // prepare description
+    TLegend *tl1 = new TLegend(0.60, 0.15, 0.80, 0.30);
+    tl1->AddEntry(R1PmtOccupProfile, (std::string("Boole (B/S = ") + std::to_string(assumedSinRatio) + std::string(")")).c_str(), "p");
+    tl1->AddEntry(fModel, (std::string("model (B/S = ") + std::to_string(assumedSinRatio) + std::string(")")).c_str(), "l");
+
+    TLegend *tl2 = new TLegend(0.60, 0.15, 0.80, 0.30);
+    tl2->AddEntry(R2PmtOccupProfile, (std::string("Boole (B/S = ") + std::to_string(assumedSinRatio) + std::string(")")).c_str(), "p");
+    tl2->AddEntry(fModel, (std::string("model (B/S = ") + std::to_string(assumedSinRatio) + std::string(")")).c_str(), "l");
+
     //save plots
     TCanvas *c1 = new TCanvas("c1", "Rich1 : Av. channel occupancy ( with VS without SIN )", canvasSizeX, canvasSizeY);
     R1PmtOccupProfile->Draw("COLZ");
+    fModel->Draw("SAME");
+    tl1->Draw("SAME");
 
     c1->SaveAs("occupancy_Boole_R1_profileSin.pdf");
 
     TCanvas *c1_2 = new TCanvas("c1_2", "Rich2 : Av. channel occupancy ( with VS without SIN )", canvasSizeX, canvasSizeY);
     R2PmtOccupProfile->Draw("COLZ");
+    fModel->Draw("SAME");
+    tl2->Draw("SAME");
 
     c1_2->SaveAs("occupancy_Boole_R2_profileSin.pdf");
+
+    delete fModel;
 
     f->Close();
     f2->Close();

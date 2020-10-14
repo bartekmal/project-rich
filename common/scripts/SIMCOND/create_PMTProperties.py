@@ -49,17 +49,17 @@ def isGrandModule(moduleGlobal):
         elif moduleGlobal % 6 in [0, 1, 4, 5]:
             return True
         else:
-            print "I have a bad feeling about this..."
+            print("I have a bad feeling about this...")
 
 def createValidCopyNumberList(copyNumberBegin, copyNumberEnd):
     
     copyNumberList = []
 
-    noEC0TypeModules = range(6,66,6)+range(72,132,6)
-    noEC3TypeModules = range(11,71,6)+range(77,137,6)
+    noEC0TypeModules =  list(range(6,66,6))+list(range(72,132,6))
+    noEC3TypeModules =  list(range(11,71,6))+list(range(77,137,6))
 
     for pmtCopyNumber in range(copyNumberBegin,copyNumberEnd):
-        moduleGlobal = pmtCopyNumber/16
+        moduleGlobal = int(pmtCopyNumber//16)
         pmtInModule = pmtCopyNumber % 16
 
         #RICH1
@@ -129,11 +129,12 @@ def createSINVectorParam( outputFile, occupancy, moduleNrGlobal, countersNrOfPmt
         currentPMTOccupancyRegion = 5
         countersNrOfPmts[5] = countersNrOfPmts[5] + 1
 
-    sinInputFiles = [ "input/sinProb/900V/output/sinProb_{0}.txt".format( occupancyRegion ) for occupancyRegion in range(1,8) ]
+    sinInputFiles = [ "input/sinProb/900V/output/sinRatio_{0}.txt".format( occupancyRegion ) for occupancyRegion in range(1,8) ]
     sinProbabilityList = readAListFromFile( sinInputFiles[ currentPMTOccupancyRegion ], "," )
 
     #create the paramVector
-    outputFile.write( '      <paramVector name="SINProbability" type="double" comment="SIN probability for each channel (pixel) in the PMT [probability in range 0-1].">\n' )
+    outputFile.write(
+        '      <paramVector name="SINRatio" type="double" comment="SIN B/S ratio for each channel (pixel) in the PMT (values measured with HV = 900 V).">\n')
 
     outputFile.write( '        ')
     
@@ -142,7 +143,7 @@ def createSINVectorParam( outputFile, occupancy, moduleNrGlobal, countersNrOfPmt
             outputFile.write( '0.0\t' )
     else:
         for i in range( nrOfChannelsInPmt ):
-            outputFile.write( str( float(sinProbabilityList[i]) / 100. )+'\t' )
+            outputFile.write( str( float(sinProbabilityList[i]) )+'\t' )
     
     outputFile.write( '\n')
 
@@ -163,7 +164,7 @@ def createConditionForEachValidCopyNumber( outputFile, numberBegin, numberEnd, c
         outputFile.write('    <condition classID="5"  name="PMT{0}_{1}">\n'.format(validCopyNumbersList[i_el], conditionName))
         outputFile.write('\n')
 
-        moduleNrGlobal = validCopyNumbersList[i_el] / 16
+        moduleNrGlobal = validCopyNumbersList[i_el] // 16
 
         #create parameters
         for paramVect in paramVectListConstantValue:
@@ -181,9 +182,10 @@ def createConditionForEachValidCopyNumber( outputFile, numberBegin, numberEnd, c
 
         counter +=1
 
-    print "Created a condition for each element.\n\tname: {0}\n\t#elements: {1}".format(conditionName, len( validCopyNumbersList ) )
-    print "Number of PMTs in different occupancy regions (for SIN mostly):\n"
-    print countersNrOfPmts
+    print("Created a condition for each element.\n\tname: {0}\n\t#elements: {1}".format(
+        conditionName, len(validCopyNumbersList)))
+    print("Number of PMTs in different occupancy regions (for SIN mostly):\n")
+    print(countersNrOfPmts)
 
 def createCatalogOfConditions( filePath, numberBegin, numberEnd, catalogName  ):
 
@@ -222,11 +224,13 @@ paramVectListConstantValue = [
     ]
 
 paramListFromFile_R1 = [
-    [ "AverageOccupancy", "double", "Average PMT occupancy [probability in range 0-1]. This is the B-event occupancy simulated for nu=7.6 with Gauss/v54r3 after the RICH simulation input updates done in 2020-08.", readAListFromFile( "input/occupancy/Gauss_v53r2/output/365_percent.txt" , "," ), readAListFromFile( "input/occupancy/Gauss_v54r3/simInputUpdates/stdNu_7c6/bEvent/output/365_percent.txt" , "," ) ],
+    ["AverageOccupancy", "double", "Average PMT occupancy [probability in range 0-1]. This is the MB occupancy simulated for nu=7.6 with Gauss/v54r3 after the RICH simulation input updates done in 2020-08.",
+        readAListFromFile("input/occupancy/Gauss_v53r2/output/365_percent.txt", ","), readAListFromFile("input/occupancy/Gauss_v54r3/simInputUpdates/stdNu_7c6/minBias/output/365_percent.txt", ",")],
 ]
 
 paramListFromFile_R2 = [
-    [ "AverageOccupancy", "double", "Average PMT occupancy [probability in range 0-1]. This is the B-event occupancy simulated for nu=7.6 with Gauss/v54r3 after the RICH simulation input updates done in 2020-08.", readAListFromFile( "input/occupancy/Gauss_v53r2/output/385_percent.txt" , "," ), readAListFromFile( "input/occupancy/Gauss_v54r3/simInputUpdates/stdNu_7c6/bEvent/output/385_percent.txt" , "," ) ],
+    ["AverageOccupancy", "double", "Average PMT occupancy [probability in range 0-1]. This is the MB occupancy simulated for nu=7.6 with Gauss/v54r3 after the RICH simulation input updates done in 2020-08.",
+        readAListFromFile("input/occupancy/Gauss_v53r2/output/385_percent.txt", ","), readAListFromFile("input/occupancy/Gauss_v54r3/simInputUpdates/stdNu_7c6/minBias/output/385_percent.txt", ",")],
 ]
 
 
@@ -236,14 +240,14 @@ createCatalogOfConditions( outputPath+'/Rich1', 0, nMaxPmtCopyNumberRich1, "Rich
 
 rich1File = detectorNumbersFileOpen( outputPathRich1+'/'+outputFileName, catalogName )
 
-print "\n---> Creating lists for Rich1:\n"
+print("\n---> Creating lists for Rich1:\n")
 
 conditionName = "Properties"
 createConditionForEachValidCopyNumber(rich1File, 0, nMaxPmtCopyNumberRich1, conditionName, paramVectListConstantValue, paramListFromFile_R1 )
 
 detectorNumbersFileClose(rich1File, catalogName )
 
-print "\n<--- Done for Rich1\n\n"
+print("\n<--- Done for Rich1\n\n")
 
 #RICH2
 
@@ -251,10 +255,10 @@ createCatalogOfConditions( outputPath+'/Rich2', nMaxPmtCopyNumberRich1, nMaxPmtC
 
 rich2File = detectorNumbersFileOpen( outputPathRich2+'/'+outputFileName, catalogName )
 
-print "\n---> Creating lists for Rich2:\n"
+print("\n---> Creating lists for Rich2:\n")
 
 createConditionForEachValidCopyNumber(rich2File, nMaxPmtCopyNumberRich1, nMaxPmtCopyNumberRich1+nMaxPmtCopyNumberRich2, conditionName, paramVectListConstantValue, paramListFromFile_R2 )
 
 detectorNumbersFileClose( rich2File, catalogName )
 
-print "\n<--- Done for Rich2\n\n"
+print("\n<--- Done for Rich2\n\n")

@@ -17,11 +17,11 @@ def getOccupancy(f):
     #translate to real pixel map
     binContentsFinal = binContentsOriginal
     
-    print "Nr of elements: " + str( len( binContentsFinal ) )
+    print("Nr of elements: " + str(len(binContentsFinal)))
 
     #check
     #for i in range( len( binContentsFinal ) ):
-    #    print str(i) + " : \t " + str(binContentsOriginal[i]) + " \t " +  str(binContentsFinal[i])
+    #    print (str(i) + " : \t " + str(binContentsOriginal[i]) + " \t " +  str(binContentsFinal[i]))
 
     return binContentsFinal
 
