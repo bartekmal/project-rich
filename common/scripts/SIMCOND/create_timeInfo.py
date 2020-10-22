@@ -6,10 +6,12 @@ from scipy.interpolate import interp1d
 from numpy import arange
 
 # config
-inputSignals = [0.1, 0.18, 0.32, 0.56, 1.0, 1.8, 3.2, 5.6, 10.0]
-thresholdValues = [x for x in arange(0.100, 0.500, 0.025)]
+# tune to the measurement points
+inputSignals = [0.000, 0.078, 0.156, 0.234, 0.312, 0.390, 0.468, 0.546, 0.624, 0.702, 0.780, 0.858, 0.936, 1.014, 1.092, 1.170, 1.248, 1.326, 1.404, 1.482, 1.560, 1.638, 1.716, 1.794,
+                1.872, 1.950, 2.028, 2.106, 2.184, 2.262, 2.340, 2.418, 2.496, 2.574, 2.652, 2.730, 2.808, 2.886, 2.964, 3.042, 3.120, 3.198, 3.276, 3.354, 3.432, 3.510, 3.588, 3.666, 3.744, 3.822, 3.900]
+thresholdValues = [x for x in arange(0.100, 0.500 + 0.025, 0.025)]
 
-#thresholdValues = [0.090, 0.210, 0.450, 0.930] # for xcheck with original width/delay plot
+# thresholdValues = [0.090, 0.210, 0.450, 0.930] # for xcheck with original width/delay plot
 
 
 def delayForSingleInputSignal(timeInfo, inputSignal):
@@ -151,12 +153,12 @@ for threshold in thresholdValues:
     # print to file
     outputFileDelay.write("% threshold = {:.3f}\n".format(threshold))
     for el in delayInThreshold:
-        outputFileDelay.write("{:.2f}\t{:.3f}\n".format(el[0], el[1]))
+        outputFileDelay.write("{:5.3f}\t{:7.4f}\n".format(el[0], el[1]))
     outputFileDelay.write("\n")
 
     outputFileWidth.write("% threshold = {:.3f}\n".format(threshold))
     for el in widthInThreshold:
-        outputFileWidth.write("{:.2f}\t{:.3f}\n".format(el[0], el[1]))
+        outputFileWidth.write("{:5.3f}\t{:7.4f}\n".format(el[0], el[1]))
     outputFileWidth.write("\n")
 
 # save plots
