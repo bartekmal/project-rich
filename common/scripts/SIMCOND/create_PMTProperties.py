@@ -224,13 +224,13 @@ paramVectListConstantValue = [
     ]
 
 paramListFromFile_R1 = [
-    ["AverageOccupancy", "double", "Average PMT occupancy [probability in range 0-1]. This is the MB occupancy simulated for nu=7.6 with Gauss/v54r3 after the RICH simulation input updates done in 2020-08.",
-        readAListFromFile("input/occupancy/Gauss_v53r2/output/365_percent.txt", ","), readAListFromFile("input/occupancy/Gauss_v54r3/simInputUpdates/stdNu_7c6/minBias/output/365_percent.txt", ",")],
+    ["AverageOccupancy", "double", "Average PMT occupancy [probability in range 0-1]. This is the MB occupancy simulated for nu=7.6 with Gauss/v54r5 after the nominal PMT QE update done in 2021-02 (including T and P corrections).",
+        readAListFromFile("input/occupancy/Gauss_v53r2/output/365_percent.txt", ","), readAListFromFile("input/occupancy/Gauss_v54r5/nominalPmtQeTPCorrection/stdNu_7c6/minBias/output/365_percent.txt", ",")],
 ]
 
 paramListFromFile_R2 = [
-    ["AverageOccupancy", "double", "Average PMT occupancy [probability in range 0-1]. This is the MB occupancy simulated for nu=7.6 with Gauss/v54r3 after the RICH simulation input updates done in 2020-08.",
-        readAListFromFile("input/occupancy/Gauss_v53r2/output/385_percent.txt", ","), readAListFromFile("input/occupancy/Gauss_v54r3/simInputUpdates/stdNu_7c6/minBias/output/385_percent.txt", ",")],
+    ["AverageOccupancy", "double", "Average PMT occupancy [probability in range 0-1]. This is the MB occupancy simulated for nu=7.6 with Gauss/v54r5 after the nominal PMT QE update done in 2021-02 (including T and P corrections).",
+        readAListFromFile("input/occupancy/Gauss_v53r2/output/385_percent.txt", ","), readAListFromFile("input/occupancy/Gauss_v54r5/nominalPmtQeTPCorrection/stdNu_7c6/minBias/output/385_percent.txt", ",")],
 ]
 
 
