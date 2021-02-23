@@ -99,5 +99,18 @@ void DrawOccupancy(const std::string dir1)
   //c1p_2 -> SaveAs("385_percent.C");
   //c1n_2 -> SaveAs("385_norm.C");
 
+  // detector occupancy
+  {
+    TCanvas *c3_1 = new TCanvas("c3_1", "Rich1 : Detector occupancy", canvasSizeX, canvasSizeY);
+    // R1OverallNH->Scale(1.0 / (numEvR1 * 1.0));
+    R1OverallNH->Draw();
+    c3_1->SaveAs("363.pdf");
+
+    TCanvas *c3_2 = new TCanvas("c3_2", "Rich2 : Detector occupancy", canvasSizeX, canvasSizeY);
+    // R2OverallNH->Scale(1.0 / (numEvR2 * 1.0));
+    R2OverallNH->Draw();
+    c3_2->SaveAs("383.pdf");
+  }
+
   f->Close();
 }

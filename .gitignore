@@ -2,9 +2,12 @@
 *~
 *#
 
+#config
+.vscode
+
 #ccache
 .ccache
 
 #paths
-tests/
+software/
 jobs/

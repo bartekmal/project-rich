@@ -15,7 +15,7 @@
 
 #include "GlobalPID.C"
 
-void RichProtonIDCompareFiles(const std::string dir1, const std::string dir2, const std::string title1 = "with SIN", const std::string title2 = "no SIN")
+void RichProtonIDCompareFiles(const std::string filePath1, const std::string filePath2, const int richNr = 0, const std::string title1 = "current", const std::string title2 = "reference")
 {
 
   // Default Config Object
@@ -36,8 +36,30 @@ void RichProtonIDCompareFiles(const std::string dir1, const std::string dir2, co
   defaultConfig.nSteps      = 100;
   defaultConfig.minMisIDeff = 1.0;
   // Momentum range
-  defaultConfig.minP      = 3   * GeV;
-  defaultConfig.maxP      = 100 * GeV;
+  if (richNr == 0)
+  {
+    defaultConfig.minP = 3 * GeV;
+    defaultConfig.maxP = 100 * GeV;
+  }
+  else if (richNr == 1)
+  {
+    defaultConfig.minP = 3 * GeV;
+    defaultConfig.maxP = 60 * GeV; // previously checked in 3-20 GeV region
+    defaultConfig.minAngle = 25; // mrad
+    defaultConfig.maxAngle = 300; // mrad
+  }
+  else if (richNr == 2)
+  {
+    defaultConfig.minP = 15 * GeV;
+    defaultConfig.maxP = 100 * GeV; // previously checked in 35-100 GeV region
+    defaultConfig.minAngle = 15; // mrad
+    defaultConfig.maxAngle = 120; // mrad
+  }
+  else
+  {
+    std::cout << "Unknown nrRich configuration (choose 0,1,2)" << std::endl;
+    return;
+  }
   defaultConfig.minPt     = 0.5 * GeV;
   defaultConfig.maxPt     = 100 * GeV;
   // track selection
@@ -54,8 +76,8 @@ void RichProtonIDCompareFiles(const std::string dir1, const std::string dir2, co
 
   const PlotData plotdata = 
   {
-    std::make_tuple ( dir1+"/Brunel-Ntuple.root", title1, kRed-6 ),
-    std::make_tuple ( dir2+"/Brunel-Ntuple.root", title2, kBlue+1 ),
+     std::make_tuple(filePath1, title1, kRed - 6),
+     std::make_tuple(filePath2, title2, kBlue + 1),
   };
 
   //protonID VS pionMisID

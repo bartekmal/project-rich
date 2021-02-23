@@ -18,8 +18,8 @@ struct PlotData
 };
 
 std::vector<PlotData> plots = {
-    PlotData("RICH/RiCKMCResLong/Rich1Gas/ckResTrue", "Single photon resolution [rad] (Brunel, MC true) - R1", "res_Brunel_R1", -0.0015, 0.0015),
-    PlotData("RICH/RiCKMCResLong/Rich2Gas/ckResTrue", "Single photon resolution [rad] (Brunel, MC true) - R2", "res_Brunel_R2", -0.001, 0.001),
+    PlotData("RICH/RiCKMCResLong/Rich1Gas/ckResTrue", "Single photon resolution [rad] (reconstructed, MC true) - R1", "res_reconstructed_R1", -0.0015, 0.0015),
+    PlotData("RICH/RiCKMCResLong/Rich2Gas/ckResTrue", "Single photon resolution [rad] (reconstructed, MC true) - R2", "res_reconstructed_R2", -0.001, 0.001),
 };
 
 // style
@@ -53,7 +53,7 @@ void DrawPerformanceGeneric(const PlotData &plot, TFile *&inputFile)
     currentCanvas.SaveAs(".pdf");
 }
 
-void DrawPerformance(const std::string &fileDir, const std::string &fileName = std::string("Brunel-Histo.root"))
+void DrawPerformance(const std::string &fileDir, const std::string &fileName)
 {
     // style
     setStyle();

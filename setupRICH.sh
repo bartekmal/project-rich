@@ -10,7 +10,7 @@ function rich-setup-env() {
 
   #common variables (for running jobs etc)
   export EOS_PREFIX="root://eoslhcb.cern.ch/"
-  export SLEEP_TIME=20 #after finishing one application, before using output
+  export SLEEP_TIME=5 #after finishing one application, before using output
   export CMTCONFIG_GAUSS=x86_64-centos7-gcc9-opt
   export CMTCONFIG_STACK=x86_64-centos7-gcc9-opt
   export CMTCONFIG_ROOT="x86_64-centos7-gcc9-opt -p LD_LIBRARY_PATH=/cvmfs/lhcb.cern.ch/lib/lcg/releases/gcc/9.2.0-afc57/x86_64-centos7/lib64/"
@@ -65,12 +65,30 @@ function rich-setup-gaussStack() {
   echo "--> Setting up Gauss stack sub-environment."
   echo ""
 
-  NEW_SOFTWARE_DIR=$RICH_BASE_SOFTWARE/stack_Gauss
+  NEW_SOFTWARE_DIR=$RICH_BASE_SOFTWARE/stack-gauss
 
   export PS1="[\u@\h \W] (Gauss - stack) \$ "
   lb-set-platform ${CMTCONFIG_GAUSS}
   lb-set-workspace $NEW_SOFTWARE_DIR
   rich-setup-loginInfo
+}
+
+function rich-make-study() {
+  # config
+  STUDY_PATH=$RICH_BASE_JOBS/${1:-test}
+
+  # sanitise
+  if [ -d $STUDY_PATH ]; then
+    echo "Directory already exists:"
+    echo $STUDY_PATH
+    return 1
+  else
+    echo "Creating a new study in:"
+    echo $STUDY_PATH
+    mkdir -p $STUDY_PATH
+    cp ${RICH_BASE_SCRIPTS}/Makefile $STUDY_PATH
+    cd $STUDY_PATH
+  fi
 }
 
 ######## setupRICH - default ##############
@@ -96,5 +114,5 @@ fi
 #set RICH environment variables (default setup)
 rich-setup-env
 lb-set-platform ${CMTCONFIG_STACK}
-lb-set-workspace ${RICH_BASE_SOFTWARE}
+lb-set-workspace ${RICH_BASE_SOFTWARE}/stack-lhcb
 rich-setup-loginInfo
