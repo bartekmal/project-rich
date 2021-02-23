@@ -15,7 +15,7 @@
 
 #include "GlobalPID.C"
 
-void RichKaonIDCompareFiles(const std::string dir1, const std::string dir2, const int richNr = 0, const std::string title1 = "PMTArray geometry", const std::string title2 = "reference")
+void RichKaonIDCompareFiles(const std::string filePath1, const std::string filePath2, const int richNr = 0, const std::string title1 = "current", const std::string title2 = "reference")
 {
 
   // Default Config Object
@@ -32,57 +32,65 @@ void RichKaonIDCompareFiles(const std::string dir1, const std::string dir2, cons
   //defaultConfig.minGraphY = 40;
   //defaultConfig.maxGraphY = 80;
   // Stepping options
-  defaultConfig.maxCut      = 35;
-  defaultConfig.nSteps      = 100;
+  defaultConfig.maxCut = 35;
+  defaultConfig.nSteps = 100;
   defaultConfig.minMisIDeff = 1.0;
   // Momentum range
-  if ( richNr == 0 ){
-    defaultConfig.minP      = 3   * GeV;
-    defaultConfig.maxP      = 100 * GeV;
-  } else if ( richNr == 1 ){
-    defaultConfig.minP      = 3   * GeV;
-    defaultConfig.maxP      = 20 * GeV;
-  } else if ( richNr == 2 ){
-    defaultConfig.minP      = 35  * GeV;
-    defaultConfig.maxP      = 100 * GeV;
-  } else if ( richNr == 3 ){
-    defaultConfig.minP      = 20  * GeV;
-    defaultConfig.maxP      = 35 * GeV;
-  } else {
+  if (richNr == 0)
+  {
+    defaultConfig.minP = 3 * GeV;
+    defaultConfig.maxP = 100 * GeV;
+  }
+  else if (richNr == 1)
+  {
+    defaultConfig.minP = 3 * GeV;
+    defaultConfig.maxP = 60 * GeV; // previously checked in 3-20 GeV region
+    defaultConfig.minAngle = 25; // mrad
+    defaultConfig.maxAngle = 300; // mrad
+  }
+  else if (richNr == 2)
+  {
+    defaultConfig.minP = 15 * GeV;
+    defaultConfig.maxP = 100 * GeV; // previously checked in 35-100 GeV region
+    defaultConfig.minAngle = 15; // mrad
+    defaultConfig.maxAngle = 120; // mrad
+  }
+  else
+  {
     std::cout << "Unknown nrRich configuration (choose 0,1,2)" << std::endl;
     return;
   }
-  defaultConfig.minPt     = 0.5 * GeV;
-  defaultConfig.maxPt     = 100 * GeV;
+  defaultConfig.minPt = 0.5 * GeV;
+  defaultConfig.maxPt = 100 * GeV;
   // track selection
   defaultConfig.trackType = GlobalPID::Long;
   //defaultConfig.trackType = GlobalPID::Upstream;
   //defaultConfig.trackType = GlobalPID::Downstream;
   // detector selection
   defaultConfig.mustHaveAnyRICH = true;
-  
-  using PlotData = std::vector< std::tuple<std::string,std::string,Color_t> >;
+
+  using PlotData = std::vector<std::tuple<std::string, std::string, Color_t>>;
 
   // colours...
   // kBlack kRed-6 kBlue+1 kGreen+2 kYellow+3 kRed+1 kMagenta+2 kCyan+2
 
-  const PlotData plotdata = 
-  {
-    std::make_tuple ( dir1+"/Brunel-Ntuple.root", title1, kRed-6 ),
-    std::make_tuple ( dir2+"/Brunel-Ntuple.root", title2, kBlue+1 ),
-  };
+  const PlotData plotdata =
+      {
+          std::make_tuple(filePath1, title1, kRed - 6),
+          std::make_tuple(filePath2, title2, kBlue + 1),
+      };
 
   //kaonID VS pionMisID
   {
     // make a pid object
     auto pid = std::make_unique<GlobalPID>();
-    pid->config             = defaultConfig;
+    pid->config = defaultConfig;
     // Plot Type
-    pid->config.title     = "RICH Kaon ID VS Pion MisID (richDLL)";
-    pid->config.idType    = GlobalPID::Kaon;
+    pid->config.title = "RICH Kaon ID VS Pion MisID (richDLL)";
+    pid->config.idType = GlobalPID::Kaon;
     pid->config.misidType = GlobalPID::Pion;
-    pid->config.var1      = GlobalPID::richDLLk;
-    pid->config.var2      = GlobalPID::richDLLpi;
+    pid->config.var1 = GlobalPID::richDLLk;
+    pid->config.var2 = GlobalPID::richDLLpi;
     // Plot ranges
     pid->config.minGraphX = 80;
     pid->config.maxGraphX = 100;
@@ -90,23 +98,23 @@ void RichKaonIDCompareFiles(const std::string dir1, const std::string dir2, cons
     pid->config.maxGraphY = 20;
 
     unsigned int iPlot = 0;
-    for ( const auto& pd : plotdata )
-      {
-	// ROOT file
-	const auto & fname = std::get<0>(pd);
-	// title
-	const auto & title = std::get<1>(pd);
-	// colour
-	const auto & color = std::get<2>(pd);
-	pid->loadTTree( fname );	
-	pid->config.subtitle    = title;
-	pid->config.superImpose = ( iPlot != 0 );
-	pid->config.color       = color;
-	// create the plot
-	pid->makeCurve(nTracks);
-	++iPlot;
-      }
-  
+    for (const auto &pd : plotdata)
+    {
+      // ROOT file
+      const auto &fname = std::get<0>(pd);
+      // title
+      const auto &title = std::get<1>(pd);
+      // colour
+      const auto &color = std::get<2>(pd);
+      pid->loadTTree(fname);
+      pid->config.subtitle = title;
+      pid->config.superImpose = (iPlot != 0);
+      pid->config.color = color;
+      // create the plot
+      pid->makeCurve(nTracks);
+      ++iPlot;
+    }
+
     // save the figures
     pid->saveFigures();
     //pid->saveFigures("root");
