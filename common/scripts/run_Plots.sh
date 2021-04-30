@@ -7,12 +7,11 @@ if [ -z ${RICH_HOST+x} ]; then
 fi
 
 ######################################################## BEGIN CONFIG ###################
-#Scripts in GlobalReco from Rec/8ae078efadd68927f1a34ccdfafd3340b6fbcd0f
-#-> GlobalPID.C: removed cut on trackLikelihood
-#-> MakeRichPlots and RichKaonID modified to take dir as argument
-
 #replace scripts with local GlobalReco copy if needed
 #default: draw current folder VS reference
+
+#flag if the files are prepared with a particle gun (if info needed for particular plots)
+IS_PARTICLE_GUN=false
 ############################################################ END OF CONFIG #######################
 
 ##############create dirs on eos
@@ -44,14 +43,14 @@ if [ ! -e $INPUT_DIR ]; then
 fi
 
 #create log file
-rm ${SUBMIT_DIR}/plots.log
+rm -f ${SUBMIT_DIR}/plots.log
 touch ${SUBMIT_DIR}/plots.log
 
 #merge outputs
 # eos rm ${INPUT_DIR}/Gauss/Gauss-Histo.root
-# lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k ${EOS_PREFIX}${INPUT_DIR}/Gauss/Gauss-Histo.root ${INPUT_DIR}/Gauss/root/Gauss_*.root >>plots.log
+# lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k ${EOS_PREFIX}${INPUT_DIR}/Gauss/Gauss-Histo.root ${INPUT_DIR}/Gauss/root/Gauss-Histo_*.root >>plots.log
 # eos rm ${INPUT_DIR}/Boole/Boole-Histo.root
-# lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k ${EOS_PREFIX}${INPUT_DIR}/Boole/Boole-Histo.root ${INPUT_DIR}/Boole/root/Boole_*.root >>plots.log
+# lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k ${EOS_PREFIX}${INPUT_DIR}/Boole/Boole-Histo.root ${INPUT_DIR}/Boole/root/Boole-Histo_*.root >>plots.log
 # eos rm ${INPUT_DIR}/Brunel/Brunel-Histo.root
 # lb-run -c ${CMTCONFIG_ROOT} ROOT hadd -n 0 -ff -k ${EOS_PREFIX}${INPUT_DIR}/Brunel/Brunel-Histo.root ${INPUT_DIR}/Brunel/root/Brunel-Histo_*.root >>plots.log
 # eos rm ${INPUT_DIR}/Brunel/Brunel-Ntuple.root
@@ -63,12 +62,13 @@ touch ${SUBMIT_DIR}/plots.log
 
 #create plots
 rm -rf ${OUTPUT_DIR}
-for OUTPUT_TYPE in occupancy performance pdResponse PID/Brunel PID/Rec1 PID/Rec2; do
+for OUTPUT_TYPE in simInputs occupancy performance pdResponse PID/Brunel PID/Rec1 PID/Rec2; do
     mkdir -p ${OUTPUT_DIR}/${OUTPUT_TYPE}
 done
 
 CURRENT_DIR=${INPUT_DIR}
 REFERENCE_DIR=${CURRENT_DIR}
+REFERENCE_JOB=${RICH_BASE_JOBS}/$(echo $REFERENCE_DIR | sed -e "s:${RICH_DATA}/::")
 
 echo ""
 echo "Creating plots for : ${CURRENT_DIR}"
@@ -77,17 +77,20 @@ echo ""
 
 # Gauss-Histo
 if [ -f ${CURRENT_DIR}/Gauss/Gauss-Histo.root ]; then
+    cd ${OUTPUT_DIR}/simInputs
+    lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Gauss/DrawSimInputs.C(\"${CURRENT_DIR}/Gauss\",\"Gauss-Histo.root\")" >>${SUBMIT_DIR}/plots.log
     cd ${OUTPUT_DIR}/occupancy
-    lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Gauss/DrawOccupancy.C(\"${CURRENT_DIR}/Gauss\")" >>${SUBMIT_DIR}/plots.log
+    lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Gauss/DrawOccupancy.C(\"${CURRENT_DIR}/Gauss\",\"Gauss-Histo.root\")" >>${SUBMIT_DIR}/plots.log
+    lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Gauss/DrawOccupancyRatio.C(\"${OUTPUT_DIR}/occupancy/output.root\",\"${REFERENCE_JOB}/output/occupancy/output.root\")" >>${SUBMIT_DIR}/plots.log
     cd ${OUTPUT_DIR}/performance
-    lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Gauss/DrawPerformance.C(\"${CURRENT_DIR}/Gauss\")" >>${SUBMIT_DIR}/plots.log
+    lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Gauss/DrawPerformance.C(\"${CURRENT_DIR}/Gauss\",\"Gauss-Histo.root\",${IS_PARTICLE_GUN})" >>${SUBMIT_DIR}/plots.log
 fi
 
 # Boole-Histo
 if [ -f ${CURRENT_DIR}/Boole/Boole-Histo.root ]; then
     cd ${OUTPUT_DIR}/occupancy
     lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Boole/DrawOccupancy.C(\"${CURRENT_DIR}/Boole\")" >>${SUBMIT_DIR}/plots.log
-    lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Boole/DrawOccupancyRatio.C(\"${CURRENT_DIR}/Boole\",\"${REFERENCE_DIR}/Boole\")" >>${SUBMIT_DIR}/plots.log
+    lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Boole/DrawOccupancyRatio.C(\"${OUTPUT_DIR}/occupancy/output.root\",\"${REFERENCE_JOB}/output/occupancy/output.root\")" >>${SUBMIT_DIR}/plots.log
     # lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Boole/DrawSinOccupancyProfile.C(\"${CURRENT_DIR}/Boole\",\"${REFERENCE_DIR}/Boole\")" >>${SUBMIT_DIR}/plots.log
     cd ${OUTPUT_DIR}/pdResponse
     lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/Boole/DrawPdResponse.C(\"${CURRENT_DIR}/Boole\",\"Boole-Histo.root\")" >>${SUBMIT_DIR}/plots.log
@@ -95,8 +98,6 @@ fi
 
 # Brunel-Histo
 if [ -f ${CURRENT_DIR}/Brunel/Brunel-Histo.root ]; then
-    cd ${OUTPUT_DIR}/PID/Brunel
-    lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/MakeRichPlots.C(\"${CURRENT_DIR}/Brunel/Brunel-Histo.root\")" >>${SUBMIT_DIR}/plots.log
     cd ${OUTPUT_DIR}/performance
     lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS}/output/PID/DrawPerformance.C(\"${CURRENT_DIR}/Brunel\",\"Brunel-Histo.root\")" >>${SUBMIT_DIR}/plots.log
 fi
@@ -104,6 +105,7 @@ fi
 # Brunel-Ntuple
 if [ -f ${CURRENT_DIR}/Brunel/Brunel-Ntuple.root ]; then
     cd ${OUTPUT_DIR}/PID/Brunel
+    lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/MakeRichPlots.C(\"${CURRENT_DIR}/Brunel/Brunel-Ntuple.root\")" >>${SUBMIT_DIR}/plots.log
     lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}/Brunel/Brunel-Ntuple.root\",\"${REFERENCE_DIR}/Brunel/Brunel-Ntuple.root\")" >>${SUBMIT_DIR}/plots.log
     lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}/Brunel/Brunel-Ntuple.root\",\"${REFERENCE_DIR}/Brunel/Brunel-Ntuple.root\",1)" >>${SUBMIT_DIR}/plots.log
     lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}/Brunel/Brunel-Ntuple.root\",\"${REFERENCE_DIR}/Brunel/Brunel-Ntuple.root\",2)" >>${SUBMIT_DIR}/plots.log
@@ -122,4 +124,3 @@ if [ -f ${CURRENT_DIR}/Rec2/Rec-Ntuple.root ]; then
     lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}/Rec2/Rec-Ntuple.root\",\"${REFERENCE_DIR}/Rec2/Rec-Ntuple.root\")" >>${SUBMIT_DIR}/plots.log
     lb-run -c ${CMTCONFIG_ROOT} ROOT root -l -q -b "${RICH_BASE_SCRIPTS_GLOBAL_RECO}/RichKaonIDCompareFiles.C(\"${CURRENT_DIR}/Rec2/Rec-Ntuple.root\",\"${REFERENCE_DIR}/Rec2/Rec-Ntuple.root\",2)" >>${SUBMIT_DIR}/plots.log
 fi
-

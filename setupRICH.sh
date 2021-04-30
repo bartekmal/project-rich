@@ -19,9 +19,8 @@ function rich-setup-env() {
   export RICH_BASE_SOFTWARE=$RICH_BASE/software
   export RICH_BASE_OPTIONS=$RICH_BASE/common/options
   export RICH_BASE_SCRIPTS=$RICH_BASE/common/scripts
-  export RICH_BASE_SCRIPTS_GLOBAL_RECO=$RICH_BASE_SCRIPTS/output/PID/GlobalReco
+  export RICH_BASE_SCRIPTS_GLOBAL_RECO=$RICH_BASE_SOFTWARE/stack-lhcb/Rec/Rec/GlobalReco/root
   export RICH_BASE_JOBS=$RICH_BASE/jobs
-
 
   #useful aliases
   alias rich-cd-base="cd $RICH_BASE"

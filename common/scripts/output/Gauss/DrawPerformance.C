@@ -10,6 +10,9 @@
 #include "RooBifurGauss.h"
 #include "RooPlot.h"
 
+#include "/afs/cern.ch/work/b/bmalecki/RICH_Upgrade/common/scripts/utils/Utils.C"
+#include "/afs/cern.ch/work/b/bmalecki/RICH_Upgrade/common/scripts/utils/Styles.C"
+
 using namespace RooFit;
 
 // ----------------- configuration ---------------- //
@@ -17,71 +20,123 @@ using namespace RooFit;
 // plots to make
 struct PlotData
 {
+    // input / output info
     const std::string histName{};
-    const std::string plotTitle{};
     const std::string plotName{};
+    const std::string plotTitle{};
+    const std::string axisXLabel{};
+    const std::string axisYLabel{};
 
+    // info for the histograms processing
     const unsigned short rebinN{};
     const unsigned short fitFlag{};
 
     const float fitRangeMin{};
     const float fitRangeMax{};
 
-    PlotData(const std::string &iHistName, const std::string &iPlotTitle, const std::string &iPlotName, const unsigned short iRebinN = 1, const unsigned short iFitFlag = 0, const float &iFitRangeMin = 0., const float &iFitRangeMax = 0.) : histName(iHistName), plotTitle(iPlotTitle), plotName(iPlotName), rebinN(iRebinN), fitFlag(iFitFlag), fitRangeMin(iFitRangeMin), fitRangeMax(iFitRangeMax){};
+    PlotData(const std::string &iHistName, const std::string &iPlotName, const std::string &iPlotTitle, const std::string &iAxisXLabel, const std::string &iAxisYLabel, const unsigned short iRebinN = 1, const unsigned short iFitFlag = 0, const float &iFitRangeMin = 0., const float &iFitRangeMax = 0.) : histName(iHistName), plotName(iPlotName), plotTitle(iPlotTitle), axisXLabel(iAxisXLabel), axisYLabel(iAxisYLabel), rebinN(iRebinN), fitFlag(iFitFlag), fitRangeMin(iFitRangeMin), fitRangeMax(iFitRangeMax){};
 };
 
-std::vector<PlotData> plots = {
-    // R1
-    PlotData("RICHG4HISTOSET2/160", "Photon yield - R1", "yield_R1", 1, 1, 40., 75.), // range before sim input updates: 25, 60
-    PlotData("RICHG4HISTOSET4/1500A", "Single photon resolution [rad] (chromatic) - R1", "1500", 1, 2, 0.0505, 0.0545),
-    PlotData("RICHG4HISTOSET4/1530", "Single photon resolution [rad] (emission) - R1", "1530"),
-    PlotData("RICHG4HISTOSET4/1540", "Single photon resolution [rad] (pixel) - R1", "1540", 2),
-    PlotData("RICHG4HISTOSET4/1501", "Single photon resolution [rad] (overall) - R1", "resOverall_R1", 2, 1, 0.049, 0.055),
-
-    // R2 (R+H)
-    PlotData("RICHG4HISTOSET2/180", "Photon yield - R2", "yield_R2", 1, 1, 20., 45.), // range before sim input updates: 12, 35
-    PlotData("RICHG4HISTOSET4/1700A", "Single photon resolution [rad] (chromatic) - R2 (global)", "1700", 1, 2, 0.0285, 0.0315),
-    PlotData("RICHG4HISTOSET4/1730", "Single photon resolution [rad] (emission) - R2 (global)", "1730"),
-    PlotData("RICHG4HISTOSET4/1740", "Single photon resolution [rad] (pixel) - R2 (global)", "1740", 2),
-    PlotData("RICHG4HISTOSET4/1701", "Single photon resolution [rad] (overall) - R2 (global)", "resOverall_R2", 2, 1, 0.0286, 0.0308),
-
-    // R2 (R only)
-    PlotData("RICHG4HISTOSET2/180", "Photon yield - R2", "yield_R2", 1, 1, 20., 45.), // range before sim input updates: 12, 35
-    PlotData("RICHG4HISTOSET4/1700A_std", "Single photon resolution [rad] (chromatic) - R2 (PMT-R)", "1700_RType", 1, 2, 0.0285, 0.0315),
-    PlotData("RICHG4HISTOSET4/1730_std", "Single photon resolution [rad] (emission) - R2 (PMT-R)", "1730_RType"),
-    PlotData("RICHG4HISTOSET4/1740_std", "Single photon resolution [rad] (pixel) - R2 (PMT-R)", "1740_RType", 2),
-    PlotData("RICHG4HISTOSET4/1701_std", "Single photon resolution [rad] (overall) - R2 (PMT-R)", "resOverall_R2_RType", 2, 1, 0.0286, 0.0308),
-
-    // R2 (H only)
-    PlotData("RICHG4HISTOSET2/180", "Photon yield - R2", "yield_R2", 1, 1, 20., 45.), // range before sim input updates: 12, 35
-    PlotData("RICHG4HISTOSET4/1700A_grand", "Single photon resolution [rad] (chromatic) - R2 (PMT-H)", "1700_HType", 1, 2, 0.0285, 0.0315),
-    PlotData("RICHG4HISTOSET4/1730_grand", "Single photon resolution [rad] (emission) - R2 (PMT-H)", "1730_HType"),
-    PlotData("RICHG4HISTOSET4/1740_grand", "Single photon resolution [rad] (pixel) - R2 (PMT-H)", "1740_HType", 2),
-    PlotData("RICHG4HISTOSET4/1701_grand", "Single photon resolution [rad] (overall) - R2 (PMT-H)", "resOverall_R2_HType", 2, 1, 0.0286, 0.0308),
-};
-
-// style
-const auto canvasSizeX = 1200;
-const auto canvasSizeY = 1540;
-const float rightMargin = 0.125;
-
-void setStyle()
+std::vector<PlotData> prepareListOfPlots(const bool &isParticleGun)
 {
-    gStyle->SetOptFit(111);
-    gStyle->SetOptStat(1111);
-    gStyle->SetPalette(104);
+
+    const unsigned int rebinFactorForSignal = 2;
+
+    std::vector<PlotData> plots = {
+        // R1
+        PlotData(std::string("RICHG4HISTOSET2/") + (isParticleGun ? "160" : "158"), "yield_R1", "Av. photon yield|Rich1, Gauss", "#photon hits per saturated track", "Entries / (bin)", 1, 1, 20, 100), // range before sim input updates: 25, 60
+        PlotData(std::string("RICHG4HISTOSET4/1500A") + (isParticleGun ? "" : "_highQuality"), "1500", "Single-photon resolution (chromatic)|Rich1, Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 1 : rebinFactorForSignal), 2, 0.0505, 0.0545),
+        PlotData(std::string("RICHG4HISTOSET4/1530") + (isParticleGun ? "" : "_highQuality"), "1530", "Single-photon resolution (emission point)|Rich1, Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 1 : rebinFactorForSignal)),
+        PlotData(std::string("RICHG4HISTOSET4/1540") + (isParticleGun ? "" : "_highQuality"), "1540", "Single-photon resolution (pixel)|Rich1, Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 2 : 2 * rebinFactorForSignal)),
+        PlotData(std::string("RICHG4HISTOSET4/1501") + (isParticleGun ? "" : "_highQuality"), "resOverall_R1", "Single-photon resolution (overall)|Rich1, Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 2 : 2 * rebinFactorForSignal), 1, 0.0480, 0.0570),
+        PlotData(std::string("RICHG4HISTOSET4/1501") + (isParticleGun ? "" : "_highQuality"), "resOverall_bifurcated_R1", "Single-photon resolution (overall)|Rich1, Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 2 : 2 * rebinFactorForSignal), 2, 0.0480, 0.0570),
+        PlotData(std::string("RICHG4HISTOSET4/1560"), "1560", "Single-photon resolution (overall - gen)|Rich1, Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 2 : 2 * rebinFactorForSignal), 1, -0.004, 0.004),
+
+        // R2 (R+H)
+        PlotData(std::string("RICHG4HISTOSET2/") + (isParticleGun ? "180" : "178"), "yield_R2", "Av. photon yield|Rich2, Gauss", "#photon hits per saturated track", "Entries / (bin)", 1, 1, 0, 60), // range before sim input updates: 12, 35
+        PlotData(std::string("RICHG4HISTOSET4/1700A") + (isParticleGun ? "" : "_highQuality"), "1700", "Single-photon resolution (chromatic)|Rich2 (global), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 1 : rebinFactorForSignal), 2, 0.0285, 0.0315),
+        PlotData(std::string("RICHG4HISTOSET4/1730") + (isParticleGun ? "" : "_highQuality"), "1730", "Single-photon resolution (emission point)|Rich2 (global), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 1 : rebinFactorForSignal)),
+        PlotData(std::string("RICHG4HISTOSET4/1740") + (isParticleGun ? "" : "_highQuality"), "1740", "Single-photon resolution (pixel)|Rich2 (global), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 2 : 2 * rebinFactorForSignal)),
+        PlotData(std::string("RICHG4HISTOSET4/1701") + (isParticleGun ? "" : "_highQuality"), "resOverall_R2", "Single-photon resolution (overall)|Rich2 (global), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 2 : 2 * rebinFactorForSignal), 1, 0.0260, 0.0340),
+        PlotData(std::string("RICHG4HISTOSET4/1701") + (isParticleGun ? "" : "_highQuality"), "resOverall_bifurcated_R2", "Single-photon resolution (overall)|Rich2 (global), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 2 : 2 * rebinFactorForSignal), 2, 0.0260, 0.0340),
+        PlotData(std::string("RICHG4HISTOSET4/1760"), "1760", "Single-photon resolution (overall - gen)|Rich2, Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 2 : 2 * rebinFactorForSignal), 1, -0.004, 0.004),
+
+        // R2 (R only)
+        PlotData(std::string("RICHG4HISTOSET2/") + (isParticleGun ? "180" : "178"), "yield_R2", "Av. photon yield|Rich2, Gauss", "#photon hits per saturated track", "Entries / (bin)", 1, 1, 0, 60), // range before sim input updates: 12, 35
+        PlotData(std::string("RICHG4HISTOSET4/1700A_std") + (isParticleGun ? "" : "_highQuality"), "1700_RType", "Single-photon resolution (chromatic)|Rich2 (PMT-R), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 1 : rebinFactorForSignal), 2, 0.0285, 0.0315),
+        PlotData(std::string("RICHG4HISTOSET4/1730_std") + (isParticleGun ? "" : "_highQuality"), "1730_RType", "Single-photon resolution (emission point)|Rich2 (PMT-R), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 1 : rebinFactorForSignal)),
+        PlotData(std::string("RICHG4HISTOSET4/1740_std") + (isParticleGun ? "" : "_highQuality"), "1740_RType", "Single-photon resolution (pixel)|Rich2 (PMT-R), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 2 : 2 * rebinFactorForSignal)),
+        PlotData(std::string("RICHG4HISTOSET4/1701_std") + (isParticleGun ? "" : "_highQuality"), "resOverall_R2_RType", "Single-photon resolution (overall)|Rich2 (PMT-R), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 2 : 2 * rebinFactorForSignal), 1, 0.0260, 0.0340),
+        PlotData(std::string("RICHG4HISTOSET4/1701_std") + (isParticleGun ? "" : "_highQuality"), "resOverall_bifurcated_R2_RType", "Single-photon resolution (overall)|Rich2 (PMT-R), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 2 : 2 * rebinFactorForSignal), 2, 0.0260, 0.0340),
+        PlotData(std::string("RICHG4HISTOSET4/1760_std"), "1760_std", "Single-photon resolution (overall - gen)|Rich2 (PMT-R), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 2 : 2 * rebinFactorForSignal), 1, -0.004, 0.004),
+
+        // R2 (H only)
+        PlotData(std::string("RICHG4HISTOSET2/") + (isParticleGun ? "180" : "178"), "yield_R2", "Av. photon yield|Rich2, Gauss", "#photon hits per saturated track", "Entries / (bin)", 1, 1, 0, 60), // range before sim input updates: 12, 35
+        PlotData(std::string("RICHG4HISTOSET4/1700A_grand") + (isParticleGun ? "" : "_highQuality"), "1700_HType", "Single-photon resolution (chromatic)|Rich2 (PMT-H), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 1 : rebinFactorForSignal), 2, 0.0285, 0.0315),
+        PlotData(std::string("RICHG4HISTOSET4/1730_grand") + (isParticleGun ? "" : "_highQuality"), "1730_HType", "Single-photon resolution (emission point)|Rich2 (PMT-H), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 1 : rebinFactorForSignal)),
+        PlotData(std::string("RICHG4HISTOSET4/1740_grand") + (isParticleGun ? "" : "_highQuality"), "1740_HType", "Single-photon resolution (pixel)|Rich2 (PMT-H), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 2 : 2 * rebinFactorForSignal)),
+        PlotData(std::string("RICHG4HISTOSET4/1701_grand") + (isParticleGun ? "" : "_highQuality"), "resOverall_R2_HType", "Single-photon resolution (overall)|Rich2 (PMT-H), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 2 : 2 * rebinFactorForSignal), 1, 0.0260, 0.0340),
+        PlotData(std::string("RICHG4HISTOSET4/1701_grand") + (isParticleGun ? "" : "_highQuality"), "resOverall_bifurcated_R2_HType", "Single-photon resolution (overall)|Rich2 (PMT-H), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 2 : 2 * rebinFactorForSignal), 2, 0.0260, 0.0340),
+        PlotData(std::string("RICHG4HISTOSET4/1760_grand"), "1760_grand", "Single-photon resolution (overall - gen)|Rich2 (PMT-H), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", (isParticleGun ? 2 : 2 * rebinFactorForSignal), 1, -0.004, 0.004),
+    };
+
+    // typical yields for signal (additional info)
+    if (!isParticleGun)
+    {
+        plots.emplace_back(std::string("RICHG4HISTOSET2/160"), "yield_typical_R1", "Av. photon yield (typical for signal)|Rich1, Gauss", "#photon hits per saturated track", "Entries / (bin)", 1, 1, 40., 75.); // range before sim input updates: 25, 60
+        plots.emplace_back(std::string("RICHG4HISTOSET2/180"), "yield_typical_R2", "Av. photon yield (typical for signal)|Rich2, Gauss", "#photon hits per saturated track", "Entries / (bin)", 1, 1, 20., 45.); // range before sim input updates: 12, 35
+    }
+
+    // alternatives for the overall resolution for signal (additional info)
+    if (!isParticleGun)
+    {
+        plots.emplace_back(std::string("RICHG4HISTOSET4/1501"), "resOverall_all_R1", "Single-photon resolution (overall)|Rich1, Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", 2 * rebinFactorForSignal, 1, 0.0480, 0.0570);
+        plots.emplace_back(std::string("RICHG4HISTOSET4/1501_highMomentum"), "resOverall_highMomentum_R1", "Single-photon resolution (overall)|Rich1, Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", 2 * rebinFactorForSignal, 1, 0.0480, 0.0570);
+
+        plots.emplace_back(std::string("RICHG4HISTOSET4/1701"), "resOverall_all_R2", "Single-photon resolution (overall)|Rich2 (global), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", 2 * rebinFactorForSignal, 1, 0.0260, 0.0340);
+        plots.emplace_back(std::string("RICHG4HISTOSET4/1701_highMomentum"), "resOverall_highMomentum_R2", "Single-photon resolution (overall)|Rich2 (global), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", 2 * rebinFactorForSignal, 1, 0.0260, 0.0340);
+
+        plots.emplace_back(std::string("RICHG4HISTOSET4/1701_std"), "resOverall_all_R2_RType", "Single-photon resolution (overall)|Rich2 (PMT-R), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", 2 * rebinFactorForSignal, 1, 0.0260, 0.0340);
+        plots.emplace_back(std::string("RICHG4HISTOSET4/1701_std_highMomentum"), "resOverall_highMomentum_R2_RType", "Single-photon resolution (overall)|Rich2 (PMT-R), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", 2 * rebinFactorForSignal, 1, 0.0260, 0.0340);
+
+        plots.emplace_back(std::string("RICHG4HISTOSET4/1701_grand"), "resOverall_all_R2_HType", "Single-photon resolution (overall)|Rich2 (PMT-H), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", 2 * rebinFactorForSignal, 1, 0.0260, 0.0340);
+        plots.emplace_back(std::string("RICHG4HISTOSET4/1701_grand_highMomentum"), "resOverall_highMomentum_R2_HType", "Single-photon resolution (overall)|Rich2 (PMT-H), Gauss", "Cherenkov theta angle [rad]", "Entries / (bin)", 2 * rebinFactorForSignal, 1, 0.0260, 0.0340);
+    }
+
+    return plots;
 }
 
 // ------------- end of configuration ------------- //
 
-void DrawPerformanceGeneric(const PlotData &plot, TFile *&inputFile)
+void DrawPerformanceGeneric(const PlotData &plot, TFile *&inputFile, const unsigned int &flagStyle = 0)
 {
+    // set style
+    Rich::Styles::setStyle(flagStyle);
+
+    // specific settings for the current plot
+    gStyle->SetPadLeftMargin(0.18);
+    gStyle->SetTitleOffset(1.30, "Y");
+
+    if (plot.fitFlag != 0)
+    {
+        gStyle->SetStatW(0.13);
+    }
+
+    gROOT->ForceStyle();
+
     // prepare canvas
+    const auto canvasSizeX = Rich::Styles::defaultCanvasSizeX;
+    const auto canvasSizeY = Rich::Styles::defaultCanvasSizeY;
     auto currentCanvas = TCanvas(plot.plotName.c_str(), plot.plotTitle.c_str(), canvasSizeX, canvasSizeY);
 
     // get histogram
-    auto currentHist = (TH1D *)inputFile->Get(plot.histName.c_str());
-    currentHist->SetTitle(plot.plotTitle.c_str());
+    auto currentHist = (TH1D *)(Rich::Utils::getValidHist(inputFile, plot.histName));
+    if (!currentHist)
+    {
+        return;
+    }
+    currentHist->GetXaxis()->SetTitle(plot.axisXLabel.c_str());
+    currentHist->GetYaxis()->SetTitle(plot.axisYLabel.c_str());
 
     // rebin the histogram if required
     if (plot.rebinN != 1)
@@ -102,7 +157,7 @@ void DrawPerformanceGeneric(const PlotData &plot, TFile *&inputFile)
         const auto fitResult = currentHist->Fit("gaus", "S", "", plot.fitRangeMin, plot.fitRangeMax);
 
         // special case for yields
-        if (plot.histName == "RICHG4HISTOSET2/160" || plot.histName == "RICHG4HISTOSET2/180")
+        if (plot.histName.rfind("RICHG4HISTOSET2/", 0) == 0)
         {
             // gauss mean
             resultToSave = fitResult->Parameter(1);
@@ -137,10 +192,8 @@ void DrawPerformanceGeneric(const PlotData &plot, TFile *&inputFile)
         model.plotOn(resFrame);
 
         // print stats
-        model.paramOn(resFrame, Layout(0.20, 0.4, 0.6));
+        model.paramOn(resFrame, Layout(0.21, 0.5, 0.45));
 
-        gPad->SetLeftMargin(0.15);
-        resFrame->GetYaxis()->SetTitleOffset(1.6);
         resFrame->Draw();
 
         // calculate effective sigma by taking into account both slopes with weights based on the #events on each peak side
@@ -161,8 +214,10 @@ void DrawPerformanceGeneric(const PlotData &plot, TFile *&inputFile)
             const float nSum = nLeft + nRight;
 
             // choose a way to calculated the effective sigma (~weighted mean; linear sum is a worse-case scenario than the quadratic one)
-            const float effSigma = 1 / nSum * (nLeft * sigL.getVal() + nRight * sigR.getVal());
-            // const float effSigma2 = 1 / nSum * sqrt(pow(nLeft * sigL.getVal(), 2) + pow(nRight * sigR.getVal(), 2));
+            // const float effSigma = 1 / nSum * (nLeft * sigL.getVal() + nRight * sigR.getVal());
+            // const float effSigma = 1 / nSum * sqrt(pow(nLeft * sigL.getVal(), 2) + pow(nRight * sigR.getVal(), 2));
+            const float effSigma = 0.5 * (sigL.getVal() + sigR.getVal());
+            // const float effSigma = 0.5 * sqrt(pow( sigL.getVal(), 2) + pow(sigR.getVal(), 2));
 
             // debug
             // {
@@ -181,11 +236,23 @@ void DrawPerformanceGeneric(const PlotData &plot, TFile *&inputFile)
     // draw (if not already done in RooFit)
     if (plot.fitFlag != 2)
     {
-        currentHist->Draw();
+        currentHist->SetMarkerColor(Rich::Styles::getColorPrimary());
+        currentHist->SetLineColor(Rich::Styles::getColorPrimary());
+        currentHist->DrawCopy();
+    }
+
+    // add descritpion (optional)
+    if (Rich::Styles::flagShowDescription(flagStyle))
+    {
+        auto plotDescription = Rich::Styles::makePlotDescription(0.038, 0.54, 0.97, 1.04);
+        Rich::Utils::addMultilineText(plot.plotTitle, plotDescription, '|');
+
+        plotDescription->Draw();
+        currentCanvas.Update();
     }
 
     // transform resolutions to mrad
-    if (!(plot.histName == "RICHG4HISTOSET2/160" || plot.histName == "RICHG4HISTOSET2/180"))
+    if (!(plot.histName.rfind("RICHG4HISTOSET2/", 0) == 0))
     {
         resultToSave *= 1000;
     }
@@ -198,18 +265,16 @@ void DrawPerformanceGeneric(const PlotData &plot, TFile *&inputFile)
     outputFile.close();
 }
 
-void DrawPerformance(const std::string &fileDir, const std::string &fileName = std::string("Gauss-Histo.root"))
+void DrawPerformance(const std::string &fileDir, const std::string &fileName = std::string("Gauss-Histo.root"), const bool &isParticleGun = false, const unsigned int &flagStyle = Rich::Styles::defaultStyleFlag)
 {
-    // style
-    setStyle();
-
     // open input file
     auto f = TFile::Open(TString(fileDir + "/" + fileName));
 
     // draw required plots
+    auto plots = prepareListOfPlots(isParticleGun);
     for (auto const &plot : plots)
     {
-        DrawPerformanceGeneric(plot, f);
+        DrawPerformanceGeneric(plot, f, flagStyle);
     }
 
     // cleanup

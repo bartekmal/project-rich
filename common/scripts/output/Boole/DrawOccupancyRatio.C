@@ -3,161 +3,157 @@
 #include <TH2D.h>
 #include <TString.h>
 
-void DrawOccupancyRatio(const std::string dir1, const std::string dir2, const std::string dir3 = "")
-{
+#include "/afs/cern.ch/work/b/bmalecki/RICH_Upgrade/common/scripts/utils/Utils.C"
+#include "/afs/cern.ch/work/b/bmalecki/RICH_Upgrade/common/scripts/utils/Styles.C"
 
-  //config style
-  Int_t canvasSizeX = 1200;
-  Int_t canvasSizeY = 1540;
-  Double_t rightMargin = 0.125;
-  //  gStyle->SetOptStat(0010);
-  gStyle->SetOptStat(0);
-  gStyle->SetPalette(104);
-  // gStyle->SetPalette(kNeon);
-  //   gStyle->SetPalette(kRainBow);
-  // gStyle->SetPalette(kVisibleSpectrum);
-  gStyle->SetMarkerColor(kRed);
+// ----------------- configuration ---------------- //
+
+// config histograms
+// (0 - 3; 0.95 - 2.2)
+const float axisValueMin{0.8};
+const float axisValueMax{1.5};
+
+struct PlotData
+{
+  // input / output info
+  const std::string histNameMain{};
+  const std::string histNameRef{};
+  const std::string plotName{};
+  const std::string plotTitle{};
+  const std::string axisXLabel{};
+  const std::string axisYLabel{};
+
+  // plot config
+  const float axisValueMax{};
+  const bool axisXLogScale{};
+  const bool axisValueLogScale{};
+
+  // info for the histograms processing
+  const bool isNormalised{};
+  const bool isOccupancyMap{};
+  const bool isDetectorOccupancy{};
+
+  PlotData(const std::string &iHistNameMain, const std::string &iHistNameRef, const std::string &iPlotName, const std::string &iPlotTitle, const std::string &iAxisXLabel, const std::string &iAxisYLabel, const float &iAxisValueMax = Rich::Styles::axisValueMaxNeutral, const bool &iAxisXLogScale = false, const bool &iAxisValueLogScale = false, const bool &iIsNormalised = false, const bool &iIsOccupancyMap = false, const bool &iIsDetectorOccupancy = false) : histNameMain(iHistNameMain), histNameRef(iHistNameRef), plotName(iPlotName), plotTitle(iPlotTitle), axisXLabel(iAxisXLabel), axisYLabel(iAxisYLabel), axisValueMax(iAxisValueMax), axisXLogScale(iAxisXLogScale), axisValueLogScale(iAxisValueLogScale), isNormalised(iIsNormalised), isOccupancyMap(iIsOccupancyMap), isDetectorOccupancy(iIsDetectorOccupancy){};
+};
+
+std::vector<PlotData> plots = {
+    // R1
+    PlotData("occupancyPd_Boole_R1", "occupancyPd_Boole_R1", "occupancyPd_Boole_R1_ratio", "Detected channel occupancy (av. per PD);Rich1, Boole (ratio)", "PD ID", "Av. ch. occupancy per PD (ratio)", Rich::Styles::axisValueMaxNeutral, false, false, false, false, false),
+    PlotData("occupancyChannel_Boole_R1", "occupancyChannel_Boole_R1", "occupancyChannel_Boole_R1_ratio", "Detected channel occupancy (map);Rich1, Boole (ratio)", "x [mm]", "y [mm]", Rich::Styles::axisValueMaxNeutral, false, false, false, true, false),
+    // R2
+    PlotData("occupancyPd_Boole_R2", "occupancyPd_Boole_R2", "occupancyPd_Boole_R2_ratio", "Detected channel occupancy (av. per PD);Rich2, Boole (ratio)", "PD ID", "Av. ch. occupancy per PD (ratio)", Rich::Styles::axisValueMaxNeutral, false, false, false, false, false),
+    PlotData("occupancyChannel_Boole_R2", "occupancyChannel_Boole_R2", "occupancyChannel_Boole_R2_ratio", "Detected channel occupancy (map);Rich2, Boole (ratio)", "x [mm]", "y [mm]", Rich::Styles::axisValueMaxNeutral, false, false, false, true, false),
+};
+
+// ------------- end of configuration ------------- //
+
+void DrawOccupancyRatioGeneric(const PlotData &plot, TFile *&inputFile1, TFile *&inputFile2, const unsigned int &flagStyle = 0)
+{
+  // set style
+  Rich::Styles::setStyle(flagStyle);
+
+  // specific settings for the current plot
+  if (plot.isOccupancyMap)
+  {
+    gStyle->SetPadLeftMargin(0.16);
+    gStyle->SetTitleOffset(1.12, "Y");
+    gStyle->SetPadRightMargin(0.12);
+    gStyle->SetPalette(kRainBow);
+    gStyle->SetOptStat(0);
+  }
   gROOT->ForceStyle();
 
-  //load histograms
-  TFile *f = TFile::Open(TString(dir1 + "/Boole-Histo.root"));
-  TFile *f2 = TFile::Open(TString(dir2 + "/Boole-Histo.root"));
+  // prepare canvas
+  const auto canvasSizeX = plot.isOccupancyMap ? Rich::Styles::defaultCanvasSizeX * 1.1f : Rich::Styles::defaultCanvasSizeX;
+  const auto canvasSizeY = Rich::Styles::defaultCanvasSizeY;
+  auto currentCanvas = TCanvas(plot.plotName.c_str(), plot.plotTitle.c_str(), canvasSizeX, canvasSizeY);
 
-  const TString digitQCPath = "RICH/DIGI/DIGITQC/";
-
-  //main
-  TH1D *R1OverallNH = (TH1D *)f->Get(TString(digitQCPath + "Rich1 : Detector occupancy"));
-  TH2D *R1XY = (TH2D *)f->Get(TString(digitQCPath + "Rich1 : Tot. channel occupancy XY map"));
-  TH1D *R1PmtOccup = (TH1D *)f->Get(TString(digitQCPath + "Rich1 : Tot. occupancy per PMT_ID"));
-  TH1D *R1PmtOccupPercent = (TH1D *)R1PmtOccup->Clone("Rich1 : Av. channel occupancy per PMT_ID");
-  R1XY->SetTitle("Rich1 : Av. channel occupancy XY map");
-
-  TH1D *R2OverallNH = (TH1D *)f->Get(TString(digitQCPath + "Rich2 : Detector occupancy"));
-  TH2D *R2XY = (TH2D *)f->Get(TString(digitQCPath + "Rich2 : Tot. channel occupancy XY map"));
-  TH1D *R2PmtOccup = (TH1D *)f->Get(TString(digitQCPath + "Rich2 : Tot. occupancy per PMT_ID"));
-  TH1D *R2PmtOccupPercent = (TH1D *)R2PmtOccup->Clone("Rich2 : Av. channel occupancy per PMT_ID");
-  R2XY->SetTitle("Rich2 : Av. channel occupancy XY map");
-
-  //ref
-  TH1D *R1OverallNH_ref = (TH1D *)f2->Get(TString(digitQCPath + "Rich1 : Detector occupancy"));
-  TH2D *R1XY_ref = (TH2D *)f2->Get(TString(digitQCPath + "Rich1 : Tot. channel occupancy XY map"));
-  TH1D *R1PmtOccup_ref = (TH1D *)f2->Get(TString(digitQCPath + "Rich1 : Tot. occupancy per PMT_ID"));
-  TH1D *R1PmtOccupPercent_ref = (TH1D *)R1PmtOccup_ref->Clone("Rich1 : Av. channel occupancy per PMT_ID");
-  R1XY_ref->SetTitle("Rich1 : Av. channel occupancy XY map");
-
-  TH1D *R2OverallNH_ref = (TH1D *)f2->Get(TString(digitQCPath + "Rich2 : Detector occupancy"));
-  TH2D *R2XY_ref = (TH2D *)f2->Get(TString(digitQCPath + "Rich2 : Tot. channel occupancy XY map"));
-  TH1D *R2PmtOccup_ref = (TH1D *)f2->Get(TString(digitQCPath + "Rich2 : Tot. occupancy per PMT_ID"));
-  TH1D *R2PmtOccupPercent_ref = (TH1D *)R2PmtOccup_ref->Clone("Rich2 : Av. channel occupancy per PMT_ID");
-  R2XY_ref->SetTitle("Rich2 : Av. channel occupancy XY map");
-
-  //ratios
-  TH1D *R1XYRatio = (TH1D *)R1XY_ref->Clone("R1XYRatio");
-  TH1D *R2XYRatio = (TH1D *)R2XY_ref->Clone("R2XYRatio");
-  TH1D *R1PmtOccupRatio = (TH1D *)R1PmtOccupPercent->Clone("R1PmtOccupRatio");
-  TH1D *R2PmtOccupRatio = (TH1D *)R2PmtOccupPercent->Clone("R2PmtOccupRatio");
-
-  R1XYRatio->SetTitle("Rich1 : Av. channel occupancy XY map ( ratio with/no SIN )");
-  R2XYRatio->SetTitle("Rich2 : Av. channel occupancy XY map ( ratio with/no SIN )");
-  R1PmtOccupRatio->SetTitle("Rich1 : Av. channel occupancy per PMT_ID ( ratio with/no SIN )");
-  R2PmtOccupRatio->SetTitle("Rich2 : Av. channel occupancy per PMT_ID ( ratio with/no SIN )");
-
-  // deal with errors
-  R1XY->Sumw2();
-  R1PmtOccup->Sumw2();
-  R1PmtOccupPercent->Sumw2();
-  R2XY->Sumw2();
-  R2PmtOccup->Sumw2();
-  R2PmtOccupPercent->Sumw2();
-  R1XY_ref->Sumw2();
-  R1PmtOccup_ref->Sumw2();
-  R1PmtOccupPercent_ref->Sumw2();
-  R2XY_ref->Sumw2();
-  R2PmtOccup_ref->Sumw2();
-  R2PmtOccupPercent_ref->Sumw2();
-
-  //normalize
-  //main
-  Int_t numEvR1 = R1OverallNH->GetEntries();
-  std::cout << " Number of events Rich1= " << numEvR1 << std::endl;
-  R1XY->Scale(1.0 / (numEvR1 * 1.0));
-  R1PmtOccup->Scale(1.0 / (numEvR1 * 1.0));
-  R1PmtOccupPercent->Scale(1.0 / (numEvR1 * 1.0) * 100.0 / 64.0);
-
-  Int_t numEvR2 = R2OverallNH->GetEntries();
-  std::cout << " Number of events Rich2= " << numEvR2 << std::endl;
-  R2XY->Scale(1.0 / (numEvR2 * 1.0));
-  R2PmtOccup->Scale(1.0 / (numEvR2 * 1.0));
-  R2PmtOccupPercent->Scale(1.0 / (numEvR2 * 1.0) * 100.0 / 64.0);
-
-  //ref
-  Int_t numEvR1_ref = R1OverallNH_ref->GetEntries();
-  std::cout << " Number of events Rich1= " << numEvR1_ref << std::endl;
-  R1XY_ref->Scale(1.0 / (numEvR1_ref * 1.0));
-  R1PmtOccup_ref->Scale(1.0 / (numEvR1_ref * 1.0));
-  R1PmtOccupPercent_ref->Scale(1.0 / (numEvR1_ref * 1.0) * 100.0 / 64.0);
-
-  Int_t numEvR2_ref = R2OverallNH_ref->GetEntries();
-  std::cout << " Number of events Rich2= " << numEvR2_ref << std::endl;
-  R2XY_ref->Scale(1.0 / (numEvR2_ref * 1.0));
-  R2PmtOccup_ref->Scale(1.0 / (numEvR2_ref * 1.0));
-  R2PmtOccupPercent_ref->Scale(1.0 / (numEvR2_ref * 1.0) * 100.0 / 64.0);
-
-  //ratios
-  R1XYRatio->Divide(R1XY, R1XY_ref);
-  R2XYRatio->Divide(R2XY, R2XY_ref);
-  const auto normR1PmtOccupPercent = R1PmtOccupPercent->GetEntries();
-  const auto normR1PmtOccupPercent_ref = R1PmtOccupPercent_ref->GetEntries();
-  const auto normR2PmtOccupPercent = R2PmtOccupPercent->GetEntries();
-  const auto normR2PmtOccupPercent_ref = R2PmtOccupPercent_ref->GetEntries();
-  R1PmtOccupRatio->Divide(R1PmtOccupPercent, R1PmtOccupPercent_ref);
-  R2PmtOccupRatio->Divide(R2PmtOccupPercent, R2PmtOccupPercent_ref);
-  //R1PmtOccupRatio->Divide( R1PmtOccupPercent, R1PmtOccupPercent_ref, normR1PmtOccupPercent_ref, normR1PmtOccupPercent );
-  //R2PmtOccupRatio->Divide( R2PmtOccupPercent, R2PmtOccupPercent_ref, normR2PmtOccupPercent_ref, normR2PmtOccupPercent );
-  /*
-  //correct 1D occupancy for Gauss/Boole occupancy ratio
+  // get histograms
+  auto currentHistMain = (TH1 *)(Rich::Utils::getValidHist(inputFile1, plot.histNameMain));
+  auto currentHistRef = (TH1 *)(Rich::Utils::getValidHist(inputFile2, plot.histNameRef));
+  if (!currentHistMain || !currentHistRef)
   {
-    TFile* f_ratios = TFile::Open(TString(dir3+"/occupancyRatio_GaussToBoole.root"));  
-  
-    TH1D* correctForOccR1 = (TH1D*) f_ratios->Get( "R1PmtOccupRatio" );
-    TH1D* correctForOccR2 = (TH1D*) f_ratios->Get( "R2PmtOccupRatio" );
-    
-    R1PmtOccupRatio->Divide( R1PmtOccupRatio, correctForOccR1 );
-    R2PmtOccupRatio->Divide( R2PmtOccupRatio, correctForOccR2 );
-
-    f_ratios->Close();
+    return;
   }
-  */
-  //set ranges
-  const Double_t ratioRangeMin = 0.8; // (0 - 3; 0.95 - 2.2)
-  const Double_t ratioRangeMax = 1.5;
-  R1XYRatio->GetZaxis()->SetRangeUser(ratioRangeMin, ratioRangeMax);
-  R2XYRatio->GetZaxis()->SetRangeUser(ratioRangeMin, ratioRangeMax);
-  //const auto maxOccupancyPlot_R1 = R1PmtOccupRatio->GetMaximum() * 1.05;
-  //R1PmtOccupRatio->GetYaxis()->SetRangeUser(0.95,maxOccupancyPlot_R1);
-  //R2PmtOccupRatio->GetYaxis()->SetRangeUser(0.95,maxOccupancyPlot_R1);
-  R1PmtOccupRatio->GetYaxis()->SetRangeUser(ratioRangeMin, ratioRangeMax);
-  R2PmtOccupRatio->GetYaxis()->SetRangeUser(ratioRangeMin, ratioRangeMax);
+  auto currentHist = (TH1 *)currentHistMain->Clone(plot.plotName.c_str());
+  currentHist->GetXaxis()->SetTitle(plot.axisXLabel.c_str());
+  currentHist->GetYaxis()->SetTitle(plot.axisYLabel.c_str());
 
-  //save plots
-  TCanvas *c1 = new TCanvas("c1", "Rich1 : Av. channel occupancy per PMT_ID ( ratio with/no SIN )", canvasSizeX, canvasSizeY);
-  R1PmtOccupRatio->Draw();
-  TCanvas *c2 = new TCanvas("c2", "Rich1 : Av. channel occupancy XY map ( ratio with/no SIN )", canvasSizeX, canvasSizeY);
-  c2->SetRightMargin(rightMargin);
-  R1XYRatio->Draw("colz");
+  // proces the result
+  currentHist->Divide(currentHistRef);
 
-  c1->SaveAs("occupancy_Boole_R1_ratio.pdf");
-  c2->SaveAs("occupancyMap_Boole_R1_ratio.pdf");
+  // normalise if needed
+  if (plot.isNormalised)
+  {
+    currentHist->Scale(1.0 / currentHist->GetMaximum());
+  }
 
-  TCanvas *c1_2 = new TCanvas("c1_2", "Rich2 : Av. channel occupancy per PMT_ID ( ratio with/no SIN )", canvasSizeX, canvasSizeY);
-  R2PmtOccupRatio->Draw();
-  TCanvas *c2_2 = new TCanvas("c2_2", "Rich2 : Av. channel occupancy XY map ( ratio with/no SIN )", canvasSizeX, canvasSizeY);
-  c2_2->SetRightMargin(rightMargin);
-  R2XYRatio->Draw("colz");
+  // specific settings
+  currentHist->SetAxisRange(axisValueMin, axisValueMax, plot.isOccupancyMap ? "Z" : "Y");
 
-  c1_2->SaveAs("occupancy_Boole_R2_ratio.pdf");
-  c2_2->SaveAs("occupancyMap_Boole_R2_ratio.pdf");
+  // draw
+  if (plot.axisValueMax > 0.)
+  {
+    currentHist->SetAxisRange(0, plot.axisValueMax, plot.isOccupancyMap ? "Z" : "Y");
+  }
+  if (plot.axisXLogScale)
+  {
+    currentCanvas.SetLogx();
+  }
+  if (plot.axisValueLogScale)
+  {
+    currentHist->SetAxisRange(Rich::Styles::defaultZeroForLogScale, (plot.axisValueMax > 0.) ? plot.axisValueMax : currentHist->GetMaximum() * Rich::Styles::defaultFactorForMaxValueLogScale, plot.isOccupancyMap ? "Z" : "Y");
+    if (plot.isOccupancyMap)
+    {
+      currentCanvas.SetLogz();
+    }
+    else
+    {
+      currentCanvas.SetLogy();
+    }
+  }
 
-  f->Close();
+  if (plot.isOccupancyMap)
+  {
+    currentHist->DrawCopy("colz");
+  }
+  else
+  {
+    currentHist->SetMarkerColor(Rich::Styles::getColorSecondary());
+    currentHist->SetLineColor(Rich::Styles::getColorPrimary());
+    currentHist->SetMarkerSize(0.6);
+    currentHist->SetLineWidth(1);
+    currentHist->DrawCopy();
+  }
+
+  // add descritpion (optional)
+  if (Rich::Styles::flagShowDescription(flagStyle))
+  {
+    auto plotDescription = plot.isOccupancyMap ? Rich::Styles::makePlotDescription(0.049, 0.67, 0.9775, 1.04) : Rich::Styles::makePlotDescription();
+    Rich::Utils::addMultilineText(plot.plotTitle, plotDescription);
+
+    plotDescription->Draw();
+    currentCanvas.Update();
+  }
+
+  // save results
+  currentCanvas.SaveAs(".pdf");
+  // currentCanvas.SaveAs(".C");
+}
+
+void DrawOccupancyRatio(const std::string &filePath1, const std::string &filePath2, const unsigned int &flagStyle = Rich::Styles::defaultStyleFlag)
+{
+  // open input files
+  auto f1 = TFile::Open(filePath1.c_str());
+  auto f2 = TFile::Open(filePath2.c_str());
+
+  // draw required plots
+  for (auto const &plot : plots)
+  {
+    DrawOccupancyRatioGeneric(plot, f1, f2, flagStyle);
+  }
+
+  // cleanup
+  f1->Close();
   f2->Close();
 }

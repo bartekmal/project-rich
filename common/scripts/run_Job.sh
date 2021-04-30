@@ -337,15 +337,15 @@ if [[ $RUN_REC_2 == "1" ]]; then
 fi
 
 ##############prepare condor submission file
-rm condor.sub
+rm -f condor.sub
 touch condor.sub
 
 rm -rf output
 mkdir output
 rm -rf error
 mkdir error
-rm *.cc
-rm condor.log
+rm -f *.cc
+rm -f condor.log
 
 echo "executable = start_job.sh" >>condor.sub
 echo "arguments = "'$(ProcId)' >>condor.sub
@@ -361,7 +361,7 @@ echo "" >>condor.sub
 echo "queue ${NUM_JOBS}" >>condor.sub
 
 ######## prepare script start_job
-rm start_job.sh
+rm -f start_job.sh
 touch start_job.sh
 
 echo "#!/bin/sh" >>start_job.sh
@@ -380,6 +380,8 @@ if [[ $RUN_GAUSS == "1" ]]; then
     echo "eos cp *.sim ${OUTPUT_DIR}/Gauss/data/Gauss_"'${1}'".sim" >>start_job.sh
     echo "eos cp Gauss-Histo.root ${OUTPUT_DIR}/Gauss/root/Gauss-Histo_"'${1}'".root" >>start_job.sh
     echo "eos cp gauss.log ${OUTPUT_DIR}/Gauss/log/Gauss_"'${1}'".log" >>start_job.sh
+    # echo "eos cp wavelength_R1_opt1.txt ${OUTPUT_DIR}/Gauss/log/wavelength_R1_opt1_"'${1}'".txt" >>start_job.sh
+    # echo "eos cp wavelength_R1_opt2.txt ${OUTPUT_DIR}/Gauss/log/wavelength_R1_opt2_"'${1}'".txt" >>start_job.sh
     echo "sleep ${SLEEP_TIME}" >>start_job.sh
     echo "" >>start_job.sh
 
