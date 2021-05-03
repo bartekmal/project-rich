@@ -400,6 +400,7 @@ if [[ $RUN_BOOLE == "1" ]]; then
     echo "eos cp *.digi ${OUTPUT_DIR}/Boole/data/Boole_"'${1}'".digi" >>start_job.sh
     echo "eos cp Boole-Histo.root ${OUTPUT_DIR}/Boole/root/Boole-Histo_"'${1}'".root" >>start_job.sh
     echo "eos cp boole.log ${OUTPUT_DIR}/Boole/log/Boole_"'${1}'".log" >>start_job.sh
+    # echo "eos cp smartIDs.txt ${OUTPUT_DIR}/Boole/smartIDs_"'${1}'".txt" >>start_job.sh
     echo "sleep ${SLEEP_TIME}" >>start_job.sh
     echo "" >>start_job.sh
 

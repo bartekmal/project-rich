@@ -12,7 +12,7 @@ function rich-setup-env() {
   export EOS_PREFIX="root://eoslhcb.cern.ch/"
   export SLEEP_TIME=5 #after finishing one application, before using output
   export CMTCONFIG_GAUSS=x86_64-centos7-gcc9-opt
-  export CMTCONFIG_STACK=x86_64-centos7-gcc9-opt
+  export CMTCONFIG_STACK=x86_64_v2-centos7-gcc10-opt
   export CMTCONFIG_ROOT="x86_64-centos7-gcc9-opt -p LD_LIBRARY_PATH=/cvmfs/lhcb.cern.ch/lib/lcg/releases/gcc/9.2.0-afc57/x86_64-centos7/lib64/"
 
   #useful dirs
@@ -30,6 +30,8 @@ function rich-setup-env() {
   alias rich-cd-scripts="cd $RICH_BASE_SCRIPTS"
   alias rich-cd-jobs="cd $RICH_BASE_JOBS"
 
+  export RICH_ROOT="/cvmfs/lhcb.cern.ch/lib/var/lib/LbEnv/2068/stable/linux-64/bin/lb-run -c x86_64-centos7-gcc9-opt -p LD_LIBRARY_PATH=/cvmfs/lhcb.cern.ch/lib/lcg/releases/gcc/9.2.0-afc57/x86_64-centos7/lib64/ ROOT" # ? "lb-conda default"
+  alias rich-root="$RICH_ROOT"
 }
 
 function rich-setup-loginInfo() {
@@ -56,6 +58,18 @@ function rich-setup-noUserArea() {
   echo ""
   export PS1="[\u@\h \W] (no UserArea) \$ "
   lb-set-workspace
+  rich-setup-loginInfo
+}
+
+function rich-setup-localWorkspace() {
+  echo ""
+  echo "--> Setting up RICH with local workspace"
+  echo ""
+
+  NEW_SOFTWARE_DIR=$PWD
+
+  export PS1="[\u@\h \W] (local workspace) \$ "
+  lb-set-workspace $NEW_SOFTWARE_DIR
   rich-setup-loginInfo
 }
 
@@ -93,7 +107,7 @@ function rich-make-study() {
 ######## setupRICH - default ##############
 
 #setup LbEnv
-source /cvmfs/lhcb.cern.ch/lib/LbEnv.sh
+# source /cvmfs/lhcb.cern.ch/lib/LbEnv.sh
 
 # setup RICH environemnt for the given host
 if [[ $(hostname) = "lxplus"*".cern.ch" ]] || [[ $(hostname) = "lbd"*".cern.ch" ]]; then

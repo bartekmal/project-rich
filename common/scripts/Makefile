@@ -45,28 +45,33 @@ MAX_RUNTIME=86000      #in secs
 #JOB_FLAVOUR="longlunch" #queue type in condor
 #MAX_RUNTIME=7150 #in secs
 
-LIST_OF_JOBS = pGun_rich1 pGun_rich2 bEvent # bEvent{_basic} digi{_noSin} spillover pGun_rich1 pGun_rich2
+LIST_OF_JOBS = pGun_rich1 pGun_rich2 bEvent # bEvent{_basic} digi{_noSin,_bandwidth} spillover pGun_rich1 pGun_rich2
 # add the following for a full performance study with signal: 
 # pGun_ref_rich1 pGun_ref_rich2 pGun_ref_goodRegion_rich1 pGun_ref_goodRegion_rich2 bEvent_performance 
 LIST_TO_RUN="Gauss Boole Brunel Rec1 Rec2" # Gauss Boole Brunel Rec Rec1 Rec2
 LIST_TO_MERGE = Gauss/Gauss-Histo Boole/Boole-Histo Brunel/Brunel-Ntuple Rec1/Rec-Ntuple Rec2/Rec-Ntuple Brunel/Brunel-Histo # Brunel/Brunel-Histo Rec/Rec-Histo Rec1/Rec-Histo Rec2/Rec-Histo Rec/Rec-Ntuple
 
-REFERENCE_DIR=$${RICH_DATA}/Gauss_v54r5/bmalecki-rich-nominalPmtQe/bmalecki-rich-nominalPmtQe/baseline/bEvent
+REFERENCE_DIR=$${RICH_DATA}/Gauss_v55r1/bmalecki-rich-detPlanePositions/sim-20210630-vc-md100/baseline/bEvent
+# REFERENCE_DIR=/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v55r1/bmalecki-rich-detPlanePositions/sim-20210630-vc-md100/baseline/bEvent
 # REFERENCE_DIR=/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v54r5/bmalecki-rich-nominalPmtQe/bmalecki-rich-nominalPmtQe/baseline/bEvent
 
 # regular digi jobs (adapt EVT_PER_JOB, NUM_JOBS, queue settings accordingly for special cases)
 INPUT_DIR_FOR_DIGI=$${EOS_PREFIX}$(REFERENCE_DIR)/Gauss/data
-# INPUT_DIR_FOR_DIGI=$${EOS_PREFIX}/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v54r5/bmalecki-rich-nominalPmtQe/bmalecki-rich-nominalPmtQe/baseline/bEvent/Gauss/data
+# INPUT_DIR_FOR_DIGI=$${EOS_PREFIX}/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v55r1/bmalecki-rich-detPlanePositions/sim-20210630-vc-md100/baseline/bEvent/Gauss/data
 INPUT_FILES_FOR_DIGI='InputArea+\\\\\"/Gauss_$$\{i\}\\\\\"'
 # for spillover
-# INPUT_DIR_FOR_DIGI=$${EOS_PREFIX}/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v54r5/bmalecki-rich-nominalPmtQe/bmalecki-rich-nominalPmtQe/baseline/spillover/Gauss/data
+# INPUT_DIR_FOR_DIGI=$${EOS_PREFIX}/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v55r1/bmalecki-rich-detPlanePositions/sim-20210630-vc-md100/baseline/spillover/Gauss/data
 # INPUT_FILES_FOR_DIGI='InputArea+\\\\\"/Gauss_$$\{i\}\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+250\)\)\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+500\)\)\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+750\)\)\\\\\"'
 # for full (performance studies)
-# INPUT_DIR_FOR_DIGI=$${EOS_PREFIX}/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v54r5/bmalecki-rich-nominalPmtQe/bmalecki-rich-nominalPmtQe/baseline/bEvent_performance/Gauss/data
+# INPUT_DIR_FOR_DIGI=$${EOS_PREFIX}/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v55r1/bmalecki-rich-detPlanePositions/sim-20210630-vc-md100/baseline/bEvent_performance/Gauss/data
 # INPUT_FILES_FOR_DIGI='InputArea+\\\\\"/Gauss_$$\{i\}\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+500\)\)\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+1000\)\)\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+1500\)\)\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+2000\)\)\\\\\"'
 
-DDDB=upgrade/bmalecki-rich-nominalPmtQe		# update QE with T+P corrections
-CONDDB=upgrade/bmalecki-rich-nominalPmtQe	# update QE with T+P corrections
+DDDB=upgrade/bmalecki-rich-detPlanePositions# update detector planes positions for R1&R2
+CONDDB=upgrade/sim-20210630-vc-md100		# update detector planes positions for R1&R2
+# DDDB=upgrade/dddb-20210617					# RICH decoding with Online FibreDB (Chris)
+# CONDDB=upgrade/sim-20210625-vc-md100		# RICH decoding with Online FibreDB (Chris)
+# DDDB=upgrade/dddb-20210617					# update QE with T+P corrections
+# CONDDB=upgrade/sim-20210617-vc-md100		# update QE with T+P corrections
 # DDDB=upgrade/dddb-20210218				# latest ref
 # CONDDB=upgrade/sim-20201218-vc-md100		# latest ref
 # DDDB=upgrade/dddb-20201105				# update SIN model
@@ -90,8 +95,7 @@ CONDDB=upgrade/bmalecki-rich-nominalPmtQe	# update QE with T+P corrections
 
 RUN_COMMAND_GAUSS="$${RICH_BASE_SOFTWARE}/stack-gauss/Gauss/build.$${CMTCONFIG_GAUSS}/run -s GITCONDDBPATH=$${RICH_BASE_SOFTWARE}/data"
 # RUN_COMMAND_GAUSS="$${RICH_BASE_SOFTWARE}/stack-gauss/Gauss/build.$${CMTCONFIG_GAUSS}/run -s GITCONDDBPATH=$${RICH_BASE_SOFTWARE}/data -s DECFILESOPTS=/cvmfs/lhcb.cern.ch/lib/lhcb/DBASE/Gen/DecFiles/v31r4/options -s DECFILESROOT=/cvmfs/lhcb.cern.ch/lib/lhcb/DBASE/Gen/DecFiles/v31r4" # for older DB tags
-# RUN_COMMAND_GAUSS="$${RICH_BASE_SOFTWARE}/dedicated/study-performance/gauss-stack/Gauss/build.$${CMTCONFIG_GAUSS}/run -s GITCONDDBPATH=$${RICH_BASE_SOFTWARE}/data"
-RUN_COMMAND_BOOLE="$${RICH_BASE_SOFTWARE}/release/Boole_v41r3/build.$${CMTCONFIG_STACK}/run -s GITCONDDBPATH=$${RICH_BASE_SOFTWARE}/data"
+RUN_COMMAND_BOOLE="$${RICH_BASE_SOFTWARE}/release/Boole_v42r0/build.$${CMTCONFIG_STACK}/run -s GITCONDDBPATH=$${RICH_BASE_SOFTWARE}/data"
 # RUN_COMMAND_BOOLE="$${RICH_BASE_SOFTWARE}/stack-lhcb/Boole/build.$${CMTCONFIG_STACK}/run -s GITCONDDBPATH=$${RICH_BASE_SOFTWARE}/data"
 RUN_COMMAND_BRUNEL="$${RICH_BASE_SOFTWARE}/stack-lhcb/Brunel/build.$${CMTCONFIG_STACK}/run -s GITCONDDBPATH=$${RICH_BASE_SOFTWARE}/data"
 RUN_COMMAND_REC="$${RICH_BASE_SOFTWARE}/stack-lhcb/Rec/build.$${CMTCONFIG_STACK}/run -s GITCONDDBPATH=$${RICH_BASE_SOFTWARE}/data"
@@ -222,6 +226,16 @@ jobs:
 				if case $$ITEM in digi_noSin*) true;; *) false;; esac; then \
 					sed -i 's|^GENERIC_OPTIONS_BOOLE=.*|GENERIC_OPTIONS_BOOLE=$${RICH_BASE_OPTIONS}/Boole/Boole-Job-Generic-NoSin.py|' $$ITEM/run_Job.sh; \
 				fi; \
+				if case $$ITEM in digi_bandwidth*) true;; *) false;; esac; then \
+					sed -i 's|^EVT_PER_JOB=.*$$|EVT_PER_JOB=4000|' $$ITEM/run_Job.sh; \
+					sed -i 's|^NUM_JOBS=.*$$|NUM_JOBS=1|' $$ITEM/run_Job.sh; \
+					sed -i 's|^JOB_FLAVOUR=.*$$|JOB_FLAVOUR="tomorrow"|' $$ITEM/run_Job.sh; \
+					sed -i 's|^MAX_RUNTIME=.*$$|MAX_RUNTIME=86000|' $$ITEM/run_Job.sh; \
+					sed -i 's|^LIST_TO_RUN=.*$$|LIST_TO_RUN="Boole"|' $$ITEM/run_Job.sh; \
+					sed -i 's|^RUN_COMMAND_BOOLE=.*$$|RUN_COMMAND_BOOLE="$${RICH_BASE_SOFTWARE}/dedicated/study-bandwidth/Boole/build.$${CMTCONFIG_STACK}/run -s GITCONDDBPATH=$${RICH_BASE_SOFTWARE}/data"|' $$ITEM/run_Job.sh; \
+					sed -i 's|myInputFile = \[ InputArea+\\"/Gauss_$${i}\\" \]|myInputFile = \[ InputArea+\\"/Gauss_{0}\\".format(x) for x in range(0,250) \]|' $$ITEM/run_Job.sh; \
+					sed -i 's|echo "eos cp boole.log $${OUTPUT_DIR}/Boole/log/Boole_"'\''$${1}'\''".log" >>start_job.sh|echo "eos cp boole.log $${OUTPUT_DIR}/Boole/log/Boole_"'\''$${1}'\''".log; eos cp smartIDs.txt $${OUTPUT_DIR}/Boole/smartIDs_"'\''$${1}'\''".txt" >>start_job.sh|' $$ITEM/run_Job.sh; \
+				fi; \
 			elif case $$ITEM in spillover*) true;; *) false;; esac; then \
 				sed -i 's|^EVT_PER_JOB=.*$$|EVT_PER_JOB=10|' $$ITEM/run_Job.sh; \
 				sed -i 's|^NUM_JOBS=.*$$|NUM_JOBS=1000|' $$ITEM/run_Job.sh; \
@@ -275,7 +289,7 @@ merge: data-cleanup
 				TMP_FILE=`echo $$TARGET_FILE | cut -d "/" -f 2`; \
 				if [ -d $${TMP_DIR_SINGLE} ]; then \
 					if [ -f $${TMP_DIR_SINGLE}/$${TMP_FILE}.root ]; then eos rm $${TMP_DIR_SINGLE}/$${TMP_FILE}.root; fi; \
-					lb-run -c $(CMTCONFIG_ROOT) ROOT hadd -n 0 -ff -k $(EOS_PREFIX)$${TMP_DIR_SINGLE}/$${TMP_FILE}.root $${TMP_DIR_SINGLE}/root/$${TMP_FILE}_*.root >> $${LOG_FILE}; \
+					${RICH_ROOT} hadd -n 0 -ff -k $(EOS_PREFIX)$${TMP_DIR_SINGLE}/$${TMP_FILE}.root $${TMP_DIR_SINGLE}/root/$${TMP_FILE}_*.root >> $${LOG_FILE}; \
 				fi; \
 			done; \
 		done; \
