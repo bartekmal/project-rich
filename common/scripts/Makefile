@@ -102,10 +102,10 @@ CONDDB=upgrade/sim-20220324-vc-md100		# latest ref
 
 RUN_COMMAND_GAUSS="$${RICH_BASE_SOFTWARE}/stack-gauss/Gauss/build.$${CMTCONFIG_GAUSS}/run"
 # RUN_COMMAND_GAUSS="$${RICH_BASE_SOFTWARE}/stack-gauss/Gauss/build.$${CMTCONFIG_GAUSS}/run -s DECFILESOPTS=/cvmfs/lhcb.cern.ch/lib/lhcb/DBASE/Gen/DecFiles/v31r4/options -s DECFILESROOT=/cvmfs/lhcb.cern.ch/lib/lhcb/DBASE/Gen/DecFiles/v31r4" # for older DB tags
-RUN_COMMAND_BOOLE="$${RICH_BASE_SOFTWARE}/stack-lhcb/Boole/build.$${CMTCONFIG_STACK}/run"
-RUN_COMMAND_MOORE="$${RICH_BASE_SOFTWARE}/stack-lhcb/Moore/build.$${CMTCONFIG_STACK}/run"
-RUN_COMMAND_BRUNEL="$${RICH_BASE_SOFTWARE}/stack-lhcb/Brunel/build.$${CMTCONFIG_STACK}/run"
-RUN_COMMAND_REC="$${RICH_BASE_SOFTWARE}/stack-lhcb/Rec/build.$${CMTCONFIG_STACK}/run"
+RUN_COMMAND_BOOLE="$${RICH_BASE_SOFTWARE}/stack-lhcb/utils/run-env $${RICH_BASE_SOFTWARE}/stack-lhcb/Boole"
+RUN_COMMAND_MOORE="$${RICH_BASE_SOFTWARE}/stack-lhcb/utils/run-env $${RICH_BASE_SOFTWARE}/stack-lhcb/Moore"
+RUN_COMMAND_BRUNEL="$${RICH_BASE_SOFTWARE}/stack-lhcb/utils/run-env $${RICH_BASE_SOFTWARE}/stack-lhcb/Brunel"
+RUN_COMMAND_REC="$${RICH_BASE_SOFTWARE}/stack-lhcb/utils/run-env $${RICH_BASE_SOFTWARE}/stack-lhcb/Rec"
 # RUN_COMMAND_REC="$${RICH_BASE_SOFTWARE}/release/RecDev_v34r0/build.$${CMTCONFIG_STACK}/run"
 
 GENERIC_OPTIONS_GAUSS=$${RICH_BASE_OPTIONS}/Gauss/Gauss-Job-Generic.py
