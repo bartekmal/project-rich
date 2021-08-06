@@ -50,7 +50,7 @@ MAX_RUNTIME=86000      #in secs
 #JOB_FLAVOUR="longlunch" #queue type in condor
 #MAX_RUNTIME=7150 #in secs
 
-LIST_OF_JOBS = pGun_rich1 pGun_rich2 bEvent # bEvent{_basic} digi{_noSin,_bandwidth} spillover pGun_rich1 pGun_rich2
+LIST_OF_JOBS = pGun_rich1 pGun_rich2 bEvent # bEvent{_basic} digi{_noSin,_bandwidth,_spillover} spillover pGun_rich1 pGun_rich2
 # add the following for a full performance study with signal: 
 # pGun_ref_rich1 pGun_ref_rich2 pGun_ref_goodRegion_rich1 pGun_ref_goodRegion_rich2 bEvent_performance 
 LIST_TO_RUN="Gauss Boole Moore" # Gauss Boole Moore Brunel Rec Rec1 Rec2
@@ -245,8 +245,11 @@ jobs:
 					sed -i 's|^MAX_RUNTIME=.*$$|MAX_RUNTIME=86000|' $$ITEM/run_Job.sh; \
 					sed -i 's|^LIST_TO_RUN=.*$$|LIST_TO_RUN="Boole"|' $$ITEM/run_Job.sh; \
 					sed -i 's|^RUN_COMMAND_BOOLE=.*$$|RUN_COMMAND_BOOLE="$${RICH_BASE_SOFTWARE}/dedicated/study-bandwidth/Boole/build.$${CMTCONFIG_STACK}/run"|' $$ITEM/run_Job.sh; \
-					sed -i 's|myInputFile = \[ InputArea+\\"/Gauss_$${i}\\" \]|myInputFile = \[ InputArea+\\"/Gauss_{0}\\".format(x) for x in range(0,250) \]|' $$ITEM/run_Job.sh; \
+					sed -i 's|myInputFile = \[ InputArea+\\"/Gauss_$${i}\\".*\]|myInputFile = \[ InputArea+\\"/Gauss_{0}\\".format(x) for x in range(0,500) \]|' $$ITEM/run_Job.sh; \
 					sed -i 's|echo "eos cp boole.log $${OUTPUT_DIR}/Boole/log/Boole_"'\''$${1}'\''".log" >>start_job.sh|echo "eos cp boole.log $${OUTPUT_DIR}/Boole/log/Boole_"'\''$${1}'\''".log; eos cp smartIDs.txt $${OUTPUT_DIR}/Boole/smartIDs_"'\''$${1}'\''".txt" >>start_job.sh|' $$ITEM/run_Job.sh; \
+				fi; \
+				if case $$ITEM in digi_spillover*) true;; *) false;; esac; then \
+					sed -i 's|^GENERIC_OPTIONS_BOOLE=.*|GENERIC_OPTIONS_BOOLE=$${RICH_BASE_OPTIONS}/Boole/Boole-Job-Generic-Spillover.py|' $$ITEM/run_Job.sh; \
 				fi; \
 			elif case $$ITEM in spillover*) true;; *) false;; esac; then \
 				sed -i 's|^EVT_PER_JOB=.*$$|EVT_PER_JOB=10|' $$ITEM/run_Job.sh; \
