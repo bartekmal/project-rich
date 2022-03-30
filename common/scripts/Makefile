@@ -1,11 +1,16 @@
 ##### docs
 # Current workarounds:
 # - set DecFiles manually for older DB tags (up to upgrade/dddb-20210218, Gauss/v54r5)
+#
+# To do:
+# - fix the Reco sequence with Moore (no PID plots for now) 
+# 	- keep an eye on final output type & no output version for special jobs
+#	- cleanup Brunel/Rec parts
 
 # Keep in mind:
 # - configure your study: set software / DB tags / options + #events / queue details + reference job + list to run
 # - configure digi jobs: set input dir/files + reference
-# - keep an eye on large sim files (overestimates R2 occupancy by ~5%, PID marginally worse)
+# - keep an eye on large sim files (overestimates R2 occupancy by ~5%, PID marginally worse) (should be fixed since Gauss/v55r2 by https://gitlab.cern.ch/lhcb/Gauss/-/merge_requests/741)
 
 # Some info on HTCondor:
 # - job flavours in condor
@@ -48,12 +53,12 @@ MAX_RUNTIME=86000      #in secs
 LIST_OF_JOBS = pGun_rich1 pGun_rich2 bEvent # bEvent{_basic} digi{_noSin,_bandwidth} spillover pGun_rich1 pGun_rich2
 # add the following for a full performance study with signal: 
 # pGun_ref_rich1 pGun_ref_rich2 pGun_ref_goodRegion_rich1 pGun_ref_goodRegion_rich2 bEvent_performance 
-LIST_TO_RUN="Gauss Boole Brunel Rec1 Rec2" # Gauss Boole Brunel Rec Rec1 Rec2
-LIST_TO_MERGE = Gauss/Gauss-Histo Boole/Boole-Histo Brunel/Brunel-Ntuple Rec1/Rec-Ntuple Rec2/Rec-Ntuple Brunel/Brunel-Histo # Brunel/Brunel-Histo Rec/Rec-Histo Rec1/Rec-Histo Rec2/Rec-Histo Rec/Rec-Ntuple
+LIST_TO_RUN="Gauss Boole Moore" # Gauss Boole Moore Brunel Rec Rec1 Rec2
+LIST_TO_MERGE = Gauss/Gauss-Histo Boole/Boole-Histo Moore/Moore-Histo # Moore/Moore-Histo Brunel/Brunel-Ntuple Rec1/Rec-Ntuple Rec2/Rec-Ntuple Brunel/Brunel-Histo Rec/Rec-Histo Rec1/Rec-Histo Rec2/Rec-Histo Rec/Rec-Ntuple
 
-REFERENCE_DIR=$${RICH_DATA}/Gauss_v55r1/bmalecki-rich-detPlanePositions/sim-20210630-vc-md100/baseline/bEvent
-# REFERENCE_DIR=/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v55r1/bmalecki-rich-detPlanePositions/sim-20210630-vc-md100/baseline/bEvent
-# REFERENCE_DIR=/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v54r5/bmalecki-rich-nominalPmtQe/bmalecki-rich-nominalPmtQe/baseline/bEvent
+REFERENCE_DIR=$${RICH_DATA}/Gauss_v55r4/dddb-20220323/sim-20220324-vc-md100/baseline/bEvent
+# REFERENCE_DIR=/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v55r4/dddb-20220323/sim-20220324-vc-md100/baseline/bEvent
+# REFERENCE_DIR=/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v55r1/bmalecki-rich-detPlanePositions/bmalecki-rich-detPlanePositions/baseline/digi
 
 # regular digi jobs (adapt EVT_PER_JOB, NUM_JOBS, queue settings accordingly for special cases)
 INPUT_DIR_FOR_DIGI=$${EOS_PREFIX}$(REFERENCE_DIR)/Gauss/data
@@ -66,11 +71,13 @@ INPUT_FILES_FOR_DIGI='InputArea+\\\\\"/Gauss_$$\{i\}\\\\\"'
 # INPUT_DIR_FOR_DIGI=$${EOS_PREFIX}/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v55r1/bmalecki-rich-detPlanePositions/sim-20210630-vc-md100/baseline/bEvent_performance/Gauss/data
 # INPUT_FILES_FOR_DIGI='InputArea+\\\\\"/Gauss_$$\{i\}\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+500\)\)\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+1000\)\)\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+1500\)\)\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+2000\)\)\\\\\"'
 
-DDDB=upgrade/bmalecki-rich-detPlanePositions# update detector planes positions for R1&R2
-CONDDB=upgrade/sim-20210630-vc-md100		# update detector planes positions for R1&R2
-# DDDB=upgrade/dddb-20210617					# RICH decoding with Online FibreDB (Chris)
+DDDB=upgrade/dddb-20220323					# latest ref
+CONDDB=upgrade/sim-20220324-vc-md100		# latest ref
+# DDDB=upgrade/dddb-20220111				# update detector planes positions for R1&R2
+# CONDDB=upgrade/sim-20220111-vc-md100		# update detector planes positions for R1&R2
+# DDDB=upgrade/dddb-20210617				# RICH decoding with Online FibreDB (Chris)
 # CONDDB=upgrade/sim-20210625-vc-md100		# RICH decoding with Online FibreDB (Chris)
-# DDDB=upgrade/dddb-20210617					# update QE with T+P corrections
+# DDDB=upgrade/dddb-20210617				# update QE with T+P corrections
 # CONDDB=upgrade/sim-20210617-vc-md100		# update QE with T+P corrections
 # DDDB=upgrade/dddb-20210218				# latest ref
 # CONDDB=upgrade/sim-20201218-vc-md100		# latest ref
@@ -93,12 +100,13 @@ CONDDB=upgrade/sim-20210630-vc-md100		# update detector planes positions for R1&
 # DDDB=upgrade/dddb-20190223				# before new numbering scheme (direct)
 # CONDDB=upgrade/sim-20180530-vc-md100		# before new numbering scheme (direct)
 
-RUN_COMMAND_GAUSS="$${RICH_BASE_SOFTWARE}/stack-gauss/Gauss/build.$${CMTCONFIG_GAUSS}/run -s GITCONDDBPATH=$${RICH_BASE_SOFTWARE}/data"
-# RUN_COMMAND_GAUSS="$${RICH_BASE_SOFTWARE}/stack-gauss/Gauss/build.$${CMTCONFIG_GAUSS}/run -s GITCONDDBPATH=$${RICH_BASE_SOFTWARE}/data -s DECFILESOPTS=/cvmfs/lhcb.cern.ch/lib/lhcb/DBASE/Gen/DecFiles/v31r4/options -s DECFILESROOT=/cvmfs/lhcb.cern.ch/lib/lhcb/DBASE/Gen/DecFiles/v31r4" # for older DB tags
-RUN_COMMAND_BOOLE="$${RICH_BASE_SOFTWARE}/release/Boole_v42r0/build.$${CMTCONFIG_STACK}/run -s GITCONDDBPATH=$${RICH_BASE_SOFTWARE}/data"
-# RUN_COMMAND_BOOLE="$${RICH_BASE_SOFTWARE}/stack-lhcb/Boole/build.$${CMTCONFIG_STACK}/run -s GITCONDDBPATH=$${RICH_BASE_SOFTWARE}/data"
-RUN_COMMAND_BRUNEL="$${RICH_BASE_SOFTWARE}/stack-lhcb/Brunel/build.$${CMTCONFIG_STACK}/run -s GITCONDDBPATH=$${RICH_BASE_SOFTWARE}/data"
-RUN_COMMAND_REC="$${RICH_BASE_SOFTWARE}/stack-lhcb/Rec/build.$${CMTCONFIG_STACK}/run -s GITCONDDBPATH=$${RICH_BASE_SOFTWARE}/data"
+RUN_COMMAND_GAUSS="$${RICH_BASE_SOFTWARE}/stack-gauss/Gauss/build.$${CMTCONFIG_GAUSS}/run"
+# RUN_COMMAND_GAUSS="$${RICH_BASE_SOFTWARE}/stack-gauss/Gauss/build.$${CMTCONFIG_GAUSS}/run -s DECFILESOPTS=/cvmfs/lhcb.cern.ch/lib/lhcb/DBASE/Gen/DecFiles/v31r4/options -s DECFILESROOT=/cvmfs/lhcb.cern.ch/lib/lhcb/DBASE/Gen/DecFiles/v31r4" # for older DB tags
+RUN_COMMAND_BOOLE="$${RICH_BASE_SOFTWARE}/stack-lhcb/Boole/build.$${CMTCONFIG_STACK}/run"
+RUN_COMMAND_MOORE="$${RICH_BASE_SOFTWARE}/stack-lhcb/Moore/build.$${CMTCONFIG_STACK}/run"
+RUN_COMMAND_BRUNEL="$${RICH_BASE_SOFTWARE}/stack-lhcb/Brunel/build.$${CMTCONFIG_STACK}/run"
+RUN_COMMAND_REC="$${RICH_BASE_SOFTWARE}/stack-lhcb/Rec/build.$${CMTCONFIG_STACK}/run"
+# RUN_COMMAND_REC="$${RICH_BASE_SOFTWARE}/release/RecDev_v34r0/build.$${CMTCONFIG_STACK}/run"
 
 GENERIC_OPTIONS_GAUSS=$${RICH_BASE_OPTIONS}/Gauss/Gauss-Job-Generic.py
 # GENERIC_OPTIONS_GAUSS=$${RICH_BASE_OPTIONS}/Gauss/Gauss-Job-Generic-Spillover.py
@@ -109,6 +117,8 @@ GENERIC_OPTIONS_GAUSS=$${RICH_BASE_OPTIONS}/Gauss/Gauss-Job-Generic.py
 GENERIC_OPTIONS_BOOLE=$${RICH_BASE_OPTIONS}/Boole/Boole-Job-Generic.py
 # GENERIC_OPTIONS_BOOLE=$${RICH_BASE_OPTIONS}/Boole/Boole-Job-Generic-NoSin.py
 # GENERIC_OPTIONS_BOOLE=$${PWD}/Boole-Job-Generic.py
+GENERIC_OPTIONS_MOORE=$${RICH_BASE_OPTIONS}/Moore/Moore-Job-Generic.py
+# GENERIC_OPTIONS_MOORE=$${PWD}/Moore-Job-Generic.py
 GENERIC_OPTIONS_BRUNEL=$${RICH_BASE_OPTIONS}/Brunel/Brunel-Job-Generic.py
 # GENERIC_OPTIONS_BRUNEL=$${RICH_BASE_OPTIONS}/Brunel/Brunel-Job-Generic-NoData.py
 # GENERIC_OPTIONS_BRUNEL=$${PWD}/Brunel-Job-Generic.py
@@ -154,10 +164,12 @@ jobs:
 			sed -i 's|^CONDDB=.*$$|CONDDB=$(CONDDB)|' $$ITEM/run_Job.sh; \
 			sed -i 's|^RUN_COMMAND_GAUSS=.*$$|RUN_COMMAND_GAUSS=$(RUN_COMMAND_GAUSS)|' $$ITEM/run_Job.sh; \
 			sed -i 's|^RUN_COMMAND_BOOLE=.*$$|RUN_COMMAND_BOOLE=$(RUN_COMMAND_BOOLE)|' $$ITEM/run_Job.sh; \
+			sed -i 's|^RUN_COMMAND_MOORE=.*$$|RUN_COMMAND_MOORE=$(RUN_COMMAND_MOORE)|' $$ITEM/run_Job.sh; \
 			sed -i 's|^RUN_COMMAND_BRUNEL=.*$$|RUN_COMMAND_BRUNEL=$(RUN_COMMAND_BRUNEL)|' $$ITEM/run_Job.sh; \
 			sed -i 's|^RUN_COMMAND_REC=.*$$|RUN_COMMAND_REC=$(RUN_COMMAND_REC)|' $$ITEM/run_Job.sh; \
 			sed -i 's|^GENERIC_OPTIONS_GAUSS=.*$$|GENERIC_OPTIONS_GAUSS=$(GENERIC_OPTIONS_GAUSS)|' $$ITEM/run_Job.sh; \
 			sed -i 's|^GENERIC_OPTIONS_BOOLE=.*$$|GENERIC_OPTIONS_BOOLE=$(GENERIC_OPTIONS_BOOLE)|' $$ITEM/run_Job.sh; \
+			sed -i 's|^GENERIC_OPTIONS_MOORE=.*$$|GENERIC_OPTIONS_MOORE=$(GENERIC_OPTIONS_MOORE)|' $$ITEM/run_Job.sh; \
 			sed -i 's|^GENERIC_OPTIONS_BRUNEL=.*$$|GENERIC_OPTIONS_BRUNEL=$(GENERIC_OPTIONS_BRUNEL)|' $$ITEM/run_Job.sh; \
 			sed -i 's|^GENERIC_OPTIONS_REC=.*$$|GENERIC_OPTIONS_REC=$(GENERIC_OPTIONS_REC)|' $$ITEM/run_Job.sh; \
 			sed -i 's|^EVT_PER_JOB=.*$$|EVT_PER_JOB=$(EVT_PER_JOB)|' $$ITEM/run_Job.sh; \
@@ -175,7 +187,7 @@ jobs:
 				sed -i 's|^EVT_PER_JOB=.*$$|EVT_PER_JOB=1|' $$ITEM/run_Job.sh; \
 				sed -i 's|^NUM_JOBS=.*$$|NUM_JOBS=1|' $$ITEM/run_Job.sh; \
 				sed -i 's|^GENERIC_OPTIONS_GAUSS=.*|GENERIC_OPTIONS_GAUSS=$${RICH_BASE_OPTIONS}/Gauss/Gauss-Job-ParticleGun-Generic-Test.py|' $$ITEM/run_Job.sh; \
-				sed -i 's|^LIST_TO_RUN=.*$$|LIST_TO_RUN="Gauss Boole Brunel Rec"|' $$ITEM/run_Job.sh; \
+				sed -i 's|^LIST_TO_RUN=.*$$|LIST_TO_RUN="Gauss Boole Moore"|' $$ITEM/run_Job.sh; \
 				sed -i 's|^condor_submit|\# condor_submit|' $$ITEM/run_Job.sh; \
 				sed -i 's|InputArea = \\".*/\(.*\)/data\\"|InputArea = \\"$${SUBMIT_DIR}/tmp/\1\\"|' $$ITEM/run_Job.sh; \
 				sed -i 's|^.*\"cd .*$$TMPDIR.*$$||' $$ITEM/run_Job.sh; \
@@ -183,6 +195,7 @@ jobs:
 				sed -i 's|^.*\"eos cp .*$$||' $$ITEM/run_Job.sh; \
 				sed -i 's|^.*\"$${RUN_COMMAND_GAUSS} gaudirun.py.*$$|	echo \"cd $${SUBMIT_DIR}/tmp; rm -rf Gauss/; mkdir Gauss; cd Gauss; $${RUN_COMMAND_GAUSS} gaudirun.py $${OPTIONS_DIR}/Gauss/Gauss-Job_0.py > gauss.log; mv *.sim Gauss_0.sim\" >> start_job.sh|' $$ITEM/run_Job.sh; \
 				sed -i 's|^.*\"$${RUN_COMMAND_BOOLE} gaudirun.py.*$$|	echo \"cd $${SUBMIT_DIR}/tmp; rm -rf Boole/; mkdir Boole; cd Boole; $${RUN_COMMAND_BOOLE} gaudirun.py $${OPTIONS_DIR}/Boole/Boole-Job_0.py > boole.log; mv *.digi Boole_0.digi\" >> start_job.sh|' $$ITEM/run_Job.sh; \
+				sed -i 's|^.*\"$${RUN_COMMAND_MOORE} gaudirun.py.*$$|	echo \"cd $${SUBMIT_DIR}/tmp; rm -rf Moore/; mkdir Moore; cd Moore; $${RUN_COMMAND_MOORE} gaudirun.py $${OPTIONS_DIR}/Moore/Moore-Job_0.py > moore.log; mv *.dst Moore_0.dst\" >> start_job.sh|' $$ITEM/run_Job.sh; \
 				sed -i 's|^.*\"$${RUN_COMMAND_BRUNEL} gaudirun.py.*$$|	echo \"cd $${SUBMIT_DIR}/tmp; rm -rf Brunel/; mkdir Brunel; cd Brunel; $${RUN_COMMAND_BRUNEL} gaudirun.py $${OPTIONS_DIR}/Brunel/Brunel-Job_0.py > brunel.log; mv *.xdst Brunel_0.xdst\" >> start_job.sh|' $$ITEM/run_Job.sh; \
 				sed -i 's|^.*\"$${RUN_COMMAND_REC} gaudirun.py.*$$|	echo \"cd $${SUBMIT_DIR}/tmp; rm -rf Rec/; mkdir Rec; cd Rec; $${RUN_COMMAND_REC} gaudirun.py $${OPTIONS_DIR}/Rec/Rec-Job_0.py > rec.log\" >> start_job.sh|' $$ITEM/run_Job.sh; \
 				\
@@ -219,10 +232,9 @@ jobs:
 				sed -i 's|^MAX_RUNTIME=.*$$|MAX_RUNTIME=7150|' $$ITEM/run_Job.sh; \
 				sed -i 's|^EVT_PER_JOB=.*$$|EVT_PER_JOB=40|' $$ITEM/run_Job.sh; \
 				sed -i 's|^NUM_JOBS=.*$$|NUM_JOBS=$(NUM_JOBS)|' $$ITEM/run_Job.sh; \
-				sed -i 's|^LIST_TO_RUN=.*$$|LIST_TO_RUN="Boole Brunel"|' $$ITEM/run_Job.sh; \
+				sed -i 's|^LIST_TO_RUN=.*$$|LIST_TO_RUN="Boole Moore"|' $$ITEM/run_Job.sh; \
 				sed -i 's|InputArea = \\".*/Gauss/data\\"|InputArea = \\"$(INPUT_DIR_FOR_DIGI)\\"|' $$ITEM/run_Job.sh; \
 				sed -i 's|myInputFile = \[ InputArea+\\"/Gauss_$${i}\\" \]|myInputFile = \[ $(INPUT_FILES_FOR_DIGI) \]|' $$ITEM/run_Job.sh; \
-				sed -i 's|^GENERIC_OPTIONS_BRUNEL=.*|GENERIC_OPTIONS_BRUNEL=$${RICH_BASE_OPTIONS}/Brunel/Brunel-Job-Generic-NoData.py|' $$ITEM/run_Job.sh; \
 				if case $$ITEM in digi_noSin*) true;; *) false;; esac; then \
 					sed -i 's|^GENERIC_OPTIONS_BOOLE=.*|GENERIC_OPTIONS_BOOLE=$${RICH_BASE_OPTIONS}/Boole/Boole-Job-Generic-NoSin.py|' $$ITEM/run_Job.sh; \
 				fi; \
@@ -232,7 +244,7 @@ jobs:
 					sed -i 's|^JOB_FLAVOUR=.*$$|JOB_FLAVOUR="tomorrow"|' $$ITEM/run_Job.sh; \
 					sed -i 's|^MAX_RUNTIME=.*$$|MAX_RUNTIME=86000|' $$ITEM/run_Job.sh; \
 					sed -i 's|^LIST_TO_RUN=.*$$|LIST_TO_RUN="Boole"|' $$ITEM/run_Job.sh; \
-					sed -i 's|^RUN_COMMAND_BOOLE=.*$$|RUN_COMMAND_BOOLE="$${RICH_BASE_SOFTWARE}/dedicated/study-bandwidth/Boole/build.$${CMTCONFIG_STACK}/run -s GITCONDDBPATH=$${RICH_BASE_SOFTWARE}/data"|' $$ITEM/run_Job.sh; \
+					sed -i 's|^RUN_COMMAND_BOOLE=.*$$|RUN_COMMAND_BOOLE="$${RICH_BASE_SOFTWARE}/dedicated/study-bandwidth/Boole/build.$${CMTCONFIG_STACK}/run"|' $$ITEM/run_Job.sh; \
 					sed -i 's|myInputFile = \[ InputArea+\\"/Gauss_$${i}\\" \]|myInputFile = \[ InputArea+\\"/Gauss_{0}\\".format(x) for x in range(0,250) \]|' $$ITEM/run_Job.sh; \
 					sed -i 's|echo "eos cp boole.log $${OUTPUT_DIR}/Boole/log/Boole_"'\''$${1}'\''".log" >>start_job.sh|echo "eos cp boole.log $${OUTPUT_DIR}/Boole/log/Boole_"'\''$${1}'\''".log; eos cp smartIDs.txt $${OUTPUT_DIR}/Boole/smartIDs_"'\''$${1}'\''".txt" >>start_job.sh|' $$ITEM/run_Job.sh; \
 				fi; \
@@ -241,7 +253,7 @@ jobs:
 				sed -i 's|^NUM_JOBS=.*$$|NUM_JOBS=1000|' $$ITEM/run_Job.sh; \
 				sed -i 's|^JOB_FLAVOUR=.*$$|JOB_FLAVOUR="tomorrow"|' $$ITEM/run_Job.sh; \
 				sed -i 's|^MAX_RUNTIME=.*$$|MAX_RUNTIME=70000|' $$ITEM/run_Job.sh; \
-				sed -i 's|^LIST_TO_RUN=.*$$|LIST_TO_RUN="Gauss Boole Brunel"|' $$ITEM/run_Job.sh; \
+				sed -i 's|^LIST_TO_RUN=.*$$|LIST_TO_RUN="Gauss Boole Moore"|' $$ITEM/run_Job.sh; \
 				sed -i 's|^GENERIC_OPTIONS_GAUSS=.*|GENERIC_OPTIONS_GAUSS=$${RICH_BASE_OPTIONS}/Gauss/Gauss-Job-Generic-Spillover.py|' $$ITEM/run_Job.sh; \
 			elif case $$ITEM in bEvent_performance*) true;; *) false;; esac; then \
 				sed -i 's|^EVT_PER_JOB=.*$$|EVT_PER_JOB=40|' $$ITEM/run_Job.sh; \
@@ -249,14 +261,12 @@ jobs:
 				sed -i 's|^JOB_FLAVOUR=.*$$|JOB_FLAVOUR="tomorrow"|' $$ITEM/run_Job.sh; \
 				sed -i 's|^MAX_RUNTIME=.*$$|MAX_RUNTIME=86000|' $$ITEM/run_Job.sh; \
 				sed -i 's|^LIST_TO_RUN=.*$$|LIST_TO_RUN="Gauss"|' $$ITEM/run_Job.sh; \
-				sed -i 's|^GENERIC_OPTIONS_BRUNEL=.*|GENERIC_OPTIONS_BRUNEL=$${RICH_BASE_OPTIONS}/Brunel/Brunel-Job-Generic-NoData.py|' $$ITEM/run_Job.sh; \
 			elif case $$ITEM in bEvent_basic*) true;; *) false;; esac; then \
 				sed -i 's|^EVT_PER_JOB=.*$$|EVT_PER_JOB=20|' $$ITEM/run_Job.sh; \
 				sed -i 's|^NUM_JOBS=.*$$|NUM_JOBS=500|' $$ITEM/run_Job.sh; \
 				sed -i 's|^JOB_FLAVOUR=.*$$|JOB_FLAVOUR="tomorrow"|' $$ITEM/run_Job.sh; \
 				sed -i 's|^MAX_RUNTIME=.*$$|MAX_RUNTIME=86000|' $$ITEM/run_Job.sh; \
-				sed -i 's|^LIST_TO_RUN=.*$$|LIST_TO_RUN="Gauss Boole Brunel"|' $$ITEM/run_Job.sh; \
-				sed -i 's|^GENERIC_OPTIONS_BRUNEL=.*|GENERIC_OPTIONS_BRUNEL=$${RICH_BASE_OPTIONS}/Brunel/Brunel-Job-Generic-NoData.py|' $$ITEM/run_Job.sh; \
+				sed -i 's|^LIST_TO_RUN=.*$$|LIST_TO_RUN="Gauss Boole Moore"|' $$ITEM/run_Job.sh; \
 			fi; \
 		fi; \
 	done
@@ -338,7 +348,7 @@ data-rm-digi:
 			echo "Removing digi and reco data in the directory:"; \
 			echo "$${TMP_DIR}"; \
 			echo ""; \
-			for SUBDIR in Boole Brunel Rec; do \
+			for SUBDIR in Boole Moore Brunel Rec; do \
 				if [ -d $${TMP_DIR}/$${SUBDIR}/data/ ]; then \
 					eos rm -r $${TMP_DIR}/$${SUBDIR}/data/; \
 				fi; \

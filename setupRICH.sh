@@ -11,12 +11,13 @@ function rich-setup-env() {
   #common variables (for running jobs etc)
   export EOS_PREFIX="root://eoslhcb.cern.ch/"
   export SLEEP_TIME=5 #after finishing one application, before using output
-  export CMTCONFIG_GAUSS=x86_64-centos7-gcc9-opt
-  export CMTCONFIG_STACK=x86_64_v2-centos7-gcc10-opt
+  export CMTCONFIG_GAUSS=x86_64_v2-centos7-gcc11-opt
+  export CMTCONFIG_STACK=x86_64_v2-centos7-gcc11-opt
   export CMTCONFIG_ROOT="x86_64-centos7-gcc9-opt -p LD_LIBRARY_PATH=/cvmfs/lhcb.cern.ch/lib/lcg/releases/gcc/9.2.0-afc57/x86_64-centos7/lib64/"
 
   #useful dirs
   export RICH_BASE_SOFTWARE=$RICH_BASE/software
+  export RICH_BASE_GITCONDDB=${RICH_BASE_SOFTWARE}/data
   export RICH_BASE_OPTIONS=$RICH_BASE/common/options
   export RICH_BASE_SCRIPTS=$RICH_BASE/common/scripts
   export RICH_BASE_SCRIPTS_GLOBAL_RECO=$RICH_BASE_SOFTWARE/stack-lhcb/Rec/Rec/GlobalReco/root

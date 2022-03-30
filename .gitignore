@@ -8,6 +8,9 @@
 #ccache
 .ccache
 
+#env
+env/
+
 #paths
 software/
 jobs/

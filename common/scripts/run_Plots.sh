@@ -96,6 +96,12 @@ if [ -f ${CURRENT_DIR}/Boole/Boole-Histo.root ]; then
     ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS}/output/Boole/DrawPdResponse.C(\"${CURRENT_DIR}/Boole\",\"Boole-Histo.root\")" >>${SUBMIT_DIR}/plots.log
 fi
 
+# Moore-Histo
+if [ -f ${CURRENT_DIR}/Moore/Moore-Histo.root ]; then
+    cd ${OUTPUT_DIR}/performance
+    ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS}/output/PID/DrawPerformance.C(\"${CURRENT_DIR}/Moore\",\"Moore-Histo.root\")" >>${SUBMIT_DIR}/plots.log
+fi
+
 # Brunel-Histo
 if [ -f ${CURRENT_DIR}/Brunel/Brunel-Histo.root ]; then
     cd ${OUTPUT_DIR}/performance

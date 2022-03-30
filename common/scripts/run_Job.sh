@@ -30,15 +30,18 @@ CONDDB=
 GENERIC_OPTIONS_GAUSS=
 GENERIC_OPTIONS_BOOLE=
 # GENERIC_OPTIONS_BOOLE=${PWD}/Boole-Job-Generic.py
+GENERIC_OPTIONS_MOORE=
+# GENERIC_OPTIONS_MOORE=${PWD}/Moore-Job-Generic.py
 GENERIC_OPTIONS_BRUNEL=
 GENERIC_OPTIONS_REC=
 
 RUN_COMMAND_GAUSS=
 RUN_COMMAND_BOOLE=
+RUN_COMMAND_MOORE=
 RUN_COMMAND_BRUNEL=
 RUN_COMMAND_REC=
 
-LIST_TO_RUN= #Gauss Boole Brunel Rec Rec1 Rec2
+LIST_TO_RUN= #Gauss Boole Moore Brunel Rec Rec1 Rec2
 
 ############################################################ END OF CONFIG #######################
 
@@ -46,6 +49,7 @@ LIST_TO_RUN= #Gauss Boole Brunel Rec Rec1 Rec2
 
 RUN_GAUSS=0
 RUN_BOOLE=0
+RUN_MOORE=0
 RUN_BRUNEL=0
 RUN_REC=0
 RUN_REC_1=0
@@ -54,6 +58,7 @@ RUN_REC_2=0
 for ITEM in ${LIST_TO_RUN}; do
     if [[ $ITEM == "Gauss" ]]; then RUN_GAUSS=1; fi
     if [[ $ITEM == "Boole" ]]; then RUN_BOOLE=1; fi
+    if [[ $ITEM == "Moore" ]]; then RUN_MOORE=1; fi
     if [[ $ITEM == "Brunel" ]]; then RUN_BRUNEL=1; fi
     if [[ $ITEM == "Rec" ]]; then RUN_REC=1; fi
     if [[ $ITEM == "Rec1" ]]; then RUN_REC_1=1; fi
@@ -193,6 +198,35 @@ if [[ $RUN_BOOLE == "1" ]]; then
 
     done
 
+fi
+
+#Moore
+
+if [[ $RUN_MOORE == "1" ]]; then
+
+    OPTIONS_DIR_TMP=${OPTIONS_DIR}/Moore
+    OPTIONS_FILE=Moore-Job
+
+    for i in $(seq 0 $((${NUM_JOBS} - 1))); do
+        touch ${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
+
+        echo "#! /usr/bin/env python" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
+        echo "" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
+        echo "InputArea = \"${EOS_PREFIX}${OUTPUT_DIR}/Boole/data\"" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
+
+        echo "" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
+        echo "from Moore import options" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
+        echo "options.dddb_tag = \"${DDDB}\"" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
+        echo "options.conddb_tag = \"${CONDDB}\"" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
+
+        echo "" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
+        echo "myInputFile = [ InputArea+\"/Boole_${i}\" ]" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
+        echo "options.input_files = [ \"PFN:%s.digi\"%tmp for tmp in myInputFile ]" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
+        echo "options.evt_max = ${EVT_PER_JOB}" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
+
+        echo "" >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py        
+        cat ${GENERIC_OPTIONS_MOORE} >>${OPTIONS_DIR_TMP}/${OPTIONS_FILE}_${i}.py
+    done
 fi
 
 #Brunel
@@ -367,6 +401,9 @@ touch start_job.sh
 echo "#!/bin/sh" >>start_job.sh
 echo "" >>start_job.sh
 
+echo "export GITCONDDBPATH=${RICH_BASE_GITCONDDB}" >>start_job.sh
+echo "" >>start_job.sh
+
 #Gauss
 
 if [[ $RUN_GAUSS == "1" ]]; then
@@ -401,6 +438,25 @@ if [[ $RUN_BOOLE == "1" ]]; then
     echo "eos cp Boole-Histo.root ${OUTPUT_DIR}/Boole/root/Boole-Histo_"'${1}'".root" >>start_job.sh
     echo "eos cp boole.log ${OUTPUT_DIR}/Boole/log/Boole_"'${1}'".log" >>start_job.sh
     # echo "eos cp smartIDs.txt ${OUTPUT_DIR}/Boole/smartIDs_"'${1}'".txt" >>start_job.sh
+    echo "sleep ${SLEEP_TIME}" >>start_job.sh
+    echo "" >>start_job.sh
+
+fi
+
+#Moore
+
+if [[ $RUN_MOORE == "1" ]]; then
+
+    echo "cd "'$TMPDIR' >>start_job.sh
+    echo "${RUN_COMMAND_MOORE} gaudirun.py ${OPTIONS_DIR}/Moore/Moore-Job_"'${1}'".py > moore.log" >>start_job.sh
+    echo "" >>start_job.sh
+
+    #get output
+    echo "sleep ${SLEEP_TIME}" >>start_job.sh
+    echo "eos cp *.dst ${OUTPUT_DIR}/Moore/data/Moore_"'${1}'".dst" >>start_job.sh
+    echo "eos cp Moore-Ntuple.root ${OUTPUT_DIR}/Moore/root/Moore-Ntuple_"'${1}'".root" >>start_job.sh
+    echo "eos cp Moore-Histo.root ${OUTPUT_DIR}/Moore/root/Moore-Histo_"'${1}'".root" >>start_job.sh
+    echo "eos cp moore.log ${OUTPUT_DIR}/Moore/log/Moore_"'${1}'".log" >>start_job.sh
     echo "sleep ${SLEEP_TIME}" >>start_job.sh
     echo "" >>start_job.sh
 
