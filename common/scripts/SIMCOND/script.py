@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 
 def readRichSmartIds(filePath):
     fileRichSmartIDs = open(filePath,'r')
@@ -41,6 +41,7 @@ def createValidCopyNumberList(copyNumberBegin, copyNumberEnd):
 
     noEC0TypeModules = range(6,66,6)+range(72,132,6)
     noEC3TypeModules = range(11,71,6)+range(77,137,6)
+    emptyModules = [0, 5, 66, 71] # ! modules not created
 
     for pmtCopyNumber in range(copyNumberBegin,copyNumberEnd):
         moduleGlobal = pmtCopyNumber/16
@@ -49,16 +50,13 @@ def createValidCopyNumberList(copyNumberBegin, copyNumberEnd):
         #RICH1
         if pmtCopyNumber < nMaxPmtCopyNumberRich1:
 
-            #noEC01TypeModules
-            if (moduleGlobal == 0 or moduleGlobal == 66) and pmtInModule < 8:
+            #empty modules
+            if moduleGlobal in emptyModules:
                 continue
-                #noEC23TypeModules
-            elif (moduleGlobal == 5 or moduleGlobal == 71) and pmtInModule >= 8:
-                continue
-                #noEC0TypeModules
+            #noEC0TypeModules
             elif moduleGlobal in noEC0TypeModules and pmtInModule < 4:
                 continue
-                #noEC3TypeModules
+            #noEC3TypeModules
             elif moduleGlobal in noEC3TypeModules and pmtInModule >= 12:
                 continue
             else:
@@ -205,16 +203,16 @@ listsToCreateEmpty = [
 #config
 nModulesRich1 = 132
 nMaxPmtCopyNumberRich1 = 2112
-nPmtsRich1 = 1920
+nActualPmtsRich1 = 1888
 
 nModulesRich2 = 144
-nPmtsRich2 = 1152
 nMaxPmtCopyNumberRich2 = 2304
+nActualPmtsRich2 = 1152
 
 #RICH1
 rich1File = detectorNumbersFileOpen(outputPathRich1+'/PMTDetectorNumbers.xml')
 
-rich1File.write('<param name="NumberOfPMTs" type="int" comment="Number of active PMTs">' + str(nPmtsRich1) + '</param>\n\n')
+rich1File.write('<param name="NumberOfPMTs" type="int" comment="Number of active PMTs">' + str(nActualPmtsRich1) + '</param>\n\n')
 
 print "\n---> Creating lists for Rich1:\n"
 
@@ -239,7 +237,7 @@ print "\n<--- Done for Rich1\n\n"
 
 rich2File = detectorNumbersFileOpen(outputPathRich2+'/PMTDetectorNumbers.xml')
 
-rich2File.write('<param name="NumberOfPMTs" type="int" comment="Number of active PMTs">' + str(nPmtsRich2) + '</param>\n\n')
+rich2File.write('<param name="NumberOfPMTs" type="int" comment="Number of active PMTs">' + str(nActualPmtsRich2) + '</param>\n\n')
 
 print "\n---> Creating lists for Rich2:\n"
 

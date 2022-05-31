@@ -65,4 +65,4 @@ def processSingleInput(dirName):
 for nu in ['stdNu_7c6']:
     for eventType in ['minBias']:
         processSingleInput(
-            "Gauss_v54r5/nominalPmtQeTPCorrection/{}/{}".format(nu, eventType))
+            "Gauss_v55r1/detPlanePositions/{}/{}".format(nu, eventType))
