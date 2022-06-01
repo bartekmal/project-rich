@@ -51,7 +51,7 @@ def processSingleInput(dirName):
     for f_in, f_out in zip(myFileInput, myFileOutput):
         occupancy = getOccupancy(f_in)
         for el in occupancy:
-            f_out.write(str(el) + ", ")
+            f_out.write(str(el) + ",")
 
     # close
     for f in myFileInput:
