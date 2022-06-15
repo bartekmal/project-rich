@@ -105,6 +105,25 @@ function rich-make-study() {
   fi
 }
 
+function rich-make-dd4hep-test() {
+  # config
+  STUDY_PATH=$RICH_BASE_JOBS/${1:-test-dd4hep}
+
+  # sanitise
+  if [ -d $STUDY_PATH ]; then
+    echo "Directory already exists:"
+    echo $STUDY_PATH
+    return 1
+  else
+    echo "Creating a new DD4HEP test area in:"
+    echo $STUDY_PATH
+    mkdir -p $STUDY_PATH
+    cp ${RICH_BASE_SCRIPTS}/dd4hep/tests/run.sh $STUDY_PATH
+    cp ${RICH_BASE_SCRIPTS}/dd4hep/tests/grep.sh $STUDY_PATH
+    cd $STUDY_PATH
+  fi
+}
+
 ######## setupRICH - default ##############
 
 #setup LbEnv
