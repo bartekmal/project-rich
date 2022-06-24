@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 
 import os
 
@@ -7,10 +7,13 @@ import os
 nrOfChannelsInPmt = 64
 nModulesRich1 = 132
 nMaxPmtCopyNumberRich1 = 2112
-nPmtsRich1 = 1920
+nPmtsRich1 = 1888
 nModulesRich2 = 144
 nPmtsRich2 = 1152
 nMaxPmtCopyNumberRich2 = 2304
+
+# ! hack (diffs in the list read from a file and the actual number of valid PMTs) ('calculated' manually)
+diffInValidPmts = list(range(0,8)) + list(range(72,80)) + list(range(960, 968)) + list(range(1032,1040))
 
 #functions
 
@@ -19,6 +22,15 @@ def readAListFromFile(filePath, separator = ''):
     listFromFile = inputFile.read().split( separator )
     inputFile.close()
     return listFromFile
+
+
+def sanitiseListFromFile(curList, indicesToRemove):
+
+    # ! remove from the end (to avoid change in indices)
+    for el in sorted(indicesToRemove, reverse = True):
+        del curList[el]
+
+    return curList
 
 def detectorNumbersFileOpen( filePath, catalogName="" ):
 
@@ -58,6 +70,8 @@ def createValidCopyNumberList(copyNumberBegin, copyNumberEnd):
     noEC0TypeModules =  list(range(6,66,6))+list(range(72,132,6))
     noEC3TypeModules =  list(range(11,71,6))+list(range(77,137,6))
 
+    emptyModules = [0, 5, 66, 71]
+
     for pmtCopyNumber in range(copyNumberBegin,copyNumberEnd):
         moduleGlobal = int(pmtCopyNumber//16)
         pmtInModule = pmtCopyNumber % 16
@@ -65,16 +79,13 @@ def createValidCopyNumberList(copyNumberBegin, copyNumberEnd):
         #RICH1
         if pmtCopyNumber < nMaxPmtCopyNumberRich1:
 
-            #noEC01TypeModules
-            if (moduleGlobal == 0 or moduleGlobal == 66) and pmtInModule < 8:
+            #empty (corner) modules
+            if moduleGlobal in emptyModules:
                 continue
-                #noEC23TypeModules
-            elif (moduleGlobal == 5 or moduleGlobal == 71) and pmtInModule >= 8:
-                continue
-                #noEC0TypeModules
+            #noEC0TypeModules
             elif moduleGlobal in noEC0TypeModules and pmtInModule < 4:
                 continue
-                #noEC3TypeModules
+            #noEC3TypeModules
             elif moduleGlobal in noEC3TypeModules and pmtInModule >= 12:
                 continue
             else:
@@ -173,7 +184,7 @@ def createConditionForEachValidCopyNumber( outputFile, numberBegin, numberEnd, c
             occupancy = param[4][i_el]
             # use previous occupancy for the PMT population wrt SIN properties and occupancy
             occupancyForSin = param[3][i_el]
-            outputFile.write( '      <param name="{0}" type="{1}" comment="{2}"> {3} </param>\n'.format( param[0], param[1], param[2], float(occupancy) / 100. ) )
+            outputFile.write( '      <param name="{0}" type="{1}" comment="{2}"> {3:.8f} </param>\n'.format( param[0], param[1], param[2], float(occupancy) / 100. ) )
             outputFile.write( '\n')
             countersNrOfPmts = createSINVectorParam( outputFile, occupancyForSin, moduleNrGlobal, countersNrOfPmts )
 
@@ -224,13 +235,13 @@ paramVectListConstantValue = [
     ]
 
 paramListFromFile_R1 = [
-    ["AverageOccupancy", "double", "Average PMT occupancy [probability in range 0-1]. This is the MB occupancy simulated for nu=7.6 with Gauss/v54r5 after the nominal PMT QE update done in 2021-02 (including T and P corrections).",
-        readAListFromFile("input/occupancy/Gauss_v53r2/output/365_percent.txt", ","), readAListFromFile("input/occupancy/Gauss_v54r5/nominalPmtQeTPCorrection/stdNu_7c6/minBias/output/365_percent.txt", ",")],
+    ["AverageOccupancy", "double", "Average PMT occupancy [probability in range 0-1]. This is the MB occupancy simulated for nu=7.6 with Gauss/v55r1 after the detector plane positions updates done in 2021-07.",
+        sanitiseListFromFile(readAListFromFile("input/occupancy/Gauss_v53r2/output/365_percent.txt", ","), diffInValidPmts), sanitiseListFromFile(readAListFromFile("input/occupancy/Gauss_v55r1/detPlanePositions/stdNu_7c6/minBias/output/365_percent.txt", ","), diffInValidPmts)],
 ]
 
 paramListFromFile_R2 = [
-    ["AverageOccupancy", "double", "Average PMT occupancy [probability in range 0-1]. This is the MB occupancy simulated for nu=7.6 with Gauss/v54r5 after the nominal PMT QE update done in 2021-02 (including T and P corrections).",
-        readAListFromFile("input/occupancy/Gauss_v53r2/output/385_percent.txt", ","), readAListFromFile("input/occupancy/Gauss_v54r5/nominalPmtQeTPCorrection/stdNu_7c6/minBias/output/385_percent.txt", ",")],
+    ["AverageOccupancy", "double", "Average PMT occupancy [probability in range 0-1]. This is the MB occupancy simulated for nu=7.6 with Gauss/v55r1 after the detector plane positions updates done in 2021-07.",
+        readAListFromFile("input/occupancy/Gauss_v53r2/output/385_percent.txt", ","), readAListFromFile("input/occupancy/Gauss_v55r1/detPlanePositions/stdNu_7c6/minBias/output/385_percent.txt", ",")],
 ]
 
 

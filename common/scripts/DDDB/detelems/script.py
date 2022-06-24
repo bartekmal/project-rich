@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 
 #consts
 numberOfModulesRich1 = 132
@@ -6,8 +6,7 @@ numberOfModulesRich2 = 144
 
 noEC0modules = range(6,66,6)+range(72,132,6)
 noEC3modules = range(11,71,6)+range(77,137,6)
-noEC01modules = [0, 66]
-noEC23modules = [5, 71]
+emptyModules = [0, 5, 66, 71] # ! no modules created (but 'spaces' left in the numbering scheme)
 
 #functions
 
@@ -44,7 +43,7 @@ def isGrandModule(moduleGlobal):
         elif moduleGlobal % 6 in [0, 1, 4, 5]:
             return True
         else:
-            print "I have a bad feeling about this..."
+            print("I have a bad feeling about this...")
 
 def getPanelIndex(moduleGlobal):
     
@@ -126,10 +125,8 @@ def createForPmt(f, config, moduleGlobal, ecInModule, pmtInEc):
 
 def createModuleRich1(f, moduleGlobal):
     
-    if moduleGlobal in noEC01modules:
-        createForModule(f, 3, moduleGlobal, 2, 4, 0, 4)
-    elif moduleGlobal in noEC23modules:
-        createForModule(f, 4, moduleGlobal, 0, 2, 0, 4)
+    if moduleGlobal in emptyModules:
+        pass
     elif moduleGlobal in noEC0modules:
         createForModule(f, 1, moduleGlobal, 1, 4, 0, 4)
     elif moduleGlobal in noEC3modules:
@@ -140,9 +137,9 @@ def createModuleRich1(f, moduleGlobal):
 def createModuleRich2(f, moduleGlobal):
 
     if not isGrandModule(moduleGlobal):
-        createForModule(f, 5, moduleGlobal, 0, 4, 0, 4)  
+        createForModule(f, 3, moduleGlobal, 0, 4, 0, 4)  
     else:
-        createForModule(f, 6, moduleGlobal, 0, 4, 0, 1)  
+        createForModule(f, 4, moduleGlobal, 0, 4, 0, 1)  
 
 ######################################################################
 
@@ -150,15 +147,11 @@ moduleGeometryInfo = [
     '  <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/Rich1PmtModuleLogList/lvRich1PmtStdModule{0}"\n',
     '  <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/Rich1PmtModuleLogList/lvRich1PmtNoEC0TypeModule{0}"\n',
     '  <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/Rich1PmtModuleLogList/lvRich1PmtNoEC3TypeModule{0}"\n',
-    '  <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/Rich1PmtModuleLogList/lvRich1PmtNoEC01TypeModule{0}"\n',
-    '  <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/Rich1PmtModuleLogList/lvRich1PmtNoEC23TypeModule{0}"\n',
     '  <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/Rich2StdPmtModuleLogList/lvRich2PmtStdModule{0}"\n',
     '  <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/Rich2GrandPmtModuleLogList/lvRich2PmtGrandModule{0}"\n'
 ]
 
 moduleSupport = [
-    '  support="/dd/Structure/LHCb/BeforeMagnetRegion/Rich1/PMTPanel{0}"\n',
-    '  support="/dd/Structure/LHCb/BeforeMagnetRegion/Rich1/PMTPanel{0}"\n',
     '  support="/dd/Structure/LHCb/BeforeMagnetRegion/Rich1/PMTPanel{0}"\n',
     '  support="/dd/Structure/LHCb/BeforeMagnetRegion/Rich1/PMTPanel{0}"\n',
     '  support="/dd/Structure/LHCb/BeforeMagnetRegion/Rich1/PMTPanel{0}"\n',
@@ -170,15 +163,11 @@ moduleNPath = [
     '  npath="pvRich1PmtStdModule{0}:{1}" />\n\n',
     '  npath="pvRich1PmtNoEC0TypeModule{0}:{1}" />\n\n',
     '  npath="pvRich1PmtNoEC3TypeModule{0}:{1}" />\n\n',
-    '  npath="pvRich1PmtNoEC01TypeModule{0}:{1}" />\n\n',
-    '  npath="pvRich1PmtNoEC23TypeModule{0}:{1}" />\n\n',
     '  npath="pvRich2PmtStdModule{0}:{1}" />\n\n',
     '  npath="pvRich2PmtGrandModule{0}:{1}" />\n\n'
 ]
 
 pmtGeometryInfo = [
-    '    <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/RichPmtLogList/lvRichPMTMasterP{0}InEC{1}InModule{2}"\n',
-    '    <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/RichPmtLogList/lvRichPMTMasterP{0}InEC{1}InModule{2}"\n',
     '    <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/RichPmtLogList/lvRichPMTMasterP{0}InEC{1}InModule{2}"\n',
     '    <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/RichPmtLogList/lvRichPMTMasterP{0}InEC{1}InModule{2}"\n',
     '    <geometryinfo lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/RichPmtLogList/lvRichPMTMasterP{0}InEC{1}InModule{2}"\n',
@@ -190,8 +179,6 @@ pmtSupport = [
     '    support="/dd/Structure/LHCb/BeforeMagnetRegion/Rich1/PMTPanel{0}/MAPMT_MODULE:{1}"\n',
     '    support="/dd/Structure/LHCb/BeforeMagnetRegion/Rich1/PMTPanel{0}/MAPMT_MODULE:{1}"\n',
     '    support="/dd/Structure/LHCb/BeforeMagnetRegion/Rich1/PMTPanel{0}/MAPMT_MODULE:{1}"\n',
-    '    support="/dd/Structure/LHCb/BeforeMagnetRegion/Rich1/PMTPanel{0}/MAPMT_MODULE:{1}"\n',
-    '    support="/dd/Structure/LHCb/BeforeMagnetRegion/Rich1/PMTPanel{0}/MAPMT_MODULE:{1}"\n',
     '    support="/dd/Structure/LHCb/AfterMagnetRegion/Rich2/PMTPanel{0}/MAPMT_MODULE:{1}"\n',
     '    support="/dd/Structure/LHCb/AfterMagnetRegion/Rich2/PMTPanel{0}/MAPMT_MODULE:{1}"\n'
 ]
@@ -200,15 +187,11 @@ pmtNPath = [
     '    npath="pvRichPmtStdECR{0}InModule{1}:{2}/pvRichPMTMasterP{3}InEC{0}InModule{1}:{4}" />\n',
     '    npath="pvRichPmtStdECR{0}InNoEC0TypeModule{1}:{2}/pvRichPMTMasterP{3}InEC{0}InModule{1}:{4}" />\n',
     '    npath="pvRichPmtStdECR{0}InNoEC3TypeModule{1}:{2}/pvRichPMTMasterP{3}InEC{0}InModule{1}:{4}" />\n',
-    '    npath="pvRichPmtStdECR{0}InNoEC01TypeModule{1}:{2}/pvRichPMTMasterP{3}InEC{0}InModule{1}:{4}" />\n',
-    '    npath="pvRichPmtStdECR{0}InNoEC23TypeModule{1}:{2}/pvRichPMTMasterP{3}InEC{0}InModule{1}:{4}" />\n',
     '    npath="pvRichPmtStdEC{0}InModule{1}:{2}/pvRichPMTMasterP{3}InEC{0}InModule{1}:{4}" />\n',
     '    npath="pvRichPmtGrandECH{0}InModule{1}:{2}/pvRichGrandPMTMasterP{3}InECH{0}InGrandModule{1}:{4}" />\n'
 ]
 
 anodeGeometryInfo = [
-    '      <geometryinfo  lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/lvRichPMTAnode0000"\n',
-    '      <geometryinfo  lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/lvRichPMTAnode0000"\n',
     '      <geometryinfo  lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/lvRichPMTAnode0000"\n',
     '      <geometryinfo  lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/lvRichPMTAnode0000"\n',
     '      <geometryinfo  lvname="/dd/Geometry/BeforeMagnetRegion/Rich1/lvRichPMTAnode0000"\n',
@@ -220,15 +203,11 @@ anodeSupport = [
     '      support="/dd/Structure/LHCb/BeforeMagnetRegion/Rich1/PMTPanel{0}/MAPMT_MODULE:{1}/MAPMT:{2}"\n',
     '      support="/dd/Structure/LHCb/BeforeMagnetRegion/Rich1/PMTPanel{0}/MAPMT_MODULE:{1}/MAPMT:{2}"\n',
     '      support="/dd/Structure/LHCb/BeforeMagnetRegion/Rich1/PMTPanel{0}/MAPMT_MODULE:{1}/MAPMT:{2}"\n',
-    '      support="/dd/Structure/LHCb/BeforeMagnetRegion/Rich1/PMTPanel{0}/MAPMT_MODULE:{1}/MAPMT:{2}"\n',
-    '      support="/dd/Structure/LHCb/BeforeMagnetRegion/Rich1/PMTPanel{0}/MAPMT_MODULE:{1}/MAPMT:{2}"\n',
     '      support="/dd/Structure/LHCb/AfterMagnetRegion/Rich2/PMTPanel{0}/MAPMT_MODULE:{1}/MAPMT:{2}"\n',
     '      support="/dd/Structure/LHCb/AfterMagnetRegion/Rich2/PMTPanel{0}/MAPMT_MODULE:{1}/MAPMT:{2}"\n'
 ]
 
 anodeNPath = [
-    '      npath="pvRichPMTSMasterP{0}InEC{1}InModule{2}/pvRichPMTAnode0000" />\n',
-    '      npath="pvRichPMTSMasterP{0}InEC{1}InModule{2}/pvRichPMTAnode0000" />\n',
     '      npath="pvRichPMTSMasterP{0}InEC{1}InModule{2}/pvRichPMTAnode0000" />\n',
     '      npath="pvRichPMTSMasterP{0}InEC{1}InModule{2}/pvRichPMTAnode0000" />\n',
     '      npath="pvRichPMTSMasterP{0}InEC{1}InModule{2}/pvRichPMTAnode0000" />\n',

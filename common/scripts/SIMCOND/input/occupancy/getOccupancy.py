@@ -51,7 +51,7 @@ def processSingleInput(dirName):
     for f_in, f_out in zip(myFileInput, myFileOutput):
         occupancy = getOccupancy(f_in)
         for el in occupancy:
-            f_out.write(str(el) + ", ")
+            f_out.write(str(el) + ",")
 
     # close
     for f in myFileInput:
@@ -65,4 +65,4 @@ def processSingleInput(dirName):
 for nu in ['stdNu_7c6']:
     for eventType in ['minBias']:
         processSingleInput(
-            "Gauss_v54r5/nominalPmtQeTPCorrection/{}/{}".format(nu, eventType))
+            "Gauss_v55r1/detPlanePositions/{}/{}".format(nu, eventType))

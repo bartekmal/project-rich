@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python2
 
 def strExtend_3(nr):
     nrAsString=str(nr)
@@ -177,12 +177,9 @@ print noEC3modules
 
 for moduleGlobal in range(0,numberOfModulesRich1):
 
-    #no EC01 modules
-    if moduleGlobal == 0 or moduleGlobal == 66:
-        createSurfacesForModule(moduleGlobal, 2, 4, 0, 4)
-    #no EC23 modules
-    elif moduleGlobal == 5 or moduleGlobal == 71:
-        createSurfacesForModule(moduleGlobal, 0, 2, 0, 4)
+    #empty (corner) modules (! modules not created)
+    if moduleGlobal in [0, 5, 66, 71] :
+        pass
     #no EC0 modules    
     elif moduleGlobal in noEC0modules:
         createSurfacesForModule(moduleGlobal, 1, 4, 0, 4)
