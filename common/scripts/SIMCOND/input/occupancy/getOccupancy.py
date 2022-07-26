@@ -25,27 +25,24 @@ def getOccupancy(f):
     return binContentsFinal
 
 
-def processSingleInput(dirName):
+def processSingleInput(dirName, inputFiles):
 
     # prepare / open files
     inputPath = os.path.abspath(os.path.join(dirName, "input"))
     outputPath = os.path.abspath(os.path.join(dirName, "output"))
     os.mkdir(outputPath)
 
-    fileNameInput = [
-        "365_percent.C",
-        "385_percent.C",
-    ]
-
     fileNameOutput = [
         "365_percent.txt",
         "385_percent.txt",
     ]
 
-    myFileInput = [open(inputPath+"/"+fileName, 'r')
-                   for fileName in fileNameInput]
-    myFileOutput = [open(outputPath+"/"+fileName, 'w')
-                    for fileName in fileNameOutput]
+    myFileInput = [
+        open(inputPath + "/" + fileName, 'r') for fileName in inputFiles
+    ]
+    myFileOutput = [
+        open(outputPath + "/" + fileName, 'w') for fileName in fileNameOutput
+    ]
 
     # execute
     for f_in, f_out in zip(myFileInput, myFileOutput):
@@ -57,10 +54,11 @@ def processSingleInput(dirName):
     for f in myFileOutput:
         f.close()
 
-#############################
 
+#############################
 
 for nu in ['stdNu_7c6']:
     for eventType in ['minBias']:
         processSingleInput(
-            "Gauss_v55r1/detPlanePositions/{}/{}".format(nu, eventType))
+            "Gauss_v55r4/numberSchemeFinal/{}/{}".format(nu, eventType),
+            ["occupancyPd_Gauss_R1.C", "occupancyPd_Gauss_R2.C"])

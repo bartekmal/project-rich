@@ -163,7 +163,7 @@ def createSINVectorParam( outputFile, occupancy, moduleNrGlobal, countersNrOfPmt
 
     return countersNrOfPmts
 
-def createConditionForEachValidCopyNumber( outputFile, numberBegin, numberEnd, conditionName, paramVectListConstantValue, paramListFromFile ):
+def createConditionForEachValidCopyNumber( outputFile, numberBegin, numberEnd, conditionName, paramListConstantValue, paramVectListConstantValue, paramListFromFile ):
 
     validCopyNumbersList = createValidCopyNumberList(numberBegin, numberEnd)
 
@@ -178,6 +178,12 @@ def createConditionForEachValidCopyNumber( outputFile, numberBegin, numberEnd, c
         moduleNrGlobal = validCopyNumbersList[i_el] // 16
 
         #create parameters
+        for param in paramListConstantValue:
+            if param[1] == 'int':
+                outputFile.write( '      <param name="{0}" type="{1}" comment="{2}"> {3} </param>\n'.format( param[0], param[1], param[2], param[3] ) )
+            else: # ! assumes float
+                outputFile.write( '      <param name="{0}" type="{1}" comment="{2}"> {3:.3f} </param>\n'.format( param[0], param[1], param[2], param[3] ) )
+            outputFile.write( '\n')
         for paramVect in paramVectListConstantValue:
             createVectorParam( outputFile, paramVect )
         for param in paramListFromFile:
@@ -228,6 +234,11 @@ outputPathRich2 = outputPath + "/Rich2/"+outputCatalogName
 os.mkdir(outputPathRich1)
 os.mkdir(outputPathRich2)
 
+paramListConstantValue = [
+        [ "QEType", "int", "Flag QE shape for the given PD type/series (dummy value for now).", 0 ],
+        [ "QEScalingFactor", "double", "QE scaling factor for the given PD (dummy value for now).", 1.000 ]
+    ]
+
 paramVectListConstantValue = [
         [ "GainMean", "double", "Gain mean values for each channel (pixel) in the PMT [in millions of electrons].", 0.9 ],
         [ "GainRms", "double", "Gain RMS values for each channel (pixel) in the PMT [in millions of electrons].", 0.2 ],
@@ -254,7 +265,7 @@ rich1File = detectorNumbersFileOpen( outputPathRich1+'/'+outputFileName, catalog
 print("\n---> Creating lists for Rich1:\n")
 
 conditionName = "Properties"
-createConditionForEachValidCopyNumber(rich1File, 0, nMaxPmtCopyNumberRich1, conditionName, paramVectListConstantValue, paramListFromFile_R1 )
+createConditionForEachValidCopyNumber(rich1File, 0, nMaxPmtCopyNumberRich1, conditionName, paramListConstantValue, paramVectListConstantValue, paramListFromFile_R1 )
 
 detectorNumbersFileClose(rich1File, catalogName )
 
@@ -268,7 +279,7 @@ rich2File = detectorNumbersFileOpen( outputPathRich2+'/'+outputFileName, catalog
 
 print("\n---> Creating lists for Rich2:\n")
 
-createConditionForEachValidCopyNumber(rich2File, nMaxPmtCopyNumberRich1, nMaxPmtCopyNumberRich1+nMaxPmtCopyNumberRich2, conditionName, paramVectListConstantValue, paramListFromFile_R2 )
+createConditionForEachValidCopyNumber(rich2File, nMaxPmtCopyNumberRich1, nMaxPmtCopyNumberRich1+nMaxPmtCopyNumberRich2, conditionName, paramListConstantValue, paramVectListConstantValue, paramListFromFile_R2 )
 
 detectorNumbersFileClose( rich2File, catalogName )
 

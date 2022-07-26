@@ -44,11 +44,14 @@ nPmtsModule = nEcsModule * nPmtsEc
 nChannelsPmt = 64
 
 nModulesR1 = 132
-nPmtsR1 = 1920
+nPmtsR1 = 1888
 pmtCopyNumberMaxR1 = 2112
 nModulesR2 = 144
 nPmtsR2 = 1152
 pmtCopyNumberMaxR2 = 2304
+
+# TODO remove hack (diffs in the list read from a file and the actual number of valid PMTs) ('calculated' manually)
+diffInValidPmts = list(range(0,8)) + list(range(72,80)) + list(range(960, 968)) + list(range(1032,1040))
 
 moduleGlobalStart = {
     'R1U': 0,
@@ -68,11 +71,13 @@ outputPath = os.path.join(basePath, 'output')
 catalogName = 'PMTProperties'
 conditionsIndentLvl = 2
 conditionElements = {
-    'gainMeans': {'name': 'GainMean', 'type': 'double', 'comment': 'Gain mean values for each channel (pixel) in the PMT [in millions of electrons].'},
-    'gainStdDevs': {'name': 'GainRms', 'type': 'double', 'comment': 'Gain RMS values for each channel (pixel) in the PMT [in millions of electrons].'},
-    'thresholds': {'name': 'Threshold', 'type': 'double', 'comment': 'Threshold values for each channel (pixel) in the PMT [in millions of electrons].'},
-    'occupancy': {'name': 'AverageOccupancy', 'type': 'double', 'comment': 'Average PMT occupancy [probability in range 0-1]. This is the MB occupancy simulated for nu=7.6 with Gauss/v55r1 after the detector plane positions updates done in 2021-07.'},
-    'sinMuValues': {'name': 'SINRatio', 'type': 'double', 'comment': 'SIN B/S ratio for each channel (pixel) in the PMT (values measured with HV = 900 V).'},
+    'qeType': {'name': 'QEType', 'type': 'int', 'comment': 'Flag QE shape for the given PD type/series (dummy value for now).', 'default': 0},
+    'qeScalingFactor': {'name': 'QEScalingFactor', 'type': 'double', 'comment': 'QE scaling factor for the given PD (dummy value for now).', 'default': 1.0},
+    'gainMeans': {'name': 'GainMean', 'type': 'double', 'comment': 'Gain mean values for each channel (pixel) in the PD [in millions of electrons].', 'default': 0.9},
+    'gainStdDevs': {'name': 'GainRms', 'type': 'double', 'comment': 'Gain RMS values for each channel (pixel) in the PD [in millions of electrons].', 'default': 0.2},
+    'thresholds': {'name': 'Threshold', 'type': 'double', 'comment': 'Threshold values for each channel (pixel) in the PD [in millions of electrons].', 'default': 0.125},
+    'occupancy': {'name': 'AverageOccupancy', 'type': 'double', 'comment': 'Average PD occupancy [probability in range 0-1]. This is the MB occupancy simulated for nu=7.6 with Gauss/v55r4 after the numbering scheme updates in https://gitlab.cern.ch/lhcb-conddb/DDDB/-/merge_requests/107.'},
+    'sinMuValues': {'name': 'SINRatio', 'type': 'double', 'comment': 'SIN B/S ratio for each channel (pixel) in the PD (values measured with HV = 900 V).'},
 }
 
 # helpers xml
@@ -91,12 +96,11 @@ def writeXmlFileEnd(outputFile):
 
 
 def xmlParamVector(entryConfig, paramsList):
-    # TODO improve formatting for readability
-    return f'<paramVector name="{entryConfig["name"]}" type="{entryConfig["type"]}" comment="{entryConfig["comment"]}">{" ".join(el for el in paramsList)}</paramVector>'
+    return f'<paramVector name="{entryConfig["name"]}" type="{entryConfig["type"]}" comment="{entryConfig["comment"]}"> {" ".join(f"{float(el):5.3f}" for el in paramsList)} </paramVector>'
 
 
 def xmlParam(entryConfig, param):
-    return f'<param name="{entryConfig["name"]}" type="{entryConfig["type"]}" comment="{entryConfig["comment"]}">{param}</param>'
+    return f'<param name="{entryConfig["name"]}" type="{entryConfig["type"]}" comment="{entryConfig["comment"]}"> {param} </param>'
 
 
 # helper classes
@@ -116,7 +120,7 @@ class SmartId:
         # ! could be improved (reg expressions?)
         parsedId = parse(idPattern, idString)
 
-        # ! remember that column numbering scheme in RICH2 was changed (here: keep old one for now)
+        # TODO remove hack for R2 column numbering scheme differences (keep old one for now)
         return cls(parsedId[0], parsedId[1], (int(parsedId[3]) - 1 if parsedId[0] == 'RICH2' else int(parsedId[3])),
                    int(parsedId[4]), int(parsedId[5]), int(parsedId[6]))
 
@@ -150,6 +154,7 @@ class SmartId:
 
         copyNumberList = []
 
+        emptyModules = [0, 5, 66, 71]
         noEC0TypeModules = list(range(6, 66, 6))+list(range(72, 132, 6))
         noEC3TypeModules = list(range(11, 71, 6))+list(range(77, 137, 6))
 
@@ -159,17 +164,13 @@ class SmartId:
 
             # RICH1
             if pmtCopyNumber < pmtCopyNumberMaxR1:
-
-                # noEC01TypeModules
-                if (moduleGlobal == 0 or moduleGlobal == 66) and pmtInModule < 8:
+                # empty modules
+                if moduleGlobal in emptyModules:
                     continue
-                    # noEC23TypeModules
-                elif (moduleGlobal == 5 or moduleGlobal == 71) and pmtInModule >= 8:
-                    continue
-                    # noEC0TypeModules
+                # noEC0TypeModules
                 elif moduleGlobal in noEC0TypeModules and pmtInModule < 4:
                     continue
-                    # noEC3TypeModules
+                # noEC3TypeModules
                 elif moduleGlobal in noEC3TypeModules and pmtInModule >= 12:
                     continue
                 else:
@@ -195,14 +196,15 @@ class ConfigEntry:
     nExpectedConditions: int = 0
     expectedCopyNumbers: List[int] = field(default_factory=List[int])
     maxValues: List[float] = field(default_factory=List[float])
+    useDefaultValues: bool = False
 
 
 @dataclass
 class Condition:
     '''Storage class for a PMT condition.'''
     smartId: SmartId = SmartId()
-    series: str = ''
-    qeScaleFactor: float = 0.
+    qeType: int = 0
+    qeScalingFactor: float = 1.
     gainMeans: List[float] = field(default_factory=List[float])
     gainStdDevs: List[float] = field(default_factory=List[float])
     thresholds: List[float] = field(default_factory=List[float])
@@ -217,10 +219,13 @@ class Condition:
             f'{xmlIndent*indentLvl}<condition classID="5"  name="PMT{self.smartId.copyNumber()}_Properties">\n\n')
 
         # formatting
-        # ! unify / move somewhere else?
-        occupancyFormatted = f'{self.occupancy:6.4f}'
+        # TODO improve formatting (? add as arguments below)
 
         # elements
+        outputFile.write(
+            f'{xmlIndent*(indentLvl+1)}{xmlParam(conditionElements["qeType"],self.qeType)}\n')
+        outputFile.write(
+            f'{xmlIndent*(indentLvl+1)}{xmlParam(conditionElements["qeScalingFactor"],f"{self.qeScalingFactor:4.3f}")}\n')
         outputFile.write(
             f'{xmlIndent*(indentLvl+1)}{xmlParamVector(conditionElements["gainMeans"],self.gainMeans)}\n')
         outputFile.write(
@@ -228,7 +233,7 @@ class Condition:
         outputFile.write(
             f'{xmlIndent*(indentLvl+1)}{xmlParamVector(conditionElements["thresholds"],self.thresholds)}\n')
         outputFile.write(
-            f'{xmlIndent*(indentLvl+1)}{xmlParam(conditionElements["occupancy"],occupancyFormatted)}\n')
+            f'{xmlIndent*(indentLvl+1)}{xmlParam(conditionElements["occupancy"],f"{self.occupancy:7.6f}")}\n')
         outputFile.write(
             f'{xmlIndent*(indentLvl+1)}{xmlParamVector(conditionElements["sinMuValues"],self.sinMuValues)}\n')
 
@@ -239,13 +244,13 @@ class Condition:
 # config
 configList = {
     # R1
-    'R1_900V_sinOrdered': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH1_FAKE_sinOrdered_HV_900.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r1/detPlanePositions/stdNu_7c6/minBias/output/365_percent.txt'), os.path.join(outputPath, 'Rich1/ChannelInfo/PMTProperties.xml'), catalogName, nPmtsR1, SmartId.validCopyNumbers(0, pmtCopyNumberMaxR1),maxValues900V),
-    # 'R1_1000V_sinOrdered': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH1_FAKE_sinOrdered_HV_1000.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r1/detPlanePositions/stdNu_7c6/minBias/output/365_percent.txt'), os.path.join(outputPath, 'Rich1/ChannelInfo/PMTProperties.xml'), catalogName, nPmtsR1, SmartId.validCopyNumbers(0, pmtCopyNumberMaxR1), maxValues1000V),
-    # 'R1_900V_sinRandom': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH1_FAKE_sinRandom_HV_900.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r1/detPlanePositions/stdNu_7c6/minBias/output/365_percent.txt'), os.path.join(outputPath, 'Rich1/ChannelInfo/PMTProperties.xml'), catalogName, nPmtsR1, SmartId.validCopyNumbers(0, pmtCopyNumberMaxR1),maxValues900V),
-    # 'R1_1000V_sinRandom': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH1_FAKE_sinRandom_HV_1000.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r1/detPlanePositions/stdNu_7c6/minBias/output/365_percent.txt'), os.path.join(outputPath, 'Rich1/ChannelInfo/PMTProperties.xml'), catalogName, nPmtsR1, SmartId.validCopyNumbers(0, pmtCopyNumberMaxR1),maxValues1000V),
+    'R1_900V_sinOrdered': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH1_FAKE_sinOrdered_HV_900.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r4/numberSchemeFinal/stdNu_7c6/minBias/output/365_percent.txt'), os.path.join(outputPath, 'Rich1/ChannelInfo/PMTProperties.xml'), catalogName, nPmtsR1, SmartId.validCopyNumbers(0, pmtCopyNumberMaxR1),maxValues900V,useDefaultValues=True),
+    # 'R1_1000V_sinOrdered': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH1_FAKE_sinOrdered_HV_1000.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r4/numberSchemeFinal/stdNu_7c6/minBias/output/365_percent.txt'), os.path.join(outputPath, 'Rich1/ChannelInfo/PMTProperties.xml'), catalogName, nPmtsR1, SmartId.validCopyNumbers(0, pmtCopyNumberMaxR1), maxValues1000V,useDefaultValues=True),
+    # 'R1_900V_sinRandom': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH1_FAKE_sinRandom_HV_900.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r4/numberSchemeFinal/stdNu_7c6/minBias/output/365_percent.txt'), os.path.join(outputPath, 'Rich1/ChannelInfo/PMTProperties.xml'), catalogName, nPmtsR1, SmartId.validCopyNumbers(0, pmtCopyNumberMaxR1),maxValues900V,useDefaultValues=True),
+    # 'R1_1000V_sinRandom': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH1_FAKE_sinRandom_HV_1000.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r4/numberSchemeFinal/stdNu_7c6/minBias/output/365_percent.txt'), os.path.join(outputPath, 'Rich1/ChannelInfo/PMTProperties.xml'), catalogName, nPmtsR1, SmartId.validCopyNumbers(0, pmtCopyNumberMaxR1),maxValues1000V,useDefaultValues=True),
     # R2
-    'R2_900V': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH2_HV_900.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r1/detPlanePositions/stdNu_7c6/minBias/output/385_percent.txt'), os.path.join(outputPath, 'Rich2/ChannelInfo/PMTProperties.xml'), catalogName, nPmtsR2, SmartId.validCopyNumbers(pmtCopyNumberMaxR1, pmtCopyNumberMaxR1 + pmtCopyNumberMaxR2), maxValues900V),
-    # 'R2_1000V': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH2_HV_1000.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r1/detPlanePositions/stdNu_7c6/minBias/output/385_percent.txt'), os.path.join(outputPath, 'Rich2/ChannelInfo/PMTProperties.xml'), catalogName, nPmtsR2, SmartId.validCopyNumbers(pmtCopyNumberMaxR1, pmtCopyNumberMaxR1 + pmtCopyNumberMaxR2), maxValues1000V),
+    'R2_900V': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH2_HV_900.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r4/numberSchemeFinal/stdNu_7c6/minBias/output/385_percent.txt'), os.path.join(outputPath, 'Rich2/ChannelInfo/PMTProperties.xml'), catalogName, nPmtsR2, SmartId.validCopyNumbers(pmtCopyNumberMaxR1, pmtCopyNumberMaxR1 + pmtCopyNumberMaxR2), maxValues900V,useDefaultValues=True),
+    # 'R2_1000V': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH2_HV_1000.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r4/numberSchemeFinal/stdNu_7c6/minBias/output/385_percent.txt'), os.path.join(outputPath, 'Rich2/ChannelInfo/PMTProperties.xml'), catalogName, nPmtsR2, SmartId.validCopyNumbers(pmtCopyNumberMaxR1, pmtCopyNumberMaxR1 + pmtCopyNumberMaxR2), maxValues1000V,useDefaultValues=True),
 }
 
 
@@ -267,16 +272,24 @@ def getListFromFile(filePath, separator):
         listFromFile = inputFile.read().split(separator)
     return listFromFile
 
+def sanitiseList(curList, indicesToRemove):
+
+    # ! remove from the end (to avoid change in indices)
+    for el in sorted(indicesToRemove, reverse = True):
+        del curList[el]
+
+    return curList
+
 # functions
 
 
-def makeCondition(firstLine, fileIter, occupancy, expectedCopyNr, maxValues):
+def makeCondition(firstLine, fileIter, occupancy, expectedCopyNr, maxValues, useDefaultValues):
     '''Return a valid Condition object (or None)'''
     # read all lines for this condition
     # ! ordering important
     idString = firstLine.rstrip(newlineSymbol)
     series = next(fileIter).rstrip(newlineSymbol)
-    qeScaleFactor = next(fileIter).rstrip(newlineSymbol)
+    blueSensitivityIndex = next(fileIter).rstrip(newlineSymbol)
     gainMeans = next(fileIter).rstrip(newlineSymbol).split(separatorForLists)
     gainStdDevs = next(fileIter).rstrip(newlineSymbol).split(separatorForLists)
     sinMuValues = next(fileIter).rstrip(newlineSymbol).split(separatorForLists)
@@ -319,10 +332,21 @@ def makeCondition(firstLine, fileIter, occupancy, expectedCopyNr, maxValues):
     else:
         smartId = SmartId.initFromIdString(idString)
 
+        # ! check if the obtained copy number matches the expected one
         if not smartId.copyNumber() == expectedCopyNr:
+            print(f'Copy number in the input does not match the expected one: {smartId.copyNumber()} VS {expectedCopyNr}\n')
             return None, 2
         else:
-            return Condition(smartId, series, qeScaleFactor, gainMeans, gainStdDevs, thresholds, occupancy, sinMuValues), 0
+            # process/modify raw input data if necessary
+            if useDefaultValues:
+                qeType = int(conditionElements['qeType']['default'])
+                qeScalingFactor = float(conditionElements['qeScalingFactor']['default'])
+                gainMeans = [ float(conditionElements['gainMeans']['default']) for _ in range(len(gainMeans))]
+                gainStdDevs = [ float(conditionElements['gainStdDevs']['default']) for _ in range(len(gainStdDevs))]
+                thresholds = [ float(conditionElements['thresholds']['default']) for _ in range(len(thresholds))]
+
+            # return the final condition
+            return Condition(smartId, qeType, qeScalingFactor, gainMeans, gainStdDevs, thresholds, occupancy, sinMuValues), 0
 
 
 def makeConditions(config):
@@ -332,12 +356,16 @@ def makeConditions(config):
     print(f'\t input for occupancy: \t\t {config.inputOccupancy}')
     print(f'\t output file: \t\t\t {config.output}\n')
 
-    # prevalidate the input file
-    if not nLinesInFile(config.inputProperties) == config.nExpectedConditions * nEntriesPerCondition:
+    # prevalidate the input file (check if lines are not missing)
+    nLinesInput = nLinesInFile(config.inputProperties)
+    nLinesExpected = config.nExpectedConditions * nEntriesPerCondition
+
+    # TODO remove hack for input files with pre-final numbering scheme (before corner modules removal)
+    if ( (nLinesInput % nEntriesPerCondition != 0 ) or (nLinesInput < nLinesExpected) ):
         print(f'Ivalid #lines in {config.inputProperties}:')
         print(
-            f'\t expected: {config.nExpectedConditions * nEntriesPerCondition}')
-        print(f'\t obtained: {nLinesInFile(config.inputProperties)}')
+            f'\t expected: {nLinesExpected}')
+        print(f'\t current: {nLinesInput}')
         return 1
 
     # get occupancies (and validate)
@@ -345,10 +373,15 @@ def makeConditions(config):
     # ! occupancy converted to float in 0-1 range
     occupancyList = [float(el) / 100.0 for el in getListFromFile(
         config.inputOccupancy, separatorForLists)]
+
+    # TODO remove hack for input files with pre-final numbering scheme (before corner modules removal)
+    if len(occupancyList) == config.nExpectedConditions + len(diffInValidPmts):
+        print(f'Sanitising occupancy list of initial length {len(occupancyList)} (expected: {config.nExpectedConditions}) in: {config.inputOccupancy}.\n')
+        occupancyList = sanitiseList(occupancyList, diffInValidPmts)
+
     if not len(occupancyList) == config.nExpectedConditions:
-        print(f'Ivalid #lines in {config.inputOccupancy}:')
+        print(f'Ivalid #lines in: {config.inputOccupancy}.\n')
         return 1
-    occupancyListIter = iter(occupancyList)
 
     # prepare the output file
     if not os.path.exists(os.path.dirname(config.output)):
@@ -358,34 +391,37 @@ def makeConditions(config):
         writeXmlFileBegin(outputFile, config.catalogName)
 
         # read all conditions
-        # ! check if the obtained copy numbers match the expected ones
+        counterValidConditions = 0
+        
+        occupancyListIter = iter(occupancyList)
         validCopyNumbersIter = iter(config.expectedCopyNumbers)
-        counterConditions = 0
+
         with open(config.inputProperties, 'r', encoding='utf8') as inputProperties:
             for line in inputProperties:
                 if line.startswith(idPatternStart):
                     # get and validate the condition
                     condition, status = makeCondition(
-                        line, inputProperties, next(occupancyListIter), next(validCopyNumbersIter), config.maxValues)
+                        line, inputProperties, next(occupancyListIter), next(validCopyNumbersIter), config.maxValues, config.useDefaultValues)
                     if status == 1:
                         print(
                             f'Ivalid input format in {config.inputProperties}\n')
                         return 1
                     elif status == 2:
-                        print(
-                            f'Ivalid input ordering in {config.inputProperties}\n')
-                        return 1
-
-                    # process
-                    counterConditions += 1
-                    condition.writeToXml(outputFile, conditionsIndentLvl)
+                        # reset iterators and continue
+                        # TODO remove hack for input files with pre-final numbering scheme (before corner modules removal)
+                        occupancyListIter = iter(occupancyList[counterValidConditions:])
+                        validCopyNumbersIter = iter(config.expectedCopyNumbers[counterValidConditions:])
+                    elif status == 0:
+                        # process a valid condition
+                        counterValidConditions += 1
+                        condition.writeToXml(outputFile, conditionsIndentLvl)
 
         # check #valid conditions
-        if not counterConditions == config.nExpectedConditions:
+        if not counterValidConditions == config.nExpectedConditions:
             print(f'Invalid #conditions from: {config.inputProperties}\n')
             return 1
         else:
-            print(f'\t #conditions in file: {counterConditions:5d}\n')
+            print(f'\t #valid conditions in file: {counterValidConditions:5d}\n')
 
         # close the output file
         writeXmlFileEnd(outputFile)
