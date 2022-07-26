@@ -44,11 +44,14 @@ nPmtsModule = nEcsModule * nPmtsEc
 nChannelsPmt = 64
 
 nModulesR1 = 132
-nPmtsR1 = 1920
+nPmtsR1 = 1888
 pmtCopyNumberMaxR1 = 2112
 nModulesR2 = 144
 nPmtsR2 = 1152
 pmtCopyNumberMaxR2 = 2304
+
+# TODO remove hack (diffs in the list read from a file and the actual number of valid PMTs) ('calculated' manually)
+diffInValidPmts = list(range(0,8)) + list(range(72,80)) + list(range(960, 968)) + list(range(1032,1040))
 
 moduleGlobalStart = {
     'R1U': 0,
@@ -117,7 +120,7 @@ class SmartId:
         # ! could be improved (reg expressions?)
         parsedId = parse(idPattern, idString)
 
-        # ! remember that column numbering scheme in RICH2 was changed (here: keep old one for now)
+        # TODO remove hack for R2 column numbering scheme differences (keep old one for now)
         return cls(parsedId[0], parsedId[1], (int(parsedId[3]) - 1 if parsedId[0] == 'RICH2' else int(parsedId[3])),
                    int(parsedId[4]), int(parsedId[5]), int(parsedId[6]))
 
@@ -151,6 +154,7 @@ class SmartId:
 
         copyNumberList = []
 
+        emptyModules = [0, 5, 66, 71]
         noEC0TypeModules = list(range(6, 66, 6))+list(range(72, 132, 6))
         noEC3TypeModules = list(range(11, 71, 6))+list(range(77, 137, 6))
 
@@ -160,17 +164,13 @@ class SmartId:
 
             # RICH1
             if pmtCopyNumber < pmtCopyNumberMaxR1:
-
-                # noEC01TypeModules
-                if (moduleGlobal == 0 or moduleGlobal == 66) and pmtInModule < 8:
+                # empty modules
+                if moduleGlobal in emptyModules:
                     continue
-                    # noEC23TypeModules
-                elif (moduleGlobal == 5 or moduleGlobal == 71) and pmtInModule >= 8:
-                    continue
-                    # noEC0TypeModules
+                # noEC0TypeModules
                 elif moduleGlobal in noEC0TypeModules and pmtInModule < 4:
                     continue
-                    # noEC3TypeModules
+                # noEC3TypeModules
                 elif moduleGlobal in noEC3TypeModules and pmtInModule >= 12:
                     continue
                 else:
@@ -272,6 +272,14 @@ def getListFromFile(filePath, separator):
         listFromFile = inputFile.read().split(separator)
     return listFromFile
 
+def sanitiseList(curList, indicesToRemove):
+
+    # ! remove from the end (to avoid change in indices)
+    for el in sorted(indicesToRemove, reverse = True):
+        del curList[el]
+
+    return curList
+
 # functions
 
 
@@ -324,7 +332,9 @@ def makeCondition(firstLine, fileIter, occupancy, expectedCopyNr, maxValues, use
     else:
         smartId = SmartId.initFromIdString(idString)
 
+        # ! check if the obtained copy number matches the expected one
         if not smartId.copyNumber() == expectedCopyNr:
+            print(f'Copy number in the input does not match the expected one: {smartId.copyNumber()} VS {expectedCopyNr}\n')
             return None, 2
         else:
             # process/modify raw input data if necessary
@@ -346,12 +356,16 @@ def makeConditions(config):
     print(f'\t input for occupancy: \t\t {config.inputOccupancy}')
     print(f'\t output file: \t\t\t {config.output}\n')
 
-    # prevalidate the input file
-    if not nLinesInFile(config.inputProperties) == config.nExpectedConditions * nEntriesPerCondition:
+    # prevalidate the input file (check if lines are not missing)
+    nLinesInput = nLinesInFile(config.inputProperties)
+    nLinesExpected = config.nExpectedConditions * nEntriesPerCondition
+
+    # TODO remove hack for input files with pre-final numbering scheme (before corner modules removal)
+    if ( (nLinesInput % nEntriesPerCondition != 0 ) or (nLinesInput < nLinesExpected) ):
         print(f'Ivalid #lines in {config.inputProperties}:')
         print(
-            f'\t expected: {config.nExpectedConditions * nEntriesPerCondition}')
-        print(f'\t obtained: {nLinesInFile(config.inputProperties)}')
+            f'\t expected: {nLinesExpected}')
+        print(f'\t current: {nLinesInput}')
         return 1
 
     # get occupancies (and validate)
@@ -359,10 +373,15 @@ def makeConditions(config):
     # ! occupancy converted to float in 0-1 range
     occupancyList = [float(el) / 100.0 for el in getListFromFile(
         config.inputOccupancy, separatorForLists)]
+
+    # TODO remove hack for input files with pre-final numbering scheme (before corner modules removal)
+    if len(occupancyList) == config.nExpectedConditions + len(diffInValidPmts):
+        print(f'Sanitising occupancy list of initial length {len(occupancyList)} (expected: {config.nExpectedConditions}) in: {config.inputOccupancy}.\n')
+        occupancyList = sanitiseList(occupancyList, diffInValidPmts)
+
     if not len(occupancyList) == config.nExpectedConditions:
-        print(f'Ivalid #lines in {config.inputOccupancy}:')
+        print(f'Ivalid #lines in: {config.inputOccupancy}.\n')
         return 1
-    occupancyListIter = iter(occupancyList)
 
     # prepare the output file
     if not os.path.exists(os.path.dirname(config.output)):
@@ -372,9 +391,11 @@ def makeConditions(config):
         writeXmlFileBegin(outputFile, config.catalogName)
 
         # read all conditions
-        # ! check if the obtained copy numbers match the expected ones
+        counterValidConditions = 0
+        
+        occupancyListIter = iter(occupancyList)
         validCopyNumbersIter = iter(config.expectedCopyNumbers)
-        counterConditions = 0
+
         with open(config.inputProperties, 'r', encoding='utf8') as inputProperties:
             for line in inputProperties:
                 if line.startswith(idPatternStart):
@@ -386,20 +407,21 @@ def makeConditions(config):
                             f'Ivalid input format in {config.inputProperties}\n')
                         return 1
                     elif status == 2:
-                        print(
-                            f'Ivalid input ordering in {config.inputProperties}\n')
-                        return 1
-
-                    # process
-                    counterConditions += 1
-                    condition.writeToXml(outputFile, conditionsIndentLvl)
+                        # reset iterators and continue
+                        # TODO remove hack for input files with pre-final numbering scheme (before corner modules removal)
+                        occupancyListIter = iter(occupancyList[counterValidConditions:])
+                        validCopyNumbersIter = iter(config.expectedCopyNumbers[counterValidConditions:])
+                    elif status == 0:
+                        # process a valid condition
+                        counterValidConditions += 1
+                        condition.writeToXml(outputFile, conditionsIndentLvl)
 
         # check #valid conditions
-        if not counterConditions == config.nExpectedConditions:
+        if not counterValidConditions == config.nExpectedConditions:
             print(f'Invalid #conditions from: {config.inputProperties}\n')
             return 1
         else:
-            print(f'\t #conditions in file: {counterConditions:5d}\n')
+            print(f'\t #valid conditions in file: {counterValidConditions:5d}\n')
 
         # close the output file
         writeXmlFileEnd(outputFile)
