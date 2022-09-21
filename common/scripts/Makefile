@@ -50,13 +50,14 @@ MAX_RUNTIME=86000      #in secs
 #JOB_FLAVOUR="longlunch" #queue type in condor
 #MAX_RUNTIME=7150 #in secs
 
-LIST_OF_JOBS = pGun_rich1 pGun_rich2 bEvent # bEvent{_basic} digi{_noSin,_bandwidth,_spillover} spillover pGun_rich1 pGun_rich2
+LIST_OF_JOBS = pGun_rich1 pGun_rich2 bEvent_basic # bEvent{_basic} digi{_noSin,_bandwidth,_spillover} spillover pGun_rich1 pGun_rich2
 # add the following for a full performance study with signal: 
 # pGun_ref_rich1 pGun_ref_rich2 pGun_ref_goodRegion_rich1 pGun_ref_goodRegion_rich2 bEvent_performance 
 LIST_TO_RUN="Gauss Boole Moore" # Gauss Boole Moore Brunel Rec Rec1 Rec2
 LIST_TO_MERGE = Gauss/Gauss-Histo Boole/Boole-Histo Moore/Moore-Histo # Moore/Moore-Histo Brunel/Brunel-Ntuple Rec1/Rec-Ntuple Rec2/Rec-Ntuple Brunel/Brunel-Histo Rec/Rec-Histo Rec1/Rec-Histo Rec2/Rec-Histo Rec/Rec-Ntuple
 
-REFERENCE_DIR=$${RICH_DATA}/Gauss_v55r4/dddb-20220323/sim-20220324-vc-md100/baseline/bEvent
+REFERENCE_DIR=$${RICH_DATA}/Gauss_v56r0/dddb-20220818/sim-20220818-vc-md100/baseline/bEvent_basic
+# REFERENCE_DIR=/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v56r0/dddb-20220818/sim-20220818-vc-md100/baseline/bEvent_basic
 # REFERENCE_DIR=/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v55r4/dddb-20220323/sim-20220324-vc-md100/baseline/bEvent
 # REFERENCE_DIR=/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v55r1/bmalecki-rich-detPlanePositions/bmalecki-rich-detPlanePositions/baseline/digi
 
@@ -71,8 +72,10 @@ INPUT_FILES_FOR_DIGI='InputArea+\\\\\"/Gauss_$$\{i\}\\\\\"'
 # INPUT_DIR_FOR_DIGI=$${EOS_PREFIX}/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v55r1/bmalecki-rich-detPlanePositions/sim-20210630-vc-md100/baseline/bEvent_performance/Gauss/data
 # INPUT_FILES_FOR_DIGI='InputArea+\\\\\"/Gauss_$$\{i\}\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+500\)\)\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+1000\)\)\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+1500\)\)\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+2000\)\)\\\\\"'
 
-DDDB=upgrade/dddb-20220323					# latest ref
-CONDDB=upgrade/sim-20220324-vc-md100		# latest ref
+DDDB=upgrade/dddb-20220818					# numbering scheme updates (final modules layout)
+CONDDB=upgrade/sim-20220818-vc-md100		# numbering scheme updates (final modules layout)
+# DDDB=upgrade/dddb-20220323				# latest ref
+# CONDDB=upgrade/sim-20220324-vc-md100		# latest ref
 # DDDB=upgrade/dddb-20220111				# update detector planes positions for R1&R2
 # CONDDB=upgrade/sim-20220111-vc-md100		# update detector planes positions for R1&R2
 # DDDB=upgrade/dddb-20210617				# RICH decoding with Online FibreDB (Chris)
