@@ -4,6 +4,7 @@
 
 #config
 .vscode
+env/
 
 #ccache
 .ccache

@@ -144,6 +144,10 @@ if [ -z ${RICH_HOST+x} ]; then
   exit 1
 fi
 
+#activate local python env
+source ${RICH_BASE}/env/bin/activate
+echo -e "\nLocal Python env activated.\n"
+
 #set RICH environment variables (default setup)
 rich-setup-env
 lb-set-platform ${CMTCONFIG_STACK}
