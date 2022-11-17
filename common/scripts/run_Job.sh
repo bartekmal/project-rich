@@ -401,7 +401,12 @@ touch start_job.sh
 echo "#!/bin/sh" >>start_job.sh
 echo "" >>start_job.sh
 
+# pass environment variables to the batch system
 echo "export GITCONDDBPATH=${RICH_BASE_GITCONDDB}" >>start_job.sh
+echo "export RICH_BASE_SOFTWARE=${RICH_BASE_SOFTWARE}" >>start_job.sh
+echo "export RICH_BASE_OPTIONS=${RICH_BASE_OPTIONS}" >>start_job.sh
+echo "export RICH_BASE_SCRIPTS=${RICH_BASE_SCRIPTS}" >>start_job.sh
+
 echo "" >>start_job.sh
 
 #Gauss

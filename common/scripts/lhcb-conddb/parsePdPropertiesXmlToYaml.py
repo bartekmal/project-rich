@@ -14,10 +14,10 @@ import os
 from parse import parse as parseString
 
 from importlib.machinery import SourceFileLoader
-smartIdHelper = SourceFileLoader('smartId', os.path.join(os.environ['RICH_BASE_SCRIPTS'], 'utils/smartId.py')).load_module()
+smartIdHelper = SourceFileLoader('smartId', os.path.join(os.environ['RICH_BASE_SCRIPTS_UTILS'], 'smartId.py')).load_module()
 
 # config
-inputPathBase = os.getenv('RICH_BASE_SOFTWARE') + '/data/SIMCOND'
+inputPathBase = os.path.join(os.environ['RICH_BASE_GITCONDDB'], 'SIMCOND')
 outputPathBase = "output"
 
 condNameGlobal = "PDProperties"
