@@ -6,8 +6,9 @@
 .vscode
 env/
 
-#ccache
+#cache
 .ccache
+__pycache__
 
 #env
 env/

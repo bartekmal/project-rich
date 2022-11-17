@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 '''
 Script to update the channel properties in SIMCOND using input from txt files containing the commissioning data.
@@ -10,12 +10,12 @@ Script to update the channel properties in SIMCOND using input from txt files co
 # Built-in/Generic Imports
 import os
 import shutil
-import math
 
 from typing import List
 from dataclasses import dataclass, field
 
-from parse import parse
+from importlib.machinery import SourceFileLoader
+smartIdHelper = SourceFileLoader('smartId', os.path.join(os.environ['RICH_BASE_SCRIPTS'], 'utils/smartId.py')).load_module()
 
 # Libs
 # import ROOT
@@ -32,43 +32,15 @@ separatorForLists = ','
 newlineSymbol = '\n'
 xmlIndent = '\t'
 
+# ! arbitrary values for sanitising unexpected input (may need tuning when input changes)
 neutralValForNegativeInputs = f'{float(0.0):5.3f}'
 neutralValForLargeInputs = f'{float(0.0):5.3f}'
 maxValues900V = [5.0, 5.0, 30.0, 5.0]
 maxValues1000V = [10.0, 10.0, 30.0, 10.0]
 
-nModulesColumn = 6
-nEcsModule = 4
-nPmtsEc = 4
-nPmtsModule = nEcsModule * nPmtsEc
-nChannelsPmt = 64
-
-nModulesR1 = 132
-nPmtsR1 = 1888
-pmtCopyNumberMaxR1 = 2112
-nModulesR2 = 144
-nPmtsR2 = 1152
-pmtCopyNumberMaxR2 = 2304
-
-# TODO remove hack (diffs in the list read from a file and the actual number of valid PMTs) ('calculated' manually)
-diffInValidPmts = list(range(0,8)) + list(range(72,80)) + list(range(960, 968)) + list(range(1032,1040))
-
-moduleGlobalStart = {
-    'R1U': 0,
-    'R1D': math.floor(nModulesR1/2),
-    'R2A': nModulesR1,
-    'R2C': nModulesR1 + math.floor(nModulesR2/2)
-}
-
 nEntriesPerCondition = 7
-idPattern = '{}/{}/{}_COL{}/PDM{}/EC{}/PMT{}'
 idPatternStart = 'RICH'
 
-basePath = '/afs/cern.ch/work/b/bmalecki/RICH_Upgrade/common/scripts/SIMCOND'
-inputPath = os.path.join(basePath, 'input')
-outputPath = os.path.join(basePath, 'output')
-
-catalogName = 'PMTProperties'
 conditionsIndentLvl = 2
 conditionElements = {
     'qeType': {'name': 'QEType', 'type': 'int', 'comment': 'Flag QE shape for the given PD type/series (dummy value for now).', 'default': 0},
@@ -83,15 +55,15 @@ conditionElements = {
 # helpers xml
 
 
-def writeXmlFileBegin(outputFile, catalogName):
+def writeXmlFileBegin(outputFile, catalogName, indent = xmlIndent):
     outputFile.write('<?xml version="1.0" encoding="ISO-8859-1"?>\n')
     outputFile.write('<!DOCTYPE DDDB SYSTEM "git:/DTD/structure.dtd">\n\n')
     outputFile.write('<DDDB>\n\n')
-    outputFile.write(f'{xmlIndent}<catalog name="{catalogName}">\n\n')
+    outputFile.write(f'{indent}<catalog name="{catalogName}">\n\n')
 
 
-def writeXmlFileEnd(outputFile):
-    outputFile.write(f'\n{xmlIndent}</catalog>\n\n')
+def writeXmlFileEnd(outputFile, indent = xmlIndent):
+    outputFile.write(f'\n{indent}</catalog>\n\n')
     outputFile.write('</DDDB>\n')
 
 
@@ -104,88 +76,6 @@ def xmlParam(entryConfig, param):
 
 
 # helper classes
-
-@dataclass
-class SmartId:
-    '''SmartId class'''
-    rich: str = ''
-    plane: str = ''
-    col: int = 0
-    module: int = 0
-    ec: int = 0
-    pmt: int = 0
-
-    @classmethod
-    def initFromIdString(cls, idString):
-        # ! could be improved (reg expressions?)
-        parsedId = parse(idPattern, idString)
-
-        # TODO remove hack for R2 column numbering scheme differences (keep old one for now)
-        return cls(parsedId[0], parsedId[1], (int(parsedId[3]) - 1 if parsedId[0] == 'RICH2' else int(parsedId[3])),
-                   int(parsedId[4]), int(parsedId[5]), int(parsedId[6]))
-
-    def moduleGlobal(self) -> int:
-        return moduleGlobalStart[self.plane] + self.col * nModulesColumn + self.module
-
-    def pmtInModule(self) -> int:
-        return (self.ec) if (SmartId.isLargePmt(self.moduleGlobal())) else (self.ec * nPmtsEc + self.pmt)
-
-    def copyNumber(self) -> int:
-        '''Return PMT copy number (unique in the whole RICH system).'''
-        return self.moduleGlobal() * nPmtsModule + self.pmtInModule()
-
-    @staticmethod
-    def isLargePmt(moduleGlobal):
-        '''Return True for H-type PMTs/modules.'''
-        if moduleGlobal < nModulesR1:
-            return False
-        else:
-            if moduleGlobal % 6 in [2, 3]:
-                return False
-            elif moduleGlobal % 6 in [0, 1, 4, 5]:
-                return True
-            else:
-                print("I have a bad feeling about this...")
-                return None
-
-    @staticmethod
-    def validCopyNumbers(copyNumberBegin, copyNumberEnd):
-        '''Return a list of valid copy numbers in the given range.'''
-
-        copyNumberList = []
-
-        emptyModules = [0, 5, 66, 71]
-        noEC0TypeModules = list(range(6, 66, 6))+list(range(72, 132, 6))
-        noEC3TypeModules = list(range(11, 71, 6))+list(range(77, 137, 6))
-
-        for pmtCopyNumber in range(copyNumberBegin, copyNumberEnd):
-            moduleGlobal = int(pmtCopyNumber//16)
-            pmtInModule = pmtCopyNumber % 16
-
-            # RICH1
-            if pmtCopyNumber < pmtCopyNumberMaxR1:
-                # empty modules
-                if moduleGlobal in emptyModules:
-                    continue
-                # noEC0TypeModules
-                elif moduleGlobal in noEC0TypeModules and pmtInModule < 4:
-                    continue
-                # noEC3TypeModules
-                elif moduleGlobal in noEC3TypeModules and pmtInModule >= 12:
-                    continue
-                else:
-                    copyNumberList.append(pmtCopyNumber)
-
-            # RICH2
-            else:
-                if SmartId.isLargePmt(moduleGlobal) and pmtInModule >= 4:
-                    continue
-                else:
-                    copyNumberList.append(pmtCopyNumber)
-
-        return copyNumberList
-
-
 @dataclass
 class ConfigEntry:
     '''Configuration helper class for conditions.'''
@@ -193,6 +83,8 @@ class ConfigEntry:
     inputOccupancy: str = ''
     output: str = ''
     catalogName: str = ''
+    outputCatalogPath: str = ''
+    catalogCatalogName: str = ''
     nExpectedConditions: int = 0
     expectedCopyNumbers: List[int] = field(default_factory=List[int])
     maxValues: List[float] = field(default_factory=List[float])
@@ -202,7 +94,7 @@ class ConfigEntry:
 @dataclass
 class Condition:
     '''Storage class for a PMT condition.'''
-    smartId: SmartId = SmartId()
+    smartId: smartIdHelper.SmartId = smartIdHelper.SmartId()
     qeType: int = 0
     qeScalingFactor: float = 1.
     gainMeans: List[float] = field(default_factory=List[float])
@@ -219,7 +111,7 @@ class Condition:
             f'{xmlIndent*indentLvl}<condition classID="5"  name="PMT{self.smartId.copyNumber()}_Properties">\n\n')
 
         # formatting
-        # TODO improve formatting (? add as arguments below)
+        # TODO improve formatting (? add as arguments in the configuration)
 
         # elements
         outputFile.write(
@@ -242,15 +134,25 @@ class Condition:
 
 
 # config
+# ! hack (diffs in the list of PMTS in a file and the actual number of valid PMTs) ('calculated' manually)
+# TODO remove this hack once new input files are available (with list of PMTs consistent with the actually installed/valid ones) (current ones contain lists before the corner modules removal in RICH1)
+diffInValidPmts = list(range(0,8)) + list(range(72,80)) + list(range(960, 968)) + list(range(1032,1040))
+
+basePath = os.path.join(os.environ['RICH_BASE_SCRIPTS'], 'SIMCOND')
+inputPath = os.path.join(basePath, 'input')
+outputPath = os.path.join(basePath, 'output')
+
+catalogName = 'PMTProperties'
+
 configList = {
     # R1
-    'R1_900V_sinOrdered': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH1_FAKE_sinOrdered_HV_900.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r4/numberSchemeFinal/stdNu_7c6/minBias/output/365_percent.txt'), os.path.join(outputPath, 'Rich1/ChannelInfo/PMTProperties.xml'), catalogName, nPmtsR1, SmartId.validCopyNumbers(0, pmtCopyNumberMaxR1),maxValues900V,useDefaultValues=True),
-    # 'R1_1000V_sinOrdered': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH1_FAKE_sinOrdered_HV_1000.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r4/numberSchemeFinal/stdNu_7c6/minBias/output/365_percent.txt'), os.path.join(outputPath, 'Rich1/ChannelInfo/PMTProperties.xml'), catalogName, nPmtsR1, SmartId.validCopyNumbers(0, pmtCopyNumberMaxR1), maxValues1000V,useDefaultValues=True),
-    # 'R1_900V_sinRandom': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH1_FAKE_sinRandom_HV_900.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r4/numberSchemeFinal/stdNu_7c6/minBias/output/365_percent.txt'), os.path.join(outputPath, 'Rich1/ChannelInfo/PMTProperties.xml'), catalogName, nPmtsR1, SmartId.validCopyNumbers(0, pmtCopyNumberMaxR1),maxValues900V,useDefaultValues=True),
-    # 'R1_1000V_sinRandom': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH1_FAKE_sinRandom_HV_1000.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r4/numberSchemeFinal/stdNu_7c6/minBias/output/365_percent.txt'), os.path.join(outputPath, 'Rich1/ChannelInfo/PMTProperties.xml'), catalogName, nPmtsR1, SmartId.validCopyNumbers(0, pmtCopyNumberMaxR1),maxValues1000V,useDefaultValues=True),
+    'R1_900V_sinOrdered': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH1_FAKE_sinOrdered_HV_900.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r4/numberSchemeFinal/stdNu_7c6/minBias/output/365_percent.txt'), os.path.join(outputPath, 'Rich1/ChannelInfo/PMTProperties.xml'), catalogName, os.path.join(outputPath, 'Rich1/ChannelInfoCatalog.xml'), 'Rich1', smartIdHelper.nPmtsR1, smartIdHelper.SmartId.validCopyNumbers(0, smartIdHelper.pmtCopyNumberMaxR1),maxValues900V,useDefaultValues=True),
+    # 'R1_1000V_sinOrdered': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH1_FAKE_sinOrdered_HV_1000.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r4/numberSchemeFinal/stdNu_7c6/minBias/output/365_percent.txt'), os.path.join(outputPath, 'Rich1/ChannelInfo/PMTProperties.xml'), catalogName, os.path.join(outputPath, 'Rich1/ChannelInfoCatalog.xml'), 'Rich1', smartIdHelper.nPmtsR1, smartIdHelper.SmartId.validCopyNumbers(0, smartIdHelper.pmtCopyNumberMaxR1), maxValues1000V,useDefaultValues=True),
+    # 'R1_900V_sinRandom': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH1_FAKE_sinRandom_HV_900.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r4/numberSchemeFinal/stdNu_7c6/minBias/output/365_percent.txt'), os.path.join(outputPath, 'Rich1/ChannelInfo/PMTProperties.xml'), catalogName, os.path.join(outputPath, 'Rich1/ChannelInfoCatalog.xml'), 'Rich1', smartIdHelper.nPmtsR1, smartIdHelper.SmartId.validCopyNumbers(0, smartIdHelper.pmtCopyNumberMaxR1),maxValues900V,useDefaultValues=True),
+    # 'R1_1000V_sinRandom': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH1_FAKE_sinRandom_HV_1000.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r4/numberSchemeFinal/stdNu_7c6/minBias/output/365_percent.txt'), os.path.join(outputPath, 'Rich1/ChannelInfo/PMTProperties.xml'), catalogName, os.path.join(outputPath, 'Rich1/ChannelInfoCatalog.xml'), 'Rich1', smartIdHelper.nPmtsR1, smartIdHelper.SmartId.validCopyNumbers(0, smartIdHelper.pmtCopyNumberMaxR1),maxValues1000V,useDefaultValues=True),
     # R2
-    'R2_900V': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH2_HV_900.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r4/numberSchemeFinal/stdNu_7c6/minBias/output/385_percent.txt'), os.path.join(outputPath, 'Rich2/ChannelInfo/PMTProperties.xml'), catalogName, nPmtsR2, SmartId.validCopyNumbers(pmtCopyNumberMaxR1, pmtCopyNumberMaxR1 + pmtCopyNumberMaxR2), maxValues900V,useDefaultValues=True),
-    # 'R2_1000V': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH2_HV_1000.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r4/numberSchemeFinal/stdNu_7c6/minBias/output/385_percent.txt'), os.path.join(outputPath, 'Rich2/ChannelInfo/PMTProperties.xml'), catalogName, nPmtsR2, SmartId.validCopyNumbers(pmtCopyNumberMaxR1, pmtCopyNumberMaxR1 + pmtCopyNumberMaxR2), maxValues1000V,useDefaultValues=True),
+    'R2_900V': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH2_HV_900.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r4/numberSchemeFinal/stdNu_7c6/minBias/output/385_percent.txt'), os.path.join(outputPath, 'Rich2/ChannelInfo/PMTProperties.xml'), catalogName, os.path.join(outputPath, 'Rich2/ChannelInfoCatalog.xml'), 'Rich2', smartIdHelper.nPmtsR2, smartIdHelper.SmartId.validCopyNumbers(smartIdHelper.pmtCopyNumberMaxR1, smartIdHelper.pmtCopyNumberMaxR1 + smartIdHelper.pmtCopyNumberMaxR2), maxValues900V,useDefaultValues=True),
+    # 'R2_1000V': ConfigEntry(os.path.join(inputPath, 'channelProperties/RICH2_HV_1000.txt'), os.path.join(inputPath, 'occupancy/Gauss_v55r4/numberSchemeFinal/stdNu_7c6/minBias/output/385_percent.txt'), os.path.join(outputPath, 'Rich2/ChannelInfo/PMTProperties.xml'), catalogName, os.path.join(outputPath, 'Rich2/ChannelInfoCatalog.xml'), 'Rich2', smartIdHelper.nPmtsR2, smartIdHelper.SmartId.validCopyNumbers(smartIdHelper.pmtCopyNumberMaxR1, smartIdHelper.pmtCopyNumberMaxR1 + smartIdHelper.pmtCopyNumberMaxR2), maxValues1000V,useDefaultValues=True),
 }
 
 
@@ -296,11 +198,11 @@ def makeCondition(firstLine, fileIter, occupancy, expectedCopyNr, maxValues, use
     thresholds = next(fileIter).rstrip(newlineSymbol).split(separatorForLists)
 
     # validate input format
-    isFormatOk = isListExpectedSize(gainMeans, nChannelsPmt) and isListExpectedSize(
-        gainStdDevs, nChannelsPmt) and isListExpectedSize(thresholds, nChannelsPmt) and isListExpectedSize(sinMuValues, nChannelsPmt)
+    isFormatOk = isListExpectedSize(gainMeans, smartIdHelper.nChannelsPmt) and isListExpectedSize(
+        gainStdDevs, smartIdHelper.nChannelsPmt) and isListExpectedSize(thresholds, smartIdHelper.nChannelsPmt) and isListExpectedSize(sinMuValues, smartIdHelper.nChannelsPmt)
 
     # sanitise negative numbers in input
-    # ! needs a manual tuning (currently: set to zero)
+    # ! needs manual tuning (currently: set to zero)
     counterNegativeValues = 0
     listsToCheck = [gainMeans, gainStdDevs, sinMuValues, thresholds]
     for curList in listsToCheck:
@@ -313,7 +215,7 @@ def makeCondition(firstLine, fileIter, occupancy, expectedCopyNr, maxValues, use
             f'\t (VERIFY) Found {counterNegativeValues} negative numbers for {idString}. Setting them to zero.')
 
     # sanitise large numbers in input
-    # ! needs a manual tuning (currently: set to zero)
+    # ! needs manual tuning (currently: set to zero)
     # TODO improve zip(listsToCheck, maxValues) configuration
     counterLargeValues = 0
     listsToCheck = [gainMeans, gainStdDevs, sinMuValues, thresholds]
@@ -330,7 +232,7 @@ def makeCondition(firstLine, fileIter, occupancy, expectedCopyNr, maxValues, use
     if not isFormatOk:
         return None, 1
     else:
-        smartId = SmartId.initFromIdString(idString)
+        smartId = smartIdHelper.SmartId.initFromIdString(idString)
 
         # ! check if the obtained copy number matches the expected one
         if not smartId.copyNumber() == expectedCopyNr:
@@ -360,7 +262,7 @@ def makeConditions(config):
     nLinesInput = nLinesInFile(config.inputProperties)
     nLinesExpected = config.nExpectedConditions * nEntriesPerCondition
 
-    # TODO remove hack for input files with pre-final numbering scheme (before corner modules removal)
+    # TODO remove this hack once new input files are available (with list of PMTs consistent with the actually installed/valid ones)
     if ( (nLinesInput % nEntriesPerCondition != 0 ) or (nLinesInput < nLinesExpected) ):
         print(f'Ivalid #lines in {config.inputProperties}:')
         print(
@@ -374,7 +276,7 @@ def makeConditions(config):
     occupancyList = [float(el) / 100.0 for el in getListFromFile(
         config.inputOccupancy, separatorForLists)]
 
-    # TODO remove hack for input files with pre-final numbering scheme (before corner modules removal)
+    # TODO remove this hack once new input files are available (with list of PMTs consistent with the actually installed/valid ones)
     if len(occupancyList) == config.nExpectedConditions + len(diffInValidPmts):
         print(f'Sanitising occupancy list of initial length {len(occupancyList)} (expected: {config.nExpectedConditions}) in: {config.inputOccupancy}.\n')
         occupancyList = sanitiseList(occupancyList, diffInValidPmts)
@@ -408,7 +310,7 @@ def makeConditions(config):
                         return 1
                     elif status == 2:
                         # reset iterators and continue
-                        # TODO remove hack for input files with pre-final numbering scheme (before corner modules removal)
+                        # TODO remove this hack once new input files are available (with list of PMTs consistent with the actually installed/valid ones)
                         occupancyListIter = iter(occupancyList[counterValidConditions:])
                         validCopyNumbersIter = iter(config.expectedCopyNumbers[counterValidConditions:])
                     elif status == 0:
@@ -428,6 +330,18 @@ def makeConditions(config):
 
     return 0
 
+def makeConditionsCatalog( filePath, catalogName, copyNumbers ):
+
+    # prepare the output file
+    if not os.path.exists(os.path.dirname(filePath)):
+        os.makedirs(os.path.dirname(filePath))
+
+    with open(filePath, 'w', encoding='utf8') as outputFile:
+        writeXmlFileBegin(outputFile, catalogName, '  ')
+        for el in copyNumbers:
+            outputFile.write('    <conditionref href="ChannelInfo/PMTProperties.xml#PMT{0}_Properties"/>\n'.format(el) )
+        writeXmlFileEnd(outputFile, '  ')
+
 # main part
 
 
@@ -443,6 +357,8 @@ def main():
 
     for key, entry in configList.items():
         print(f'Creating conditions for configuration: {key:20s}\n')
+        # ! adapt naming schemes in both conditions & conditions catalog if needed
+        makeConditionsCatalog(entry.outputCatalogPath, entry.catalogCatalogName, entry.expectedCopyNumbers)
         makeConditions(entry)
 
 
