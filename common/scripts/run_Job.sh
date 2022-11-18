@@ -390,7 +390,7 @@ echo "error = error/condor_"'$(ProcId)'".err" >>condor.sub
 echo "" >>condor.sub
 echo "+JobFlavour = ${JOB_FLAVOUR} " >>condor.sub
 echo "+MaxRuntime = ${MAX_RUNTIME} " >>condor.sub
-echo '+AccountingGroup = "group_u_LHCBT3.e_lhcb_lbd"' >>condor.sub
+echo "+AccountingGroup = \"${RICH_COMPUTING_GROUP}\"" >>condor.sub
 echo "" >>condor.sub
 echo "queue ${NUM_JOBS}" >>condor.sub
 

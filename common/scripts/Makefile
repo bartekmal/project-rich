@@ -103,12 +103,17 @@ CONDDB=upgrade/sim-20220818-vc-md100		# numbering scheme updates (final modules 
 # DDDB=upgrade/dddb-20190223				# before new numbering scheme (direct)
 # CONDDB=upgrade/sim-20180530-vc-md100		# before new numbering scheme (direct)
 
-RUN_COMMAND_GAUSS="$${RICH_BASE_SOFTWARE}/stack-gauss/Gauss/build.$${CMTCONFIG_GAUSS}/run"
-# RUN_COMMAND_GAUSS="$${RICH_BASE_SOFTWARE}/stack-gauss/Gauss/build.$${CMTCONFIG_GAUSS}/run -s DECFILESOPTS=/cvmfs/lhcb.cern.ch/lib/lhcb/DBASE/Gen/DecFiles/v31r4/options -s DECFILESROOT=/cvmfs/lhcb.cern.ch/lib/lhcb/DBASE/Gen/DecFiles/v31r4" # for older DB tags
-RUN_COMMAND_BOOLE="$${RICH_BASE_SOFTWARE}/stack-lhcb/utils/run-env $${RICH_BASE_SOFTWARE}/stack-lhcb/Boole"
-RUN_COMMAND_MOORE="$${RICH_BASE_SOFTWARE}/stack-lhcb/utils/run-env $${RICH_BASE_SOFTWARE}/stack-lhcb/Moore"
-RUN_COMMAND_BRUNEL="$${RICH_BASE_SOFTWARE}/stack-lhcb/utils/run-env $${RICH_BASE_SOFTWARE}/stack-lhcb/Brunel"
-RUN_COMMAND_REC="$${RICH_BASE_SOFTWARE}/stack-lhcb/utils/run-env $${RICH_BASE_SOFTWARE}/stack-lhcb/Rec"
+RUN_COMMAND_GAUSS="$${RICH_BASE_SOFTWARE_GAUSS}/Gauss/build.$${CMTCONFIG_GAUSS}/run"
+# RUN_COMMAND_GAUSS="$${RICH_BASE_SOFTWARE}/stack-gauss-dev/Gauss/build.$${CMTCONFIG_GAUSS}/run"
+# RUN_COMMAND_GAUSS="$${RICH_BASE_SOFTWARE}/stack-gauss-dev/Gauss/build.$${CMTCONFIG_GAUSS}/run -s DECFILESOPTS=/cvmfs/lhcb.cern.ch/lib/lhcb/DBASE/Gen/DecFiles/v31r4/options -s DECFILESROOT=/cvmfs/lhcb.cern.ch/lib/lhcb/DBASE/Gen/DecFiles/v31r4" # for older DB tags
+RUN_COMMAND_BOOLE="$${RICH_BASE_SOFTWARE_STACK}/utils/run-env Boole"
+# RUN_COMMAND_BOOLE="$${RICH_BASE_SOFTWARE}/stack-lhcb-dev/utils/run-env Boole"
+RUN_COMMAND_MOORE="$${RICH_BASE_SOFTWARE_STACK}/utils/run-env Moore"
+# RUN_COMMAND_MOORE="$${RICH_BASE_SOFTWARE}/stack-lhcb-dev/utils/run-env Moore"
+RUN_COMMAND_BRUNEL="$${RICH_BASE_SOFTWARE_STACK}/utils/run-env Brunel"
+# RUN_COMMAND_BRUNEL="$${RICH_BASE_SOFTWARE}/stack-lhcb-dev/utils/run-env Brunel"
+RUN_COMMAND_REC="$${RICH_BASE_SOFTWARE_STACK}/utils/run-env Rec"
+# RUN_COMMAND_REC="$${RICH_BASE_SOFTWARE}/stack-lhcb-dev/utils/run-env Rec"
 # RUN_COMMAND_REC="$${RICH_BASE_SOFTWARE}/release/RecDev_v34r0/build.$${CMTCONFIG_STACK}/run"
 
 GENERIC_OPTIONS_GAUSS=$${RICH_BASE_OPTIONS}/Gauss/Gauss-Job-Generic.py
@@ -125,7 +130,7 @@ GENERIC_OPTIONS_MOORE=$${RICH_BASE_OPTIONS}/Moore/Moore-Job-Generic.py
 GENERIC_OPTIONS_BRUNEL=$${RICH_BASE_OPTIONS}/Brunel/Brunel-Job-Generic.py
 # GENERIC_OPTIONS_BRUNEL=$${RICH_BASE_OPTIONS}/Brunel/Brunel-Job-Generic-NoData.py
 # GENERIC_OPTIONS_BRUNEL=$${PWD}/Brunel-Job-Generic.py
-GENERIC_OPTIONS_REC=$${RICH_BASE_SOFTWARE}/stack-lhcb/Rec/Rich/RichFutureRecSys/examples/RichFuture.py
+GENERIC_OPTIONS_REC=$${RICH_BASE_SOFTWARE_STACK}/Rec/Rich/RichFutureRecSys/examples/RichFuture.py
 
 ##### end of config
 
