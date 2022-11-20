@@ -24,11 +24,15 @@
 
 ### `setup.sh`
 * defines a set of useful aliases/functions within `rich-*` 'namespace'
-* defines the current workspace (see `$RICH_BASE*` variables)
+* defines the current workspace (see `RICH_BASE*` variables)
+
+**Versions of the used compiler (see `CMTCONFIG` variables) / ROOT / Python may be configured there.**
 
 ### `common/scripts/Makefile` (~analysis pipeline)
 
 **This script is copied to any new study folder while creating a study by `rich-make-study`, which enables local configuration.**
+
+**See documentation at the top of the `Makefile` for hints on the configuration options. For example, the list of predefined jobs can be seen in the variable `LIST_OF_JOBS`. Paths to the LHCb software / options files and database tags can be configured there as well.**
 
 * defines the default analysis pipeline (baseline RICH performance study)
 * many other dedicated studies are also defined (please get in touch if you have troubles using it - many types of studies can be managed from here adapting the configuration slightly)
