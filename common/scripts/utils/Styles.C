@@ -233,7 +233,7 @@ inline void Rich::Styles::setStyleDefault()
 inline void Rich::Styles::setStyleLhcb()
 {
       gStyle->Reset();
-      gROOT->ProcessLine(".x /afs/cern.ch/work/b/bmalecki/RICH_Upgrade/software/utils/Alexandria/RootTools/LHCbStyle/src/lhcbStyle.C");
+      gROOT->ProcessLine(std::string(".x " + std::string(std::getenv("RICH_BASE_SOFTWARE")) + "/utils/Alexandria/RootTools/LHCbStyle/src/lhcbStyle.C").c_str());
 }
 
 inline void Rich::Styles::setStyleSlides()

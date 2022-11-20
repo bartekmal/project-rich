@@ -1,18 +1,15 @@
-#tmp
+# tmp files
 *~
-*#
+.*.swp
+*#*#
 
-#config
+# config/environment
 .vscode
 env/
 
-#cache
+# cache
 .ccache
 __pycache__
 
-#env
-env/
+# folders
 
-#paths
-software/
-jobs/

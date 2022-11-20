@@ -9,7 +9,7 @@ Legacy: 7 SIN classes assigned according to the PD occupancy (SIN ratios based o
 import os
 
 from importlib.machinery import SourceFileLoader
-smartIdHelper = SourceFileLoader('smartId', os.path.join(os.environ['RICH_BASE_SCRIPTS'], 'utils/smartId.py')).load_module()
+smartIdHelper = SourceFileLoader('smartId', os.path.join(os.environ['RICH_BASE_SCRIPTS_UTILS'], 'smartId.py')).load_module()
 
 # helpers
 def readAListFromFile(filePath, separator = ''):

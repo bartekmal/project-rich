@@ -1,0 +1,3 @@
+[submodule "software/utils/Alexandria"]
+	path = software/utils/Alexandria
+	url = ssh://git@gitlab.cern.ch:7999/lhcb/Alexandria.git

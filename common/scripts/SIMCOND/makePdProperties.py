@@ -15,7 +15,7 @@ from typing import List
 from dataclasses import dataclass, field
 
 from importlib.machinery import SourceFileLoader
-smartIdHelper = SourceFileLoader('smartId', os.path.join(os.environ['RICH_BASE_SCRIPTS'], 'utils/smartId.py')).load_module()
+smartIdHelper = SourceFileLoader('smartId', os.path.join(os.environ['RICH_BASE_SCRIPTS_UTILS'], 'smartId.py')).load_module()
 
 # Libs
 # import ROOT

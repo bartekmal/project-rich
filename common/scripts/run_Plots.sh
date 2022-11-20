@@ -78,34 +78,34 @@ echo ""
 # Gauss-Histo
 if [ -f ${CURRENT_DIR}/Gauss/Gauss-Histo.root ]; then
     cd ${OUTPUT_DIR}/simInputs
-    ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS}/output/Gauss/DrawSimInputs.C(\"${CURRENT_DIR}/Gauss\",\"Gauss-Histo.root\")" >>${SUBMIT_DIR}/plots.log
+    ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS_ANALYSIS}/Gauss/DrawSimInputs.C(\"${CURRENT_DIR}/Gauss\",\"Gauss-Histo.root\")" >>${SUBMIT_DIR}/plots.log
     cd ${OUTPUT_DIR}/occupancy
-    ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS}/output/Gauss/DrawOccupancy.C(\"${CURRENT_DIR}/Gauss\",\"Gauss-Histo.root\")" >>${SUBMIT_DIR}/plots.log
-    ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS}/output/Gauss/DrawOccupancyRatio.C(\"${OUTPUT_DIR}/occupancy/output.root\",\"${REFERENCE_JOB}/output/occupancy/output.root\")" >>${SUBMIT_DIR}/plots.log
+    ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS_ANALYSIS}/Gauss/DrawOccupancy.C(\"${CURRENT_DIR}/Gauss\",\"Gauss-Histo.root\")" >>${SUBMIT_DIR}/plots.log
+    ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS_ANALYSIS}/Gauss/DrawOccupancyRatio.C(\"${OUTPUT_DIR}/occupancy/output.root\",\"${REFERENCE_JOB}/output/occupancy/output.root\")" >>${SUBMIT_DIR}/plots.log
     cd ${OUTPUT_DIR}/performance
-    ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS}/output/Gauss/DrawPerformance.C(\"${CURRENT_DIR}/Gauss\",\"Gauss-Histo.root\",${IS_PARTICLE_GUN})" >>${SUBMIT_DIR}/plots.log
+    ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS_ANALYSIS}/Gauss/DrawPerformance.C(\"${CURRENT_DIR}/Gauss\",\"Gauss-Histo.root\",${IS_PARTICLE_GUN})" >>${SUBMIT_DIR}/plots.log
 fi
 
 # Boole-Histo
 if [ -f ${CURRENT_DIR}/Boole/Boole-Histo.root ]; then
     cd ${OUTPUT_DIR}/occupancy
-    ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS}/output/Boole/DrawOccupancy.C(\"${CURRENT_DIR}/Boole\")" >>${SUBMIT_DIR}/plots.log
-    ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS}/output/Boole/DrawOccupancyRatio.C(\"${OUTPUT_DIR}/occupancy/output.root\",\"${REFERENCE_JOB}/output/occupancy/output.root\")" >>${SUBMIT_DIR}/plots.log
-    # ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS}/output/Boole/DrawSinOccupancyProfile.C(\"${CURRENT_DIR}/Boole\",\"${REFERENCE_DIR}/Boole\")" >>${SUBMIT_DIR}/plots.log
+    ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS_ANALYSIS}/Boole/DrawOccupancy.C(\"${CURRENT_DIR}/Boole\")" >>${SUBMIT_DIR}/plots.log
+    ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS_ANALYSIS}/Boole/DrawOccupancyRatio.C(\"${OUTPUT_DIR}/occupancy/output.root\",\"${REFERENCE_JOB}/output/occupancy/output.root\")" >>${SUBMIT_DIR}/plots.log
+    # ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS_ANALYSIS}/Boole/DrawSinOccupancyProfile.C(\"${CURRENT_DIR}/Boole\",\"${REFERENCE_DIR}/Boole\")" >>${SUBMIT_DIR}/plots.log
     cd ${OUTPUT_DIR}/pdResponse
-    ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS}/output/Boole/DrawPdResponse.C(\"${CURRENT_DIR}/Boole\",\"Boole-Histo.root\")" >>${SUBMIT_DIR}/plots.log
+    ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS_ANALYSIS}/Boole/DrawPdResponse.C(\"${CURRENT_DIR}/Boole\",\"Boole-Histo.root\")" >>${SUBMIT_DIR}/plots.log
 fi
 
 # Moore-Histo
 if [ -f ${CURRENT_DIR}/Moore/Moore-Histo.root ]; then
     cd ${OUTPUT_DIR}/performance
-    ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS}/output/PID/DrawPerformance.C(\"${CURRENT_DIR}/Moore\",\"Moore-Histo.root\")" >>${SUBMIT_DIR}/plots.log
+    ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS_ANALYSIS}/PID/DrawPerformance.C(\"${CURRENT_DIR}/Moore\",\"Moore-Histo.root\")" >>${SUBMIT_DIR}/plots.log
 fi
 
 # Brunel-Histo
 if [ -f ${CURRENT_DIR}/Brunel/Brunel-Histo.root ]; then
     cd ${OUTPUT_DIR}/performance
-    ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS}/output/PID/DrawPerformance.C(\"${CURRENT_DIR}/Brunel\",\"Brunel-Histo.root\")" >>${SUBMIT_DIR}/plots.log
+    ${RICH_ROOT} root -l -q -b "${RICH_BASE_SCRIPTS_ANALYSIS}/PID/DrawPerformance.C(\"${CURRENT_DIR}/Brunel\",\"Brunel-Histo.root\")" >>${SUBMIT_DIR}/plots.log
 fi
 
 # Brunel-Ntuple

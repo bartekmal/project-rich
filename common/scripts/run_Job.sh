@@ -390,7 +390,7 @@ echo "error = error/condor_"'$(ProcId)'".err" >>condor.sub
 echo "" >>condor.sub
 echo "+JobFlavour = ${JOB_FLAVOUR} " >>condor.sub
 echo "+MaxRuntime = ${MAX_RUNTIME} " >>condor.sub
-echo '+AccountingGroup = "group_u_LHCBT3.e_lhcb_lbd"' >>condor.sub
+echo "+AccountingGroup = \"${RICH_COMPUTING_GROUP}\"" >>condor.sub
 echo "" >>condor.sub
 echo "queue ${NUM_JOBS}" >>condor.sub
 
@@ -401,7 +401,12 @@ touch start_job.sh
 echo "#!/bin/sh" >>start_job.sh
 echo "" >>start_job.sh
 
+# pass environment variables to the batch system
 echo "export GITCONDDBPATH=${RICH_BASE_GITCONDDB}" >>start_job.sh
+echo "export RICH_BASE_SOFTWARE=${RICH_BASE_SOFTWARE}" >>start_job.sh
+echo "export RICH_BASE_OPTIONS=${RICH_BASE_OPTIONS}" >>start_job.sh
+echo "export RICH_BASE_SCRIPTS=${RICH_BASE_SCRIPTS}" >>start_job.sh
+
 echo "" >>start_job.sh
 
 #Gauss

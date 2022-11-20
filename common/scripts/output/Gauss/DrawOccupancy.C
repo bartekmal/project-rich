@@ -2,8 +2,8 @@
 #include <TH1D.h>
 #include <TH2D.h>
 
-#include "/afs/cern.ch/work/b/bmalecki/RICH_Upgrade/common/scripts/utils/Utils.C"
-#include "/afs/cern.ch/work/b/bmalecki/RICH_Upgrade/common/scripts/utils/Styles.C"
+#include "../../utils/Utils.C"
+#include "../../utils/Styles.C"
 
 // ----------------- configuration ---------------- //
 
