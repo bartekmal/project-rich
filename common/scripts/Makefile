@@ -1,16 +1,14 @@
 ##### docs
 # Current workarounds:
-# - set DecFiles manually for older DB tags (up to upgrade/dddb-20210218, Gauss/v54r5)
+# - none
 #
 # To do:
 # - fix the Reco sequence with Moore (no PID plots for now) 
-# 	- keep an eye on final output type & no output version for special jobs
-#	- cleanup Brunel/Rec parts
+# - cleanup Brunel/Rec parts
 
 # Keep in mind:
 # - configure your study: set software / DB tags / options + #events / queue details + reference job + list to run
-# - configure digi jobs: set input dir/files + reference
-# - keep an eye on large sim files (overestimates R2 occupancy by ~5%, PID marginally worse) (should be fixed since Gauss/v55r2 by https://gitlab.cern.ch/lhcb/Gauss/-/merge_requests/741)
+# - configure 'digi' jobs: set input dir/files + reference
 
 # Some info on HTCondor:
 # - job flavours in condor
@@ -51,25 +49,22 @@ MAX_RUNTIME=86000      #in secs
 #MAX_RUNTIME=7150 #in secs
 
 LIST_OF_JOBS = pGun_rich1 pGun_rich2 bEvent_basic # bEvent{_basic} digi{_noSin,_bandwidth,_spillover} spillover pGun_rich1 pGun_rich2
-# add the following for a full performance study with signal: 
+# use the following for a full performance study with signal: 
 # pGun_ref_rich1 pGun_ref_rich2 pGun_ref_goodRegion_rich1 pGun_ref_goodRegion_rich2 bEvent_performance 
 LIST_TO_RUN="Gauss Boole Moore" # Gauss Boole Moore Brunel Rec Rec1 Rec2
 LIST_TO_MERGE = Gauss/Gauss-Histo Boole/Boole-Histo Moore/Moore-Histo # Moore/Moore-Histo Brunel/Brunel-Ntuple Rec1/Rec-Ntuple Rec2/Rec-Ntuple Brunel/Brunel-Histo Rec/Rec-Histo Rec1/Rec-Histo Rec2/Rec-Histo Rec/Rec-Ntuple
 
-REFERENCE_DIR=$${RICH_DATA}/Gauss_v56r0/dddb-20220818/sim-20220818-vc-md100/baseline/bEvent_basic
+REFERENCE_DIR=$${RICH_DATA}/reference/baseline/bEvent_basic
 # REFERENCE_DIR=/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v56r0/dddb-20220818/sim-20220818-vc-md100/baseline/bEvent_basic
-# REFERENCE_DIR=/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v55r4/dddb-20220323/sim-20220324-vc-md100/baseline/bEvent
-# REFERENCE_DIR=/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v55r1/bmalecki-rich-detPlanePositions/bmalecki-rich-detPlanePositions/baseline/digi
 
 # regular digi jobs (adapt EVT_PER_JOB, NUM_JOBS, queue settings accordingly for special cases)
 INPUT_DIR_FOR_DIGI=$${EOS_PREFIX}$(REFERENCE_DIR)/Gauss/data
-# INPUT_DIR_FOR_DIGI=$${EOS_PREFIX}/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v55r1/bmalecki-rich-detPlanePositions/sim-20210630-vc-md100/baseline/bEvent/Gauss/data
 INPUT_FILES_FOR_DIGI='InputArea+\\\\\"/Gauss_$$\{i\}\\\\\"'
 # for spillover
-# INPUT_DIR_FOR_DIGI=$${EOS_PREFIX}/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v55r1/bmalecki-rich-detPlanePositions/sim-20210630-vc-md100/baseline/spillover/Gauss/data
+# INPUT_DIR_FOR_DIGI=$${EOS_PREFIX}$${RICH_DATA}/reference/baseline/spillover/Gauss/data
 # INPUT_FILES_FOR_DIGI='InputArea+\\\\\"/Gauss_$$\{i\}\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+250\)\)\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+500\)\)\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+750\)\)\\\\\"'
 # for full (performance studies)
-# INPUT_DIR_FOR_DIGI=$${EOS_PREFIX}/eos/lhcb/user/b/bmalecki/RICH_Upgrade/Gauss_v55r1/bmalecki-rich-detPlanePositions/sim-20210630-vc-md100/baseline/bEvent_performance/Gauss/data
+# INPUT_DIR_FOR_DIGI=$${EOS_PREFIX}$${RICH_DATA}/reference/baseline/bEvent_performance/Gauss/data
 # INPUT_FILES_FOR_DIGI='InputArea+\\\\\"/Gauss_$$\{i\}\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+500\)\)\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+1000\)\)\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+1500\)\)\\\\\",InputArea+\\\\\"/Gauss_$$\(\($$\{i\}+2000\)\)\\\\\"'
 
 DDDB=upgrade/dddb-20220818					# numbering scheme updates (final modules layout)
@@ -105,7 +100,6 @@ CONDDB=upgrade/sim-20220818-vc-md100		# numbering scheme updates (final modules 
 
 RUN_COMMAND_GAUSS="$${RICH_BASE_SOFTWARE_GAUSS}/Gauss/build.$${CMTCONFIG_GAUSS}/run"
 # RUN_COMMAND_GAUSS="$${RICH_BASE_SOFTWARE}/stack-gauss-dev/Gauss/build.$${CMTCONFIG_GAUSS}/run"
-# RUN_COMMAND_GAUSS="$${RICH_BASE_SOFTWARE}/stack-gauss-dev/Gauss/build.$${CMTCONFIG_GAUSS}/run -s DECFILESOPTS=/cvmfs/lhcb.cern.ch/lib/lhcb/DBASE/Gen/DecFiles/v31r4/options -s DECFILESROOT=/cvmfs/lhcb.cern.ch/lib/lhcb/DBASE/Gen/DecFiles/v31r4" # for older DB tags
 RUN_COMMAND_BOOLE="$${RICH_BASE_SOFTWARE_STACK}/utils/run-env Boole"
 # RUN_COMMAND_BOOLE="$${RICH_BASE_SOFTWARE}/stack-lhcb-dev/utils/run-env Boole"
 RUN_COMMAND_MOORE="$${RICH_BASE_SOFTWARE_STACK}/utils/run-env Moore"
@@ -114,7 +108,6 @@ RUN_COMMAND_BRUNEL="$${RICH_BASE_SOFTWARE_STACK}/utils/run-env Brunel"
 # RUN_COMMAND_BRUNEL="$${RICH_BASE_SOFTWARE}/stack-lhcb-dev/utils/run-env Brunel"
 RUN_COMMAND_REC="$${RICH_BASE_SOFTWARE_STACK}/utils/run-env Rec"
 # RUN_COMMAND_REC="$${RICH_BASE_SOFTWARE}/stack-lhcb-dev/utils/run-env Rec"
-# RUN_COMMAND_REC="$${RICH_BASE_SOFTWARE}/release/RecDev_v34r0/build.$${CMTCONFIG_STACK}/run"
 
 GENERIC_OPTIONS_GAUSS=$${RICH_BASE_OPTIONS}/Gauss/Gauss-Job-Generic.py
 # GENERIC_OPTIONS_GAUSS=$${RICH_BASE_OPTIONS}/Gauss/Gauss-Job-Generic-Spillover.py
