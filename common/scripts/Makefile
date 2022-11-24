@@ -100,18 +100,14 @@ CONDDB=upgrade/sim-20220818-vc-md100		# numbering scheme updates (final modules 
 
 RUN_COMMAND_GAUSS="$${RICH_BASE_SOFTWARE_GAUSS}/Gauss/build.$${CMTCONFIG_GAUSS}/run"
 # RUN_COMMAND_GAUSS="$${RICH_BASE_SOFTWARE}/stack-gauss-dev/Gauss/build.$${CMTCONFIG_GAUSS}/run"
-# RUN_COMMAND_GAUSS="lb-run -c $${CMTCONFIG_GAUSS} Gauss/v56r2" # ! choose required (? latest) version
 RUN_COMMAND_BOOLE="$${RICH_BASE_SOFTWARE_STACK}/utils/run-env Boole"
 # RUN_COMMAND_BOOLE="$${RICH_BASE_SOFTWARE}/stack-lhcb-dev/utils/run-env Boole"
-# RUN_COMMAND_BOOLE="lb-run -c $${CMTCONFIG_STACK} Boole/v44r0"  # ! choose required (? latest) version
 RUN_COMMAND_MOORE="$${RICH_BASE_SOFTWARE_STACK}/utils/run-env Moore"
 # RUN_COMMAND_MOORE="$${RICH_BASE_SOFTWARE}/stack-lhcb-dev/utils/run-env Moore"
-# RUN_COMMAND_MOORE="lb-run -c $${CMTCONFIG_STACK} Moore/v54r2"  # ! choose required (? latest) version
 RUN_COMMAND_BRUNEL="$${RICH_BASE_SOFTWARE_STACK}/utils/run-env Brunel"
 # RUN_COMMAND_BRUNEL="$${RICH_BASE_SOFTWARE}/stack-lhcb-dev/utils/run-env Brunel"
 RUN_COMMAND_REC="$${RICH_BASE_SOFTWARE_STACK}/utils/run-env Rec"
 # RUN_COMMAND_REC="$${RICH_BASE_SOFTWARE}/stack-lhcb-dev/utils/run-env Rec"
-# RUN_COMMAND_REC="lb-run -c $${CMTCONFIG_STACK} Rec/v35r2"  # ! choose required (? latest) version
 
 GENERIC_OPTIONS_GAUSS=$${RICH_BASE_OPTIONS}/Gauss/Gauss-Job-Generic.py
 # GENERIC_OPTIONS_GAUSS=$${RICH_BASE_OPTIONS}/Gauss/Gauss-Job-Generic-Spillover.py
