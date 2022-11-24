@@ -17,6 +17,13 @@ Feel free to [contribute](CONTRIBUTING.md).
 # Getting started
 It is assumed that you will deveoping the RICH simulation / studies, hence local builds of the LHCb software/databases are needed.
 
+**Consider using an `ssh-agent` to authenticate to GitLab (see details [here](https://docs.gitlab.com/ee/user/ssh.html)). Otherwise the execution of instructions below will break at each password typing and following them will be much less convenient. If you are using a rather default configuration of your SSH keys, the lines below might be enough. See more details on Git configuration for LHCb [here](https://lhcb.github.io/starterkit-lessons/second-analysis-steps/lb-git.html).**
+
+```
+eval $(ssh-agent -s)
+ssh-add <directory to private SSH key>
+```
+
 ## Initialising the repository
 Set up the repository (in your user `/afs/cern.ch/work` area on lxplus) and prepare a local Python virtual environment in `env/`:
 ```
