@@ -401,11 +401,6 @@ touch start_job.sh
 echo "#!/bin/sh" >>start_job.sh
 echo "" >>start_job.sh
 
-# pass LHCb environment to the batch system
-echo "source /cvmfs/lhcb.cern.ch/lib/LbEnv.sh" >>start_job.sh
-
-echo "" >>start_job.sh
-
 # pass environment variables to the batch system
 echo "export GITCONDDBPATH=${RICH_BASE_GITCONDDB}" >>start_job.sh
 echo "export RICH_BASE_SOFTWARE=${RICH_BASE_SOFTWARE}" >>start_job.sh
