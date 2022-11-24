@@ -55,7 +55,7 @@ cd ${RICH_BASE_SOFTWARE}
 curl https://gitlab.cern.ch/rmatev/lb-stack-setup/raw/master/setup.py | python3 - stack-lhcb
 cd stack-lhcb
 
-make
+make Boole Moore
 ```
 
 Prepare the required default Gauss build in `stack-gauss/`:
