@@ -58,7 +58,20 @@ cd stack-lhcb
 make Boole Moore
 ```
 
-Prepare the required default Gauss build in `stack-gauss/`:
+Prepare the required default Gauss build in `stack-gauss/`. The first version below is the simplest one (just for running a released Gauss version). For Gauss development, the second one might be a better solution. If you have issues with any of these versions, consider contacting the simulation experts [here](https://mattermost.web.cern.ch/lhcb/channels/simulation).
+```
+cd ${RICH_BASE_SOFTWARE}
+mkdir stack-gauss; cd stack-gauss
+
+rich-setup-noUserArea-gauss
+
+lb-dev Gauss/v56r2 --name Gauss # ! choose required (? latest) version
+cd Gauss
+git lb-use Gauss
+
+make install
+```
+
 ```
 cd ${RICH_BASE_SOFTWARE}
 curl https://gitlab.cern.ch/rmatev/lb-stack-setup/raw/master/setup.py | python3 - stack-gauss
