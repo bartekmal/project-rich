@@ -1,9 +1,14 @@
 # General info
 Project for various scripts & tools for RICH upgrade studies & maintenance.
 
-Details on the project structure and configuration options are given [here](doc/projectStructure.md).
+Details on the **project structure and configuration options** are given [here](doc/projectStructure.md).
+
+Documentation on the **RICH simulation** (details on the various simulation components + intructions for typical tasks) is provided [here](doc/richSimulation.md).
+
+Instructions for some **typical tasks** are provided [here](doc/typicalTasks.md/).
 
 Feel free to [contribute](CONTRIBUTING.md).
+
 ## Prerequisites
 
 * LHCb environment (lb-* scripts / Python3 / ROOT / CVMFS)
@@ -58,7 +63,7 @@ cd stack-lhcb
 make Boole Moore
 ```
 
-Prepare the required default Gauss build in `stack-gauss/`. The first version below is the simplest one (just for running a released Gauss version). For Gauss development, the second one might be a better solution. If you have issues with any of these versions, consider contacting the simulation experts [here](https://mattermost.web.cern.ch/lhcb/channels/simulation).
+Prepare the required default Gauss build in `stack-gauss/` (see details on Gauss releases [here](https://lhcbdoc.web.cern.ch/lhcbdoc/gauss/releases/) or [here](https://gitlab.cern.ch/lhcb/Gauss/-/releases)). The first version below is the simplest one (just for running a released Gauss version). For Gauss development, the second one might be a better solution. If you have issues with any of these versions, consider [contacting the simulation experts](https://mattermost.web.cern.ch/lhcb/pl/hdbenhrm8byqfd9zmcgcgsae9a).
 ```
 cd ${RICH_BASE_SOFTWARE}
 mkdir stack-gauss; cd stack-gauss
@@ -97,7 +102,7 @@ make fast/Gauss
 
 **Your first study should be named as `reference/baseline` and - in principle - correspond to the current baseline configuration. Any other created study will by default look for this directory as a reference (some output analysis scripts create ratios of respective histograms between the current/referece studies to enable quick comparisons).**
 
-**The mentioned baseline configuration will be used by default, but various other types of studies are already defined in the `Makefile` and can be configured there (see [here](doc/projectStructure.md)).**
+**The mentioned baseline configuration will be used by default, but various other types of studies are already defined in the `Makefile` and can be configured there (see [here](doc/projectStructure.md) and [here](doc/richSimulation.md/#digitisation)).**
 
 Start with the steps below (from the main directory) to run the LHCb simulation configured for the RICH studies. This step is performed using the CERN batch system and can take several hours (depending on the specific study configuration and the availalbe resources). You can check the jobs status using `condor_q`.
 ```
@@ -119,7 +124,7 @@ To submit the jobs to the batch system do:
 make run
 ```
 
-Once the jobs are finished (you can make sure that the output files exist by calling `make data-show-list | less`), you can run analysis scripts that will produce a set of results in the `output` area:
+Once the jobs are finished (you can make sure that the output files exist by calling `make data-show-list | less`), you can run analysis scripts that will produce a set of results in the `output` area (see [here](doc/richSimulation.md/#performance-studies) for the meaning of the results):
 ```
 make merge; make plots
 ```
