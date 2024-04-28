@@ -1,3 +1,12 @@
+Automating performance evaluation for a large-scale classification system at CERN
+===
+
+We provide automated procedures and utility tools for performance evaluation of a large-scale classification system at CERN.
+
+See full [report](https://cds.cern.ch/record/2804165).
+
+This project has been used in publications: https://doi.org/10.48550/arXiv.2305.10515, https://iopscience.iop.org/article/10.1088/1748-0221/16/11/P11030.
+
 # General info
 Project for various scripts & tools for RICH upgrade studies & maintenance.
 
